@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lecture 7 — LP / IP / NLP Classroom Notes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'Fira Code', monospace; }
+    .example-card { break-inside: avoid; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .example-card { box-shadow: none; border: 1px solid #e5e7eb; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <header class="bg-slate-900 text-white py-10 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-bold">Lecture 7 — Linear / Integer / Non-Linear Programming Models</h1>
+      <p class="mt-3 text-slate-300 text-lg">Classroom Notes: Example Problems with Extensions & Assumed Parameters</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm">
+        <span class="bg-blue-600 px-3 py-1 rounded-full">LP</span>
+        <span class="bg-emerald-600 px-3 py-1 rounded-full">IP</span>
+        <span class="bg-purple-600 px-3 py-1 rounded-full">MILP</span>
+        <span class="bg-rose-600 px-3 py-1 rounded-full">NLP</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+      <p class="text-slate-600 leading-relaxed">
+        Each example below is written in copy-paste-ready English. LP, IP, and MILP examples use
+        <strong>PuLP</strong>; NLP examples use <strong>scipy.optimize</strong>. Every example includes a base version, explicit assumed parameters, and one extension. The extension clearly states whether it modifies the <strong>objective</strong> or the <strong>constraints</strong>, shows the new formula, and provides updated Python code.
+        Click the <strong>Copy</strong> button on any code block to grab it for the board or slides.
+      </p>
+    </div>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Classroom Notes: Example Problems with Extensions</h2>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Each example below is written in copy-paste-ready English. LP, IP, and MILP examples use &lt;strong&gt;PuLP&lt;/strong&gt;; NLP examples use &lt;strong&gt;scipy.optimize&lt;/strong&gt;. Every example includes a base version and one extension. The extension clearly states whether it modifies the &lt;strong&gt;objective&lt;/strong&gt; or the &lt;strong&gt;constraints&lt;/strong&gt;, shows the new formula, and provides the updated Python code.</p>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Example 1 — Juice Shop (Linear Programming)</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">You run a juice shop that sells two drinks: orange juice and apple juice. Every day you have a limited supply of apples, oranges, and sugar. Each serving consumes a known amount of ingredients and brings in a known amount of revenue. You may produce fractional servings.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let x1 = servings of apple juice to make</li>
+<li>Let x2 = servings of orange juice to make</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize total sales revenue: 9·x1 + 6·x2</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Apple usage: 0.2·x1 &lt;= 50 (kg)</li>
+<li>Orange usage: 0.15·x2 &lt;= 30 (kg)</li>
+<li>Sugar usage: 5·x1 + 8·x2 &lt;= 2000 (grams)</li>
+<li>Non-negativity: x1, x2 &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Linear Programming (LP), because the objective and all constraints are linear and the decision variables are continuous.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Apple juice revenue: $9 per serving</li>
+<li>Orange juice revenue: $6 per serving</li>
+<li>Apple usage: 0.2 kg per serving; daily supply: 50 kg</li>
+<li>Orange usage: 0.15 kg per serving; daily supply: 30 kg</li>
+<li>Sugar usage: 5 g per apple juice, 8 g per orange juice; daily supply: 2000 g</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Juice_Shop&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 9·x + 6·y, &quot;Total_Revenue&quot;
+
+prob += 0.2·x &lt;= 50, &quot;Apple_Constraint&quot;
+prob += 0.15·y &lt;= 30, &quot;Orange_Constraint&quot;
+prob += 5·x + 8·y &lt;= 2000, &quot;Sugar_Constraint&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Apple juice: {x.varValue:.2f} servings&quot;)
+print(f&quot;Orange juice: {y.varValue:.2f} servings&quot;)
+print(f&quot;Max revenue: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Marketing Mix Constraint (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The shop owner notices that apple juice sells better when paired with orange juice, so apple juice sales cannot exceed 1.5 times orange juice sales.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new linear constraint: x1 &lt;= 1.5·x2, or equivalently x1 - 1.5·x2 &lt;= 0.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it LP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is still linear, so the model remains a Linear Program.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Juice_Shop_Extended&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 9·x + 6·y, &quot;Total_Revenue&quot;
+
+prob += 0.2·x &lt;= 50, &quot;Apple_Constraint&quot;
+prob += 0.15·y &lt;= 30, &quot;Orange_Constraint&quot;
+prob += 5·x + 8·y &lt;= 2000, &quot;Sugar_Constraint&quot;
+prob += x &lt;= 1.5·y, &quot;Marketing_Mix_Constraint&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Apple juice: {x.varValue:.2f} servings&quot;)
+print(f&quot;Orange juice: {y.varValue:.2f} servings&quot;)
+print(f&quot;Max revenue: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
+        <h2 class="text-xl font-bold">Example 2 — School Trip Buses (Integer Programming)</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A school needs to transport 270 students on a trip. Large buses can carry up to 50 students and cost $900 each. Small buses can carry up to 30 students and cost $600 each. You must rent whole buses only.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let x1 = number of large buses</li>
+<li>Let x2 = number of small buses</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total rental cost: 900·x1 + 600·x2</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Capacity: 50·x1 + 30·x2 &gt;= 270</li>
+<li>Integrality: x1, x2 are non-negative integers</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Integer Programming (IP), because the decision variables must be whole numbers.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Total students to transport: 270</li>
+<li>Large bus capacity: 50 students; rental cost: $900</li>
+<li>Small bus capacity: 30 students; rental cost: $600</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;School_Trip_Buses&quot;, pulp.LpMinimize)
+
+x1 = pulp.LpVariable(&quot;Large_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+x2 = pulp.LpVariable(&quot;Small_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += 900·x1 + 600·x2, &quot;Total_Cost&quot;
+prob += 50·x1 + 30·x2 &gt;= 270, &quot;Capacity_Constraint&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Large buses: {int(x1.varValue)}&quot;)
+print(f&quot;Small buses: {int(x2.varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Parking Limit (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The school parking lot can only accommodate 6 buses in total.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new integer constraint: x1 + x2 &lt;= 6.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it IP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear and involves integer variables, so it remains an Integer Program.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;School_Trip_Buses_Extended&quot;, pulp.LpMinimize)
+
+x1 = pulp.LpVariable(&quot;Large_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+x2 = pulp.LpVariable(&quot;Small_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += 900·x1 + 600·x2, &quot;Total_Cost&quot;
+prob += 50·x1 + 30·x2 &gt;= 270, &quot;Capacity_Constraint&quot;
+prob += x1 + x2 &lt;= 6, &quot;Parking_Limit&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Large buses: {int(x1.varValue)}&quot;)
+print(f&quot;Small buses: {int(x2.varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">NLP</span>
+        <h2 class="text-xl font-bold">Example 3 — Two Savings Plans (Non-Linear Programming)</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">You want to invest your pocket money into two savings plans, Plan A and Plan B. Each plan has its own expected return and risk. Putting everything into one plan may be too risky; splitting the money can balance return and risk.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let wA = amount invested in Plan A</li>
+<li>Let wB = amount invested in Plan B</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize risk-adjusted return: return minus a penalty for variance.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Budget: wA + wB &lt;= total pocket money</li>
+<li>Non-negativity: wA, wB &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Non-Linear Programming (NLP), because portfolio risk involves squared terms.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Plan A expected return: 8%; volatility (std): 15%</li>
+<li>Plan B expected return: 5%; volatility (std): 8%</li>
+<li>Correlation between plans: 0.2</li>
+<li>Total pocket money: $1000</li>
+<li>Risk-aversion weight in objective: 0.5</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+
+def objective(w):
+    wA, wB = w
+    ret = 0.08·wA + 0.05·wB
+    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2·wA·wB·0.2·0.15·0.08
+    return -(ret - 0.5·var)
+
+constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
+bounds = [(0, None), (0, None)]
+
+res = minimize(objective, x0=[500, 500], bounds=bounds, constraints=constraints)
+print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: After-Tax Return (Modifies Objective)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Plan A returns are taxed at 20%, while Plan B returns are tax-free. We now want to maximize after-tax risk-adjusted return.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the return term from 0.08·wA + 0.05·wB to 0.08&lt;em&gt;(1 - 0.20)&lt;/em&gt;wA + 0.05·wB = 0.064·wA + 0.05·wB.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Only the objective function coefficients change; the variance term remains quadratic, so it is still NLP.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+
+def objective(w):
+    wA, wB = w
+    ret_after_tax = 0.08*(1 - 0.20)*wA + 0.05·wB  # MODIFIED: Plan A taxed 20%
+    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2·wA·wB·0.2·0.15·0.08
+    return -(ret_after_tax - 0.5·var)
+
+constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
+bounds = [(0, None), (0, None)]
+
+res = minimize(objective, x0=[500, 500], bounds=bounds, constraints=constraints)
+print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
+        <h2 class="text-xl font-bold">Integer Problem 1 — The Knapsack Problem</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A hiker wants to pack a knapsack with the most valuable combination of items. Each item has a value and a weight. The knapsack has a maximum weight capacity.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let xi = 1 if item i is packed, 0 otherwise</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize total value: sum(value_i * xi)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Weight capacity: sum(weight_i * xi) &lt;= capacity</li>
+<li>Binary choice: xi in {0, 1}</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Binary Integer Programming (BIP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Item values: [60, 100, 120, 30, 90]</li>
+<li>Item weights: [10, 20, 30, 5, 25]</li>
+<li>Knapsack weight capacity: 50</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+values = [60, 100, 120, 30, 90]
+weights = [10, 20, 30, 5, 25]
+capacity = 50
+
+prob = pulp.LpProblem(&quot;Knapsack&quot;, pulp.LpMaximize)
+x = [pulp.LpVariable(f&quot;x_{i}&quot;, cat=&quot;Binary&quot;) for i in range(len(values))]
+
+prob += pulp.lpSum([values[i] * x[i] for i in range(len(values))]), &quot;Total_Value&quot;
+prob += pulp.lpSum([weights[i] * x[i] for i in range(len(values))]) &lt;= capacity, &quot;Weight_Limit&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+selected = [i+1 for i in range(len(values)) if x[i].varValue &gt; 0.5]
+print(f&quot;Selected items: {selected}&quot;)
+print(f&quot;Total value: ${pulp.value(prob.objective):.2f}&quot;)
+print(f&quot;Total weight: {sum(weights[i] for i in range(len(values)) if x[i].varValue &gt; 0.5)}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Mutually Exclusive Items (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Items 1 and 4 are both sleeping gear and too bulky to carry together. They cannot both be packed.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new binary constraint: x1 + x4 &lt;= 1.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it BIP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear in binary variables.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+values = [60, 100, 120, 30, 90]
+weights = [10, 20, 30, 5, 25]
+capacity = 50
+
+prob = pulp.LpProblem(&quot;Knapsack_Extended&quot;, pulp.LpMaximize)
+x = [pulp.LpVariable(f&quot;x_{i}&quot;, cat=&quot;Binary&quot;) for i in range(len(values))]
+
+prob += pulp.lpSum([values[i] * x[i] for i in range(len(values))]), &quot;Total_Value&quot;
+prob += pulp.lpSum([weights[i] * x[i] for i in range(len(values))]) &lt;= capacity, &quot;Weight_Limit&quot;
+prob += x[0] + x[3] &lt;= 1, &quot;Mutual_Exclusion_1_and_4&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+selected = [i+1 for i in range(len(values)) if x[i].varValue &gt; 0.5]
+print(f&quot;Selected items: {selected}&quot;)
+print(f&quot;Total value: ${pulp.value(prob.objective):.2f}&quot;)
+print(f&quot;Total weight: {sum(weights[i] for i in range(len(values)) if x[i].varValue &gt; 0.5)}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
+        <h2 class="text-xl font-bold">Integer Problem 2 — Fixed Charge Problem (Factory Opening)</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A manufacturing company must decide which of four potential factories (A, B, C, D) to open. Each factory has a one-time fixed opening cost, a variable production cost per unit, and a maximum capacity. The company must meet a minimum production demand of 1,000 units.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let yi = 1 if factory i is opened, 0 otherwise</li>
+<li>Let xi = number of units produced at factory i</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total cost: sum(fixed_cost_i &lt;em&gt; yi + variable_cost_i &lt;/em&gt; xi)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Demand: sum(xi) &gt;= 1000</li>
+<li>Capacity: xi &lt;= capacity_i * yi for each factory</li>
+<li>Binary: yi in {0, 1}</li>
+<li>Non-negativity: xi &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Mixed-Integer Linear Programming (MILP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Factories: A, B, C, D</li>
+<li>Fixed opening costs: [$5000, $7000, $4000, $6000]</li>
+<li>Variable production costs per unit: [$10, $8, $12, $9]</li>
+<li>Maximum capacities: [600, 800, 500, 700] units</li>
+<li>Minimum demand: 1000 units</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+fixed_cost = [5000, 7000, 4000, 6000]
+var_cost = [10, 8, 12, 9]
+capacity = [600, 800, 500, 700]
+demand = 1000
+n = 4
+
+prob = pulp.LpProblem(&quot;Fixed_Charge_Factories&quot;, pulp.LpMinimize)
+x = [pulp.LpVariable(f&quot;Produce_{i}&quot;, lowBound=0, cat=&quot;Continuous&quot;) for i in range(n)]
+y = [pulp.LpVariable(f&quot;Open_{i}&quot;, cat=&quot;Binary&quot;) for i in range(n)]
+
+prob += pulp.lpSum([fixed_cost[i]*y[i] + var_cost[i]*x[i] for i in range(n)]), &quot;Total_Cost&quot;
+prob += pulp.lpSum([x[i] for i in range(n)]) &gt;= demand, &quot;Demand_Constraint&quot;
+
+for i in range(n):
+    prob += x[i] &lt;= capacity[i] * y[i], f&quot;Capacity_Factory_{i}&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+for i in range(n):
+    print(f&quot;Factory {chr(ord(&#x27;A&#x27;)+i)}: produce {x[i].varValue:.2f}, open={int(y[i].varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Regional Limit (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Factories A and B are located in the same city. Due to zoning rules, at most one of them can be opened.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new binary constraint: yA + yB &lt;= 1, where indices 0 and 1 represent A and B.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it MILP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear in binary variables.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+fixed_cost = [5000, 7000, 4000, 6000]
+var_cost = [10, 8, 12, 9]
+capacity = [600, 800, 500, 700]
+demand = 1000
+n = 4
+
+prob = pulp.LpProblem(&quot;Fixed_Charge_Factories_Extended&quot;, pulp.LpMinimize)
+x = [pulp.LpVariable(f&quot;Produce_{i}&quot;, lowBound=0, cat=&quot;Continuous&quot;) for i in range(n)]
+y = [pulp.LpVariable(f&quot;Open_{i}&quot;, cat=&quot;Binary&quot;) for i in range(n)]
+
+prob += pulp.lpSum([fixed_cost[i]*y[i] + var_cost[i]*x[i] for i in range(n)]), &quot;Total_Cost&quot;
+prob += pulp.lpSum([x[i] for i in range(n)]) &gt;= demand, &quot;Demand_Constraint&quot;
+
+for i in range(n):
+    prob += x[i] &lt;= capacity[i] * y[i], f&quot;Capacity_Factory_{i}&quot;
+
+prob += y[0] + y[1] &lt;= 1, &quot;Regional_Limit_A_and_B&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+for i in range(n):
+    print(f&quot;Factory {chr(ord(&#x27;A&#x27;)+i)}: produce {x[i].varValue:.2f}, open={int(y[i].varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
+        <h2 class="text-xl font-bold">Integer Problem 3 — Set Covering Problem (Security Cameras)</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A city community needs to install security cameras to monitor all street segments. There are 8 possible camera locations. Each location covers a specific subset of 12 street segments and has a known installation cost. The goal is to cover every street segment at minimum total cost.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let xj = 1 if camera location j is installed, 0 otherwise</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total installation cost: sum(cost_j * xj)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Coverage: for every street segment s, sum(xj for locations covering s) &gt;= 1</li>
+<li>Binary: xj in {0, 1}</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Binary Integer Programming (BIP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Street segments: 12</li>
+<li>Possible camera locations: 8</li>
+<li>Installation costs: [$100, $120, $90, $110, $130, $95, $105, $115]</li>
+<li>Coverage matrix: as shown in the code</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+coverage = [
+    [1,1,0,0,0,0,0,0], [0,1,1,0,0,0,0,0], [0,0,1,1,0,0,0,0], [0,0,0,1,1,0,0,0],
+    [0,0,0,0,1,1,0,0], [0,0,0,0,0,1,1,0], [0,0,0,0,0,0,1,1], [1,0,0,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0], [0,1,0,1,0,0,0,0], [0,0,0,0,1,0,1,0], [0,0,0,0,0,1,0,1]
+]
+costs = [100, 120, 90, 110, 130, 95, 105, 115]
+num_segments, num_cameras = len(coverage), len(costs)
+
+prob = pulp.LpProblem(&quot;Set_Covering&quot;, pulp.LpMinimize)
+x = [pulp.LpVariable(f&quot;Camera_{j}&quot;, cat=&quot;Binary&quot;) for j in range(num_cameras)]
+
+prob += pulp.lpSum([costs[j] * x[j] for j in range(num_cameras)]), &quot;Total_Cost&quot;
+for s in range(num_segments):
+    prob += pulp.lpSum([coverage[s][j] * x[j] for j in range(num_cameras)]) &gt;= 1, f&quot;Cover_Segment_{s}&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+selected = [j+1 for j in range(num_cameras) if x[j].varValue &gt; 0.5]
+print(f&quot;Install cameras at locations: {selected}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Double Coverage for Main Roads (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Street segments 7 and 8 are main roads and must be covered by at least 2 cameras each for redundancy.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the coverage requirement for segments 7 and 8 from &gt;= 1 to &gt;= 2. In Python, these are indices 6 and 7.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it BIP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Only the right-hand side of two linear constraints changes.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+coverage = [
+    [1,1,0,0,0,0,0,0], [0,1,1,0,0,0,0,0], [0,0,1,1,0,0,0,0], [0,0,0,1,1,0,0,0],
+    [0,0,0,0,1,1,0,0], [0,0,0,0,0,1,1,0], [0,0,0,0,0,0,1,1], [1,0,0,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0], [0,1,0,1,0,0,0,0], [0,0,0,0,1,0,1,0], [0,0,0,0,0,1,0,1]
+]
+costs = [100, 120, 90, 110, 130, 95, 105, 115]
+num_segments, num_cameras = len(coverage), len(costs)
+
+prob = pulp.LpProblem(&quot;Set_Covering_Extended&quot;, pulp.LpMinimize)
+x = [pulp.LpVariable(f&quot;Camera_{j}&quot;, cat=&quot;Binary&quot;) for j in range(num_cameras)]
+
+prob += pulp.lpSum([costs[j] * x[j] for j in range(num_cameras)]), &quot;Total_Cost&quot;
+for s in range(num_segments):
+    min_cameras = 2 if s in [6, 7] else 1  # MODIFIED: main roads need 2 cameras
+    prob += pulp.lpSum([coverage[s][j] * x[j] for j in range(num_cameras)]) &gt;= min_cameras, f&quot;Cover_Segment_{s}&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+selected = [j+1 for j in range(num_cameras) if x[j].varValue &gt; 0.5]
+print(f&quot;Install cameras at locations: {selected}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
+        <h2 class="text-xl font-bold">Integer Problem 4 — Assignment Problem</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A project manager needs to assign 5 tasks (T1–T5) to 5 team members (A–E). Each team member has a different estimated completion time for each task. Each task must be assigned to exactly one team member, and each team member gets exactly one task.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let xij = 1 if person i is assigned to task j, 0 otherwise</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total completion time: sum(time_ij * xij)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Each task gets one person</li>
+<li>Each person gets one task</li>
+<li>Binary: xij in {0, 1}</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Binary Integer Programming (BIP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Team members: A, B, C, D, E</li>
+<li>Tasks: T1, T2, T3, T4, T5</li>
+<li>Completion time matrix: as shown in the code</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+time_matrix = [
+    [9, 2, 7, 8, 6],
+    [6, 4, 3, 7, 10],
+    [5, 8, 1, 8, 4],
+    [7, 6, 9, 4, 3],
+    [3, 7, 5, 6, 9]
+]
+n = len(time_matrix)
+
+prob = pulp.LpProblem(&quot;Assignment&quot;, pulp.LpMinimize)
+x = [[pulp.LpVariable(f&quot;x_{i}_{j}&quot;, cat=&quot;Binary&quot;) for j in range(n)] for i in range(n)]
+
+prob += pulp.lpSum([[time_matrix[i][j] * x[i][j] for j in range(n)] for i in range(n)]), &quot;Total_Time&quot;
+
+for i in range(n):
+    prob += pulp.lpSum([x[i][j] for j in range(n)]) == 1, f&quot;Person_{i}_One_Task&quot;
+for j in range(n):
+    prob += pulp.lpSum([x[i][j] for i in range(n)]) == 1, f&quot;Task_{j}_One_Person&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+for i in range(n):
+    for j in range(n):
+        if x[i][j].varValue &gt; 0.5:
+            print(f&quot;  Member {chr(ord(&#x27;A&#x27;)+i)} -&gt; Task T{j+1} (time={time_matrix[i][j]})&quot;)
+print(f&quot;Minimum total time: {pulp.value(prob.objective):.0f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Skill Prohibition (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Member A lacks the certification for Task T3, so A cannot be assigned to T3.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Fix x_A,T3 = 0. In Python, person A is index 0 and task T3 is index 2.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it BIP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">This is a simple upper-bound constraint on one binary variable.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+time_matrix = [
+    [9, 2, 7, 8, 6],
+    [6, 4, 3, 7, 10],
+    [5, 8, 1, 8, 4],
+    [7, 6, 9, 4, 3],
+    [3, 7, 5, 6, 9]
+]
+n = len(time_matrix)
+
+prob = pulp.LpProblem(&quot;Assignment_Extended&quot;, pulp.LpMinimize)
+x = [[pulp.LpVariable(f&quot;x_{i}_{j}&quot;, cat=&quot;Binary&quot;) for j in range(n)] for i in range(n)]
+
+prob += pulp.lpSum([[time_matrix[i][j] * x[i][j] for j in range(n)] for i in range(n)]), &quot;Total_Time&quot;
+
+for i in range(n):
+    prob += pulp.lpSum([x[i][j] for j in range(n)]) == 1, f&quot;Person_{i}_One_Task&quot;
+for j in range(n):
+    prob += pulp.lpSum([x[i][j] for i in range(n)]) == 1, f&quot;Task_{j}_One_Person&quot;
+
+prob += x[0][2] == 0, &quot;Member_A_Cannot_Do_T3&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+for i in range(n):
+    for j in range(n):
+        if x[i][j].varValue &gt; 0.5:
+            print(f&quot;  Member {chr(ord(&#x27;A&#x27;)+i)} -&gt; Task T{j+1} (time={time_matrix[i][j]})&quot;)
+print(f&quot;Minimum total time: {pulp.value(prob.objective):.0f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">NLP</span>
+        <h2 class="text-xl font-bold">NLP Example — Portfolio Selection Problem</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">An investor wants to build a portfolio of four stocks: Tech, Pharma, Energy, and Consumer. Each stock has an expected return, a volatility (risk), and correlations with the other stocks.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let wi = weight invested in stock i</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">P1. Unconstrained Non-Linear Programming</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize the portfolio Sharpe ratio (expected return / risk).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>None on weights; short selling and leverage are allowed.</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Unconstrained Non-Linear Programming (NLP).</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+import numpy as np
+
+returns = np.array([0.12, 0.08, 0.10, 0.07])
+vol = np.array([0.25, 0.15, 0.20, 0.12])
+corr = np.array([
+    [1.0, 0.3, 0.5, 0.2],
+    [0.3, 1.0, 0.2, 0.4],
+    [0.5, 0.2, 1.0, 0.3],
+    [0.2, 0.4, 0.3, 1.0]
+])
+Sigma = np.outer(vol, vol) * corr
+risk_free = 0.02
+
+def sharpe(w):
+    port_ret = returns @ w
+    port_risk = np.sqrt(w @ Sigma @ w)
+    return -(port_ret - risk_free) / port_risk
+
+res = minimize(sharpe, x0=np.ones(4)/4, method=&quot;SLSQP&quot;)
+print(&quot;Weights:&quot;, np.round(res.x, 4))
+print(&quot;Sum of weights:&quot;, res.x.sum())</code></pre>
+        </div>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Transaction Costs (Modifies Objective)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Rebalancing incurs transaction costs proportional to the absolute change in weights. We maximize Sharpe ratio minus a 0.5% penalty on total absolute weight changes.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the objective to: maximize (Sharpe ratio) - 0.005 * sum(|wi|).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The absolute value terms are non-linear but still smooth enough for numerical optimization.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+import numpy as np
+
+returns = np.array([0.12, 0.08, 0.10, 0.07])
+vol = np.array([0.25, 0.15, 0.20, 0.12])
+corr = np.array([
+    [1.0, 0.3, 0.5, 0.2],
+    [0.3, 1.0, 0.2, 0.4],
+    [0.5, 0.2, 1.0, 0.3],
+    [0.2, 0.4, 0.3, 1.0]
+])
+Sigma = np.outer(vol, vol) * corr
+risk_free = 0.02
+
+def sharpe_with_cost(w):
+    port_ret = returns @ w
+    port_risk = np.sqrt(w @ Sigma @ w)
+    transaction_cost = 0.005 * np.sum(np.abs(w))
+    return -((port_ret - risk_free) / port_risk - transaction_cost)  # MODIFIED OBJECTIVE
+
+res = minimize(sharpe_with_cost, x0=np.ones(4)/4, method=&quot;SLSQP&quot;)
+print(&quot;Weights:&quot;, np.round(res.x, 4))
+print(&quot;Sum of weights:&quot;, res.x.sum())</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">P2. Constrained Non-Linear Programming (KKT Method)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Additional Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>No short selling: wi &gt;= 0</li>
+<li>Full investment: sum(wi) = 1</li>
+<li>Sector limits: Tech &lt;= 40%, Energy &lt;= 30%</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Constrained NLP.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>constraints = [
+    {&quot;type&quot;: &quot;eq&quot;, &quot;fun&quot;: lambda w: np.sum(w) - 1},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.40 - w[0]},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.30 - w[2]}
+]
+bounds = [(0, None)] * 4
+
+res = minimize(sharpe, x0=np.ones(4)/4, bounds=bounds, constraints=constraints, method=&quot;SLSQP&quot;)
+labels = [&quot;Tech&quot;, &quot;Pharma&quot;, &quot;Energy&quot;, &quot;Consumer&quot;]
+for l, w in zip(labels, res.x):
+    print(f&quot;  {l}: {w:.2%}&quot;)
+print(f&quot;Sum of weights: {res.x.sum():.4f}&quot;)</code></pre>
+        </div>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Minimum Dividend Yield (Modifies Constraints)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The portfolio must generate at least a 4% dividend yield. Suppose Tech, Pharma, Energy, and Consumer have dividend yields of 1%, 3%, 4%, and 5% respectively.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a linear constraint: 0.01·w0 + 0.03·w1 + 0.04·w2 + 0.05·w3 &gt;= 0.04.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear in weights, so the problem remains a constrained NLP.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>dividend_yields = np.array([0.01, 0.03, 0.04, 0.05])
+
+constraints = [
+    {&quot;type&quot;: &quot;eq&quot;, &quot;fun&quot;: lambda w: np.sum(w) - 1},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.40 - w[0]},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.30 - w[2]},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: dividend_yields @ w - 0.04}  # NEW CONSTRAINT
+]
+bounds = [(0, None)] * 4
+
+res = minimize(sharpe, x0=np.ones(4)/4, bounds=bounds, constraints=constraints, method=&quot;SLSQP&quot;)
+labels = [&quot;Tech&quot;, &quot;Pharma&quot;, &quot;Energy&quot;, &quot;Consumer&quot;]
+for l, w in zip(labels, res.x):
+    print(f&quot;  {l}: {w:.2%}&quot;)
+print(f&quot;Sum of weights: {res.x.sum():.4f}&quot;)
+print(f&quot;Dividend yield: {dividend_yields @ res.x:.2%}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 1 — Factory Production Mix</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A factory makes chairs and tables. Each chair needs 4 units of wood and earns $40 profit. Each table needs 10 units of wood and earns $90 profit. The factory has 200 units of wood available.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize profit: 40·x + 90·y</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Wood: 4·x + 10·y &lt;= 200</li>
+<li>Non-negativity: x, y &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Linear Programming (LP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Chair: 4 units of wood, $40 profit</li>
+<li>Table: 10 units of wood, $90 profit</li>
+<li>Total wood available: 200 units</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Factory_Mix&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Chairs&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Tables&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 40·x + 90·y, &quot;Profit&quot;
+prob += 4·x + 10·y &lt;= 200, &quot;Wood_Limit&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Chairs: {x.varValue:.2f}, Tables: {y.varValue:.2f}&quot;)
+print(f&quot;Max profit: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Labor Cost (Modifies Objective)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Each chair requires 2 labor hours and each table requires 5 labor hours. Labor costs $10 per hour. We now want to maximize profit minus labor cost.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the objective from 40x + 90y to (40 - 2·10)x + (90 - 5·10)y = 20x + 40y.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it LP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Only the objective coefficients change; all constraints remain linear.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Factory_Mix_Extended&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Chairs&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Tables&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 20·x + 40·y, &quot;Net_Profit_After_Labor&quot;  # MODIFIED OBJECTIVE
+prob += 4·x + 10·y &lt;= 200, &quot;Wood_Limit&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Chairs: {x.varValue:.2f}, Tables: {y.varValue:.2f}&quot;)
+print(f&quot;Max net profit: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 2 — Delivery Trucks</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A delivery company needs to send at least 120 packages. Each van carries 20 packages and costs $100. Each truck carries 40 packages and costs $180. Vehicles cannot be split.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total cost: 100·v + 180·t</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Capacity: 20·v + 40·t &gt;= 120</li>
+<li>Integrality: v, t are non-negative integers</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Integer Programming (IP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Packages to deliver: at least 120</li>
+<li>Van capacity: 20 packages; cost: $100</li>
+<li>Truck capacity: 40 packages; cost: $180</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Delivery_Trucks&quot;, pulp.LpMinimize)
+
+v = pulp.LpVariable(&quot;Vans&quot;, lowBound=0, cat=&quot;Integer&quot;)
+t = pulp.LpVariable(&quot;Trucks&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += 100·v + 180·t, &quot;Total_Cost&quot;
+prob += 20·v + 40·t &gt;= 120, &quot;Capacity&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Vans: {int(v.varValue)}, Trucks: {int(t.varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Heavy Package Requirement (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">At least one truck is required because some packages are too large for vans.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new integer constraint: t &gt;= 1.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it IP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear and involves an integer variable.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Delivery_Trucks_Extended&quot;, pulp.LpMinimize)
+
+v = pulp.LpVariable(&quot;Vans&quot;, lowBound=0, cat=&quot;Integer&quot;)
+t = pulp.LpVariable(&quot;Trucks&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += 100·v + 180·t, &quot;Total_Cost&quot;
+prob += 20·v + 40·t &gt;= 120, &quot;Capacity&quot;
+prob += t &gt;= 1, &quot;At_Least_One_Truck&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Vans: {int(v.varValue)}, Trucks: {int(t.varValue)}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 3 — Staff Scheduling</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A hospital must schedule doctors for morning and evening shifts. Each doctor works whole shifts only. The hospital needs at least 12 doctors in the morning and at least 8 in the evening.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total doctors scheduled: xm + xe</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Morning demand: xm &gt;= 12</li>
+<li>Evening demand: xe &gt;= 8</li>
+<li>Integrality: xm, xe are non-negative integers</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Integer Programming (IP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Morning shift demand: at least 12 doctors</li>
+<li>Evening shift demand: at least 8 doctors</li>
+<li>Each doctor works exactly one whole shift</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Staff_Scheduling&quot;, pulp.LpMinimize)
+
+xm = pulp.LpVariable(&quot;Morning_Doctors&quot;, lowBound=0, cat=&quot;Integer&quot;)
+xe = pulp.LpVariable(&quot;Evening_Doctors&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += xm + xe, &quot;Total_Doctors&quot;
+prob += xm &gt;= 12, &quot;Morning_Demand&quot;
+prob += xe &gt;= 8, &quot;Evening_Demand&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Morning doctors: {int(xm.varValue)}, Evening doctors: {int(xe.varValue)}&quot;)
+print(f&quot;Min total doctors: {int(pulp.value(prob.objective))}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Senior Doctor Requirement (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Hospital policy requires at least 2 senior doctors in the morning shift.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new integer constraint: xm &gt;= 2. Combined with the existing xm &gt;= 12, the binding constraint remains xm &gt;= 12, but this demonstrates how to layer policy constraints. A better variant: assume senior doctors are a separate subset, but for simplicity we add a dedicated constraint.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Staff_Scheduling_Extended&quot;, pulp.LpMinimize)
+
+xm = pulp.LpVariable(&quot;Morning_Doctors&quot;, lowBound=0, cat=&quot;Integer&quot;)
+xe = pulp.LpVariable(&quot;Evening_Doctors&quot;, lowBound=0, cat=&quot;Integer&quot;)
+
+prob += xm + xe, &quot;Total_Doctors&quot;
+prob += xm &gt;= 12, &quot;Morning_Demand&quot;
+prob += xe &gt;= 8, &quot;Evening_Demand&quot;
+prob += xm &gt;= 2, &quot;Senior_Doctors_Morning&quot;  # NEW CONSTRAINT (illustrative)
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Morning doctors: {int(xm.varValue)}, Evening doctors: {int(xe.varValue)}&quot;)
+print(f&quot;Min total doctors: {int(pulp.value(prob.objective))}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 4 — Diet Planning</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A nutritionist designs a diet using rice and beans. Each gram of rice provides 3 calories and 1 gram of protein. Each gram of beans provides 2 calories and 3 grams of protein. Daily requirements: at least 600 calories and at least 300 grams of protein. Fractions of grams are allowed.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total weight: r + b</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Calories: 3·r + 2·b &gt;= 600</li>
+<li>Protein: 1·r + 3·b &gt;= 300</li>
+<li>Non-negativity: r, b &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Linear Programming (LP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Rice: 3 calories and 1 g protein per gram</li>
+<li>Beans: 2 calories and 3 g protein per gram</li>
+<li>Minimum daily calories: 600</li>
+<li>Minimum daily protein: 300 g</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Diet_Planning&quot;, pulp.LpMinimize)
+
+r = pulp.LpVariable(&quot;Rice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+b = pulp.LpVariable(&quot;Beans&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += r + b, &quot;Total_Weight&quot;
+prob += 3·r + 2·b &gt;= 600, &quot;Calories&quot;
+prob += r + 3·b &gt;= 300, &quot;Protein&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Rice: {r.varValue:.2f}g, Beans: {b.varValue:.2f}g&quot;)
+print(f&quot;Min total weight: {pulp.value(prob.objective):.2f}g&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Cost Minimization (Modifies Objective)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Rice costs $0.01 per gram and beans cost $0.03 per gram. We now want to minimize cost instead of weight.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the objective from r + b to 0.01·r + 0.03·b.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it LP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Only the objective coefficients change.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Diet_Planning_Extended&quot;, pulp.LpMinimize)
+
+r = pulp.LpVariable(&quot;Rice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+b = pulp.LpVariable(&quot;Beans&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 0.01·r + 0.03·b, &quot;Total_Cost&quot;  # MODIFIED OBJECTIVE
+prob += 3·r + 2·b &gt;= 600, &quot;Calories&quot;
+prob += r + 3·b &gt;= 300, &quot;Protein&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Rice: {r.varValue:.2f}g, Beans: {b.varValue:.2f}g&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 5 — Power Plant Operation</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A power company runs three power plants. The cost at plant i is proportional to the square of its output. The company must produce at least 500 MW in total.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total cost: sum(ci * Pi^2)</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Demand: P1 + P2 + P3 &gt;= 500</li>
+<li>Non-negativity: Pi &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Non-Linear Programming (NLP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Number of plants: 3</li>
+<li>Cost coefficients: [0.02, 0.03, 0.01]</li>
+<li>Total demand: at least 500 MW</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+import numpy as np
+
+c = np.array([0.02, 0.03, 0.01])
+
+def cost(P):
+    return np.sum(c * P**2)
+
+constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda P: np.sum(P) - 500}
+bounds = [(0, None), (0, None), (0, None)]
+
+res = minimize(cost, x0=[100, 200, 200], bounds=bounds, constraints=constraints)
+print(f&quot;Outputs: {np.round(res.x, 2)} MW&quot;)
+print(f&quot;Min cost: {res.fun:.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Emission Cap on Plant 3 (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Plant 3 has high emissions and is regulated to produce at most 100 MW.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add an upper bound on P3: P3 &lt;= 100.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is a simple bound and does not change the non-linear objective.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+import numpy as np
+
+c = np.array([0.02, 0.03, 0.01])
+
+def cost(P):
+    return np.sum(c * P**2)
+
+constraints = [
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda P: np.sum(P) - 500},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda P: 100 - P[2]}  # NEW CONSTRAINT: Plant 3 &lt;= 100 MW
+]
+bounds = [(0, None), (0, None), (0, None)]
+
+res = minimize(cost, x0=[100, 200, 200], bounds=bounds, constraints=constraints)
+print(f&quot;Outputs: {np.round(res.x, 2)} MW&quot;)
+print(f&quot;Min cost: {res.fun:.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Practice Problem 6 — Blending Problem</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A chemical plant mixes two raw materials to produce a final product. Each raw material contributes different percentages of ingredients. The final product must meet strict ratio requirements. All amounts can be continuous.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize total cost: 5·x1 + 4·x2</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Ingredient A: 3·x1 + x2 &gt;= 9</li>
+<li>Ingredient B: x1 + 2·x2 &gt;= 8</li>
+<li>Non-negativity: x1, x2 &gt;= 0</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Linear Programming (LP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Raw material 1 cost: $5 per unit; provides 3 A + 1 B</li>
+<li>Raw material 2 cost: $4 per unit; provides 1 A + 2 B</li>
+<li>Minimum ingredient A: 9 units</li>
+<li>Minimum ingredient B: 8 units</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Blending&quot;, pulp.LpMinimize)
+
+x1 = pulp.LpVariable(&quot;Raw_Material_1&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+x2 = pulp.LpVariable(&quot;Raw_Material_2&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 5·x1 + 4·x2, &quot;Cost&quot;
+prob += 3·x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
+prob += x1 + 2·x2 &gt;= 8, &quot;Ingredient_B&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Raw material 1: {x1.varValue:.2f}, Raw material 2: {x2.varValue:.2f}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Max Ratio for Raw Material 1 (Modifies Objective and Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">For quality control, raw material 1 can make up at most 40% of the total blend.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add: x1 &lt;= 0.40 * (x1 + x2), which simplifies to 0.6·x1 - 0.4·x2 &lt;= 0.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it LP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear after rearrangement.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+prob = pulp.LpProblem(&quot;Blending_Extended&quot;, pulp.LpMinimize)
+
+x1 = pulp.LpVariable(&quot;Raw_Material_1&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+x2 = pulp.LpVariable(&quot;Raw_Material_2&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+
+prob += 5·x1 + 4·x2, &quot;Cost&quot;
+prob += 3·x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
+prob += x1 + 2·x2 &gt;= 8, &quot;Ingredient_B&quot;
+prob += x1 &lt;= 0.4*(x1 + x2), &quot;Max_40_Percent_RM1&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Raw material 1: {x1.varValue:.2f}, Raw material 2: {x2.varValue:.2f}&quot;)
+print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
+        <h2 class="text-xl font-bold">Homework — Bakery with Oven Rental</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">A small bakery produces loaves of bread and cakes. Each loaf requires 0.5 kg of flour and earns $2 profit. Each cake requires 1.5 kg of flour and earns $5 profit. The bakery has at most 30 kg of flour per day. Fractional loaves and cakes are allowed. The bakery can only produce anything if it rents an oven for a $20 fixed fee.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Let x = loaves of bread (continuous)</li>
+<li>Let y = cakes (continuous)</li>
+<li>Let z = oven rental decision (binary)</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize net profit: 2·x + 5·y - 20·z</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Flour: 0.5·x + 1.5·y &lt;= 30</li>
+<li>Production only if oven rented: x &lt;= M·z and y &lt;= M·z</li>
+<li>Non-negativity: x, y &gt;= 0</li>
+<li>Binary: z in {0, 1}</li>
+</ul>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Mixed-Integer Linear Programming (MILP).</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+<li>Bread: 0.5 kg flour per loaf, $2 profit per loaf</li>
+<li>Cake: 1.5 kg flour per cake, $5 profit per cake</li>
+<li>Daily flour limit: 30 kg</li>
+<li>Oven rental fixed cost: $20</li>
+<li>Big-M value for linking constraints: 1000</li>
+</ul>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+M = 1000
+
+prob = pulp.LpProblem(&quot;Bakery_Oven&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Bread&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Cakes&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+z = pulp.LpVariable(&quot;Rent_Oven&quot;, cat=&quot;Binary&quot;)
+
+prob += 2·x + 5·y - 20·z, &quot;Net_Profit&quot;
+prob += 0.5·x + 1.5·y &lt;= 30, &quot;Flour_Limit&quot;
+prob += x &lt;= M·z, &quot;Bread_Only_If_Oven&quot;
+prob += y &lt;= M·z, &quot;Cakes_Only_If_Oven&quot;
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Bread: {x.varValue:.2f} loaves&quot;)
+print(f&quot;Cakes: {y.varValue:.2f}&quot;)
+print(f&quot;Rent oven? {int(z.varValue)}&quot;)
+print(f&quot;Max profit: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Oven Capacity (Modifies Constraints)</h3>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The rented oven can bake at most 80 loaves of bread OR 30 cakes per day. We model this as a capacity constraint: x/80 + y/30 &lt;= 1.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a new linear constraint: x/80 + y/30 &lt;= 1, or equivalently 0.0125·x + 0.0333·y &lt;= 1.</p>
+<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it MILP</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear in continuous variables x and y.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+M = 1000
+
+prob = pulp.LpProblem(&quot;Bakery_Oven_Extended&quot;, pulp.LpMaximize)
+
+x = pulp.LpVariable(&quot;Bread&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Cakes&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+z = pulp.LpVariable(&quot;Rent_Oven&quot;, cat=&quot;Binary&quot;)
+
+prob += 2·x + 5·y - 20·z, &quot;Net_Profit&quot;
+prob += 0.5·x + 1.5·y &lt;= 30, &quot;Flour_Limit&quot;
+prob += x &lt;= M·z, &quot;Bread_Only_If_Oven&quot;
+prob += y &lt;= M·z, &quot;Cakes_Only_If_Oven&quot;
+prob += x/80 + y/30 &lt;= 1, &quot;Oven_Capacity&quot;  # NEW CONSTRAINT
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+print(f&quot;Bread: {x.varValue:.2f} loaves&quot;)
+print(f&quot;Cakes: {y.varValue:.2f}&quot;)
+print(f&quot;Rent oven? {int(z.varValue)}&quot;)
+print(f&quot;Max profit: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
+        </div>
+    </section>
+
+
+  </main>
+
+  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
+    <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
+      Generated for classroom use. LP/IP/MILP demos use PuLP; NLP demos use scipy.
+    </div>
+  </footer>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.nextElementSibling;
+      const code = pre.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = original, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
