@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hawaii Visitor Arrivals — Time Series Classroom Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.decomp { border-left-color: #10b981; }
+    .module-card.sarima { border-left-color: #8b5cf6; }
+    .module-card.diag { border-left-color: #f59e0b; }
+    pre { max-height: 520px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Hawaii Visitor Arrivals — Time Series Modeling</h1>
+      <p class="text-lg text-slate-600">Weekly visitor counts: additive decomposition vs. SARIMA</p>
+      <p class="text-sm text-slate-500 mt-2">Scenario: forecast weekly visitor arrivals to Hawaii using historical trends and seasonality. Layout: left = explanation, right = runnable Python demo.</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. EDA</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Additive Decomposition</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">3. Stationarity</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">4. ACF / PACF</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">5. SARIMA</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">6. Forecast & Compare</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">7. Residual Diagnostics</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. Summary</a>
+      </div>
+    </nav>
+
+    <!-- Module 1: EDA -->
+    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. EDA — Explore Hawaii Visitor Data</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">We model weekly visitor arrivals to Hawaii. Time series data has one dependent variable recorded over time, so we first visualize the raw series.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Time plot:</strong> reveals trend (long-term direction) and seasonality (repeating patterns).</li>
+            <li><strong>Yearly seasonality:</strong> Hawaii tourism typically peaks in summer and around winter holidays.</li>
+            <li><strong>Train-test split:</strong> reserve the most recent 20% of weeks for evaluation.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> Always inspect the time plot before choosing a model. Trend + seasonality suggests decomposition or SARIMA.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import warnings
+warnings.filterwarnings('ignore')
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# -----------------------------
+# Generate synthetic weekly Hawaii visitor data
+# -----------------------------
+np.random.seed(42)
+start_date = pd.to_datetime('2020-01-05')  # Sunday
+n_weeks = 208  # 4 years of weekly data
+dates = pd.date_range(start=start_date, periods=n_weeks, freq='W-SUN')
+
+# Upward trend (tourism recovery/growth)
+trend = np.linspace(150_000, 270_000, n_weeks)
+
+# Yearly seasonality: peak in summer (weeks ~25-35) and winter holidays (weeks ~48-52)
+week_of_year = np.array([d.weekofyear for d in dates])
+seasonal = 35_000 * np.sin(2 * np.pi * week_of_year / 52) \
+         + 18_000 * np.cos(2 * np.pi * week_of_year / 52)
+
+# COVID-like shock in early 2020
+shock = np.zeros(n_weeks)
+shock[:20] = -60_000 * np.exp(-np.arange(20) / 5)
+
+# Random noise
+noise = np.random.normal(0, 7_000, n_weeks)
+
+visitors = trend + seasonal + shock + noise
+visitors = np.maximum(visitors, 50_000).astype(int)
+
+df = pd.DataFrame({
+    'date': dates,
+    'visitors': visitors
+})
+df.set_index('date', inplace=True)
+df.index.freq = 'W-SUN'
+
+# Train-test split: last 20% as test
+train_size = int(0.8 * len(df))
+train = df.iloc[:train_size].copy()
+test = df.iloc[train_size:].copy()
+
+print(f"Total weeks: {len(df)}")
+print(f"Train weeks: {len(train)}")
+print(f"Test weeks:  {len(test)}")
+print("\nFirst 5 rows:")
+print(df.head())
+print("\nBasic statistics:")
+print(df.describe())
+
+# Time plot
+plt.figure(figsize=(12, 5))
+plt.plot(train.index, train['visitors'], label='Train', color='steelblue')
+plt.plot(test.index, test['visitors'], label='Test', color='coral')
+plt.title('Weekly Visitor Arrivals to Hawaii')
+plt.xlabel('Date')
+plt.ylabel('Visitors')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Additive Decomposition -->
+    <section id="m2" class="module-card decomp bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Method 1 — Additive Decomposition</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">An additive model assumes the observed series is the sum of trend, seasonal, and residual components:</p>
+          <p class="text-center text-lg font-semibold text-slate-800 my-3">y(t) = Trend(t) + Seasonal(t) + Residual(t)</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Trend:</strong> long-term movement in visitor numbers.</li>
+            <li><strong>Seasonal:</strong> repeating yearly pattern (weekly period = 52).</li>
+            <li><strong>Residual:</strong> what remains after removing trend and seasonality.</li>
+            <li><strong>Forecast:</strong> extend the trend linearly and repeat the seasonal pattern to obtain predicted visitor counts immediately after decomposition.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong>Takeaway:</strong> Additive decomposition works when seasonal swings stay roughly constant over time. You can forecast right away by projecting trend + seasonality.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.tsa.seasonal import seasonal_decompose
+
+# -----------------------------
+# Additive decomposition on training data
+# -----------------------------
+decomp = seasonal_decompose(
+    train['visitors'],
+    model='additive',
+    period=52  # yearly seasonality for weekly data
+)
+
+# Plot decomposition
+fig, axes = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
+decomp.observed.plot(ax=axes[0], title='Observed', color='steelblue')
+decomp.trend.plot(ax=axes[1], title='Trend', color='darkgreen')
+decomp.seasonal.plot(ax=axes[2], title='Seasonal', color='darkorange')
+decomp.resid.plot(ax=axes[3], title='Residual', color='gray')
+for ax in axes:
+    ax.grid(True, alpha=0.3)
+plt.suptitle('Additive Decomposition (Weekly, period=52)', y=1.01)
+plt.tight_layout()
+plt.show()
+
+# Print component ranges
+print(f"Trend range:    {decomp.trend.min():,.0f} to {decomp.trend.max():,.0f}")
+print(f"Seasonal range: {decomp.seasonal.min():,.0f} to {decomp.seasonal.max():,.0f}")
+print(f"Residual std:   {decomp.resid.std():,.0f}")
+
+# -----------------------------
+# Decomposition-based forecast
+# -----------------------------
+# Extend trend linearly from the observed trend component
+last_trend = decomp.trend.dropna()
+trend_slope = (last_trend.iloc[-1] - last_trend.iloc[0]) / (len(last_trend) - 1)
+future_trend = [last_trend.iloc[-1] + trend_slope * (i + 1) for i in range(len(test))]
+
+# Repeat the estimated seasonal pattern (period = 52)
+seasonal_values = decomp.seasonal.values
+future_seasonal = []
+for i in range(len(test)):
+    idx = (len(train) + i) % 52
+    future_seasonal.append(seasonal_values[idx])
+
+# Predicted visitor counts = extended trend + repeated seasonality
+decomp_forecast = pd.Series(
+    np.array(future_trend) + np.array(future_seasonal),
+    index=test.index
+)
+
+print("\nDecomposition forecast (first 5 weeks of test set):")
+print(decomp_forecast.head())
+print(f"\nForecast range: {decomp_forecast.min():,.0f} to {decomp_forecast.max():,.0f}")
+
+# Plot the decomposition forecast against train and test data
+plt.figure(figsize=(12, 5))
+plt.plot(train.index, train['visitors'], label='Train', color='steelblue')
+plt.plot(test.index, test['visitors'], label='Test', color='coral')
+plt.plot(decomp_forecast.index, decomp_forecast, label='Decomposition Forecast', color='purple', linestyle='--')
+plt.title('Weekly Visitor Arrivals to Hawaii with Decomposition Forecast')
+plt.xlabel('Date')
+plt.ylabel('Visitors')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 3: Stationarity -->
+    <section id="m3" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Stationarity Check</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">SARIMA requires the series to be stationary (constant mean, variance, and autocorrelation). We test with the Augmented Dickey-Fuller (ADF) test. The raw Hawaii visitor series has a clear upward trend, so we expect it to be <strong>non-stationary</strong>.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Null hypothesis:</strong> the series has a unit root (non-stationary).</li>
+            <li><strong>p-value < 0.05:</strong> reject the null; series is stationary.</li>
+            <li><strong>p-value ≥ 0.05:</strong> fail to reject the null; series is non-stationary (needs differencing).</li>
+            <li><strong>Differencing:</strong> compute y'(t) = y(t) - y(t-1) to remove trend.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> The raw series should be non-stationary because of trend. After first differencing it should become stationary. The differencing count becomes the <em>d</em> parameter.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.tsa.stattools import adfuller
+
+# -----------------------------
+# ADF test helper
+# -----------------------------
+def adf_test(series, title=''):
+    result = adfuller(series.dropna())
+    print(f"\nADF Test: {title}")
+    print(f"  ADF Statistic: {result[0]:.4f}")
+    print(f"  p-value:       {result[1]:.4f}")
+    print(f"  Critical 5%:   {result[4]['5%']:.4f}")
+    if result[1] < 0.05:
+        print("  => Stationary (reject unit root)")
+    else:
+        print("  => Non-stationary (fail to reject unit root)")
+
+adf_test(train['visitors'], 'Original series')
+
+# First-order differencing
+train_diff = train['visitors'].diff().dropna()
+adf_test(train_diff, 'First differenced series')
+
+# Plot differenced series
+plt.figure(figsize=(12, 4))
+plt.plot(train_diff.index, train_diff, color='steelblue')
+plt.title('First-Differenced Weekly Visitor Arrivals')
+plt.xlabel('Date')
+plt.ylabel('Change in visitors')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: ACF/PACF -->
+    <section id="m4" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. ACF / PACF for SARIMA Order Selection</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Autocorrelation (ACF) and partial autocorrelation (PACF) guide the choice of AR and MA orders. The plots below are drawn on the <em>differenced</em> series, because we already established it is stationary.</p>
+          <p class="text-slate-700 font-semibold mb-2">How to read ACF and PACF plots</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Significance:</strong> spikes that cross the blue shaded confidence band are statistically significant.</li>
+            <li><strong>PACF sharp cutoff:</strong> the last significant lag before the PACF drops to zero gives the AR(<em>p</em>) order. Example: significant spikes at lags 1 and 2 only → p = 2.</li>
+            <li><strong>ACF sharp cutoff:</strong> the last significant lag before the ACF drops to zero gives the MA(<em>q</em>) order. Example: significant spike at lag 1 only → q = 1.</li>
+            <li><strong>Gradual decay:</strong> if ACF or PACF tails off slowly, more differencing or higher-order terms may be needed.</li>
+            <li><strong>Seasonal spikes:</strong> significant spikes at lag 52 (and 104, 156, …) indicate yearly seasonality. They suggest seasonal AR(<em>P</em>) or seasonal MA(<em>Q</em>) terms with period <em>m</em> = 52.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> PACF cutoff → AR order; ACF cutoff → MA order; seasonal spikes at lag 52 → need seasonal terms. These plots give a starting point; refine orders with AIC/BIC grid search.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+
+# -----------------------------
+# ACF and PACF on differenced training data
+# -----------------------------
+fig, axes = plt.subplots(1, 2, figsize=(14, 4))
+plot_acf(train_diff, ax=axes[0], lags=60, title='ACF (Differenced)')
+plot_pacf(train_diff, ax=axes[1], lags=60, title='PACF (Differenced)', method='ywm')
+plt.tight_layout()
+plt.show()
+
+print("Look for:")
+print("- Significant spikes in PACF -> AR order p")
+print("- Significant spikes in ACF  -> MA order q")
+print("- Spikes near lag 52 -> seasonal component")
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 5: SARIMA -->
+    <section id="m5" class="module-card sarima bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Method 2 — SARIMA Modeling</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">SARIMA extends ARIMA with a seasonal part. A model SARIMA(p,d,q)(P,D,Q)m has:</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>(p,d,q):</strong> non-seasonal AR, differencing, MA orders.</li>
+            <li><strong>(P,D,Q):</strong> seasonal AR, seasonal differencing, seasonal MA orders.</li>
+            <li><strong>m:</strong> seasonal period (52 for weekly yearly seasonality).</li>
+          </ul>
+          <p class="text-slate-700 mt-3">We use AIC to choose among candidate models, then fit the best one.</p>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong>Takeaway:</strong> SARIMA captures both short-term dynamics and recurring yearly patterns in one model.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+# -----------------------------
+# Small candidate grid for SARIMA orders
+# -----------------------------
+# Weekly data with yearly seasonality -> seasonal period m = 52
+seasonal_period = 52
+candidates = [
+    ((0, 1, 1), (0, 1, 1, seasonal_period)),
+    ((1, 1, 0), (1, 1, 0, seasonal_period)),
+    ((1, 1, 1), (1, 1, 1, seasonal_period)),
+    ((1, 1, 2), (1, 1, 1, seasonal_period)),
+]
+
+best_aic = np.inf
+best_order = None
+best_seasonal_order = None
+
+print("Searching SARIMA orders (this may take a minute)...")
+for param, seasonal_param in candidates:
+    try:
+        model = SARIMAX(
+            train['visitors'],
+            order=param,
+            seasonal_order=seasonal_param,
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        )
+        results = model.fit(disp=False)
+        print(f"SARIMA{param}{seasonal_param} -> AIC: {results.aic:.2f}")
+        if results.aic < best_aic:
+            best_aic = results.aic
+            best_order = param
+            best_seasonal_order = seasonal_param
+    except Exception as e:
+        print(f"SARIMA{param}{seasonal_param} failed: {e}")
+        continue
+
+print(f"\nBest SARIMA order:        {best_order}")
+print(f"Best seasonal order:      {best_seasonal_order}")
+print(f"Best AIC:                 {best_aic:.2f}")
+
+# Fit best model
+final_sarima = SARIMAX(
+    train['visitors'],
+    order=best_order,
+    seasonal_order=best_seasonal_order,
+    enforce_stationarity=False,
+    enforce_invertibility=False
+)
+sarima_result = final_sarima.fit(disp=False)
+print(sarima_result.summary())
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 6: Forecast & Compare -->
+    <section id="m6" class="module-card sarima bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Forecast & Model Comparison</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">We forecast the test period with both methods and compare errors.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Decomposition forecast:</strong> extend the trend and repeat the seasonal pattern, then add them.</li>
+            <li><strong>SARIMA forecast:</strong> use the fitted model's <code>get_forecast()</code> method.</li>
+            <li><strong>Metrics:</strong> MAE, RMSE, MAPE.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong>Takeaway:</strong> SARIMA usually outperforms simple decomposition on short-term forecasts because it models autocorrelation in the residuals.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+# -----------------------------
+# Method 1: Decomposition forecast
+# -----------------------------
+# Extend trend linearly
+last_trend = decomp.trend.dropna()
+trend_slope = (last_trend.iloc[-1] - last_trend.iloc[0]) / (len(last_trend) - 1)
+future_trend = [last_trend.iloc[-1] + trend_slope * (i + 1) for i in range(len(test))]
+
+# Repeat seasonal pattern
+seasonal_values = decomp.seasonal.values
+future_seasonal = []
+for i in range(len(test)):
+    idx = (len(train) + i) % 52
+    future_seasonal.append(seasonal_values[idx])
+
+decomp_forecast = pd.Series(
+    np.array(future_trend) + np.array(future_seasonal),
+    index=test.index
+)
+
+# -----------------------------
+# Method 2: SARIMA forecast
+# -----------------------------
+sarima_forecast = sarima_result.get_forecast(steps=len(test))
+sarima_mean = sarima_forecast.predicted_mean
+
+# -----------------------------
+# Evaluation metrics
+# -----------------------------
+def mape(y_true, y_pred):
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+metrics = pd.DataFrame({
+    'Model': ['Additive Decomposition', 'SARIMA'],
+    'MAE': [
+        mean_absolute_error(test['visitors'], decomp_forecast),
+        mean_absolute_error(test['visitors'], sarima_mean)
+    ],
+    'RMSE': [
+        np.sqrt(mean_squared_error(test['visitors'], decomp_forecast)),
+        np.sqrt(mean_squared_error(test['visitors'], sarima_mean))
+    ],
+    'MAPE (%)': [
+        mape(test['visitors'], decomp_forecast),
+        mape(test['visitors'], sarima_mean)
+    ]
+})
+
+print(metrics.to_string(index=False))
+
+# Plot forecasts
+plt.figure(figsize=(12, 6))
+plt.plot(train.index, train['visitors'], label='Train', color='steelblue')
+plt.plot(test.index, test['visitors'], label='Test', color='black', linewidth=2)
+plt.plot(test.index, decomp_forecast, label='Decomposition Forecast', color='green', linestyle='--')
+plt.plot(test.index, sarima_mean, label='SARIMA Forecast', color='purple')
+plt.title('Hawaii Weekly Visitor Arrivals — Forecast Comparison')
+plt.xlabel('Date')
+plt.ylabel('Visitors')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 7: Residual Diagnostics -->
+    <section id="m7" class="module-card diag bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Residual Diagnostics</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Good forecasts should leave white-noise residuals: zero mean, constant variance, and no remaining autocorrelation.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Residual time plot:</strong> check for patterns or changing variance.</li>
+            <li><strong>ACF of residuals:</strong> should have no significant spikes.</li>
+            <li><strong>Ljung-Box test:</strong> null hypothesis is that residuals are white noise. p-value > 0.05 means we fail to reject (good).</li>
+          </ul>
+          <div class="mt-4 p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
+            <strong>Takeaway:</strong> If residuals are not white noise, the model has missed patterns and needs more tuning.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.stats.diagnostic import acorr_ljungbox
+from statsmodels.graphics.tsaplots import plot_acf
+
+# -----------------------------
+# SARIMA residual diagnostics
+# -----------------------------
+residuals = sarima_result.resid
+
+fig, axes = plt.subplots(2, 1, figsize=(12, 8))
+residuals.plot(ax=axes[0], title='SARIMA Residuals', color='steelblue')
+axes[0].axhline(y=0, color='r', linestyle='--')
+axes[0].grid(True, alpha=0.3)
+
+plot_acf(residuals, ax=axes[1], lags=60, title='ACF of Residuals')
+axes[1].grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Ljung-Box test
+lb_test = acorr_ljungbox(residuals, lags=[10, 20, 30], return_df=True)
+print("\nLjung-Box test on residuals:")
+print(lb_test)
+
+p_val_10 = lb_test.loc[10, 'lb_pvalue'] if 10 in lb_test.index else lb_test.iloc[0]['lb_pvalue']
+if p_val_10 > 0.05:
+    print("\n=> Residuals look like white noise (good).")
+else:
+    print("\n=> Residuals still show autocorrelation (model can be improved).")
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 8: Summary -->
+    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. Summary</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Time series forecasting workflow for Hawaii visitor arrivals.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Method 1 — Additive Decomposition:</strong> intuitive, separates trend and seasonality, good for understanding components.</li>
+            <li><strong>Method 2 — SARIMA:</strong> models autocorrelation directly, usually better for short-term forecasts.</li>
+            <li><strong>Diagnostics:</strong> always check residuals for white noise.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-slate-100 rounded-lg text-sm text-slate-800">
+            <strong>Takeaway:</strong> Start with decomposition to understand the data; use SARIMA when you need a more accurate, self-correcting forecast.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Final summary table
+# -----------------------------
+summary = pd.DataFrame({
+    'Step': [
+        'EDA',
+        'Additive Decomposition',
+        'Stationarity (ADF)',
+        'SARIMA Grid Search',
+        'Forecast Comparison',
+        'Residual Diagnostics'
+    ],
+    'Key Output': [
+        'Trend + yearly seasonality visible',
+        'Trend, seasonal, residual components separated',
+        f"d = {best_order[1]} (differencing order)",
+        f"Best order: {best_order}, seasonal: {best_seasonal_order}",
+        f"Best MAPE: {metrics['MAPE (%)'].min():.2f}%",
+        f"Ljung-Box p-value (lag 10): {p_val_10:.4f}"
+    ]
+})
+
+print("\n=== Time Series Modeling Summary ===")
+print(summary.to_string(index=False))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8">
+      Generated for classroom use — Hawaii Visitor Arrivals Time Series Demo
+    </footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.nextElementSibling.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = original, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
