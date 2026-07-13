@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logistic Growth Model — Classroom Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.formula { border-left-color: #10b981; }
+    .module-card.method { border-left-color: #8b5cf6; }
+    .module-card.example { border-left-color: #f59e0b; }
+    pre { max-height: 520px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Logistic Growth Model</h1>
+      <p class="text-lg text-slate-600">From exponential take-off to saturation: S-curve modeling with Python</p>
+      <p class="text-sm text-slate-500 mt-2">Scenario: weekly active users of a new app. Layout: left = explanation, right = runnable Python demo.</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. Concept</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Formula</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">3. Applications</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">4. Fit Full Data</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">5. Estimate r Early</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">6. Worked Example</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">7. Forecast</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. Summary</a>
+      </div>
+    </nav>
+
+    <!-- Module 1: Concept -->
+    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. What is Logistic Growth?</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Exponential growth assumes unlimited resources: the bigger the population, the faster it grows. In reality, growth slows as the population approaches a ceiling called the <strong>carrying capacity</strong>.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Exponential:</strong> growth rate stays constant; curve shoots upward forever.</li>
+            <li><strong>Logistic:</strong> growth rate shrinks as the population nears its maximum; curve becomes S-shaped.</li>
+            <li><strong>Carrying capacity (K or L):</strong> the upper limit the environment or market can support.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> Use logistic growth when you expect an initial rapid increase followed by saturation.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import warnings
+warnings.filterwarnings('ignore')
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# -----------------------------
+# Compare exponential vs. logistic growth
+# -----------------------------
+t = np.linspace(0, 20, 200)
+r = 0.3
+K = 1000
+N0 = 10
+
+# Exponential: N(t) = N0 * exp(r*t)
+exp_growth = N0 * np.exp(r * t)
+
+# Logistic: N(t) = K / (1 + ((K-N0)/N0) * exp(-r*t))
+logistic_growth = K / (1 + ((K - N0) / N0) * np.exp(-r * t))
+
+plt.figure(figsize=(12, 5))
+plt.plot(t, exp_growth, label='Exponential Growth', color='coral', linewidth=2)
+plt.plot(t, logistic_growth, label='Logistic Growth', color='steelblue', linewidth=2)
+plt.axhline(y=K, color='green', linestyle='--', label=f'Carrying Capacity K={K}')
+plt.title('Exponential vs. Logistic Growth')
+plt.xlabel('Time')
+plt.ylabel('Population / Users')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.ylim(0, 1500)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Formula -->
+    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. The Logistic Function</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">The logistic model can be written as a differential equation or as its closed-form solution.</p>
+          <p class="text-center text-lg font-semibold text-slate-800 my-3">dN/dt = r · N · (1 - N/K)</p>
+          <p class="text-slate-700 mb-4">Solving this gives the S-curve formula:</p>
+          <p class="text-center text-lg font-semibold text-slate-800 my-3">N(t) = K / (1 + A · e<sup>-rt</sup>)</p>
+          <p class="text-slate-700 mb-4">where A = (K - N₀) / N₀ depends on the initial value.</p>
+          <p class="text-slate-700 mb-4">An equivalent pre-calculus form uses the midpoint x₀:</p>
+          <p class="text-center text-lg font-semibold text-slate-800 my-3">f(x) = L / (1 + e<sup>-k(x - x₀)</sup>)</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>L or K:</strong> carrying capacity (maximum value).</li>
+            <li><strong>r or k:</strong> growth rate; larger = steeper rise.</li>
+            <li><strong>x₀ or t₀:</strong> time at the inflection point (halfway to K).</li>
+          </ul>
+          <div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong>Takeaway:</strong> Three parameters control the curve: capacity, growth rate, and midpoint timing.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Logistic function implementations
+# -----------------------------
+def logistic_solution(t, K, r, N0):
+    """Closed-form logistic growth."""
+    A = (K - N0) / N0
+    return K / (1 + A * np.exp(-r * t))
+
+def logistic_midpoint(x, L, k, x0):
+    """Pre-calculus form centered at midpoint x0."""
+    return L / (1 + np.exp(-k * (x - x0)))
+
+# Example parameters
+t = np.linspace(0, 40, 200)
+K, r, N0 = 5000, 0.15, 100
+
+# The two forms are equivalent if x0 = ln(A) / r
+A = (K - N0) / N0
+x0 = np.log(A) / r
+print(f"A = {A:.4f}")
+print(f"Equivalent midpoint x0 = {x0:.4f}")
+
+# Verify equivalence
+y1 = logistic_solution(t, K, r, N0)
+y2 = logistic_midpoint(t, K, r, x0)
+print(f"Max absolute difference: {np.max(np.abs(y1 - y2)):.2e}")
+
+plt.figure(figsize=(12, 5))
+plt.plot(t, y1, label='N(t) = K / (1 + A·e^(-rt))', color='steelblue', linewidth=2)
+plt.axhline(y=K, color='green', linestyle='--', alpha=0.7, label=f'K = {K}')
+plt.axvline(x=x0, color='orange', linestyle='--', alpha=0.7, label=f'Midpoint x0 = {x0:.2f}')
+plt.title('Logistic Growth Curve')
+plt.xlabel('Time')
+plt.ylabel('Users / Population')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 3: Applications -->
+    <section id="m3" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Real-World Applications</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Any process with a natural ceiling can be modeled with logistic growth.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Biology & ecology:</strong> bacterial or animal populations limited by food and space.</li>
+            <li><strong>Marketing:</strong> product adoption from early adopters to mainstream users.</li>
+            <li><strong>Epidemiology:</strong> disease spread where K is the total susceptible population.</li>
+            <li><strong>Technology:</strong> user-base growth of a new app or platform.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> Identify the carrying capacity first; it is often set by market size, resources, or population limits.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Application: app user adoption
+# -----------------------------
+weeks = np.arange(0, 53)
+K = 50_000       # total addressable market
+r = 0.25         # weekly growth rate
+N0 = 200         # initial users
+
+users = logistic_solution(weeks, K, r, N0)
+np.random.seed(42)
+users_noisy = users + np.random.normal(0, 800, len(weeks))
+users_noisy = np.maximum(users_noisy, 0)
+
+df = pd.DataFrame({'week': weeks, 'users': users_noisy.astype(int)})
+print(df.head(10))
+
+plt.figure(figsize=(12, 5))
+plt.scatter(df['week'], df['users'], alpha=0.6, color='steelblue', label='Observed users')
+plt.plot(weeks, users, color='green', linewidth=2, label='True logistic curve')
+plt.axhline(y=K, color='red', linestyle='--', alpha=0.7, label=f'Market capacity K={K:,}')
+plt.title('App User Adoption: Logistic Growth Example')
+plt.xlabel('Week')
+plt.ylabel('Weekly Active Users')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Fit Full Data -->
+    <section id="m4" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Method 1 — Fit with Full Data</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">When you have many historical observations, use non-linear least squares to estimate K, r, and N₀ directly from the data.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Curve fitting:</strong> minimize the squared distance between the model and observed points.</li>
+            <li><strong>Initial guesses:</strong> K ≈ final plateau, r ≈ early growth rate, N₀ ≈ first observation.</li>
+            <li><strong>Goodness of fit:</strong> report R² to see how well the curve captures the trend.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong>Takeaway:</strong> With enough data, curve fitting gives the most accurate parameter estimates and uncertainty bounds.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from scipy.optimize import curve_fit
+
+# -----------------------------
+# Fit logistic curve to full data
+# -----------------------------
+def logistic_fit(t, K, r, N0):
+    return K / (1 + ((K - N0) / N0) * np.exp(-r * t))
+
+# Use the noisy app data from Module 3
+p0 = [60_000, 0.2, 100]  # initial guess for [K, r, N0]
+bounds = ([0, 0, 0], [200_000, 2, 10_000])
+
+popt, pcov = curve_fit(logistic_fit, df['week'], df['users'], p0=p0, bounds=bounds)
+K_fit, r_fit, N0_fit = popt
+
+print(f"Fitted K  = {K_fit:,.2f}")
+print(f"Fitted r  = {r_fit:.4f}")
+print(f"Fitted N0 = {N0_fit:.2f}")
+
+# R-squared
+y_pred = logistic_fit(df['week'], *popt)
+ss_res = np.sum((df['users'] - y_pred) ** 2)
+ss_tot = np.sum((df['users'] - df['users'].mean()) ** 2)
+r2 = 1 - ss_res / ss_tot
+print(f"R²        = {r2:.4f}")
+
+# Plot fit
+plt.figure(figsize=(12, 5))
+plt.scatter(df['week'], df['users'], alpha=0.6, color='steelblue', label='Observed')
+plt.plot(df['week'], y_pred, color='purple', linewidth=2, label='Fitted logistic curve')
+plt.axhline(y=K_fit, color='red', linestyle='--', alpha=0.7, label=f'Fitted K = {K_fit:,.0f}')
+plt.title('Logistic Curve Fit to App User Data')
+plt.xlabel('Week')
+plt.ylabel('Users')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 5: Estimate r Early -->
+    <section id="m5" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Method 2 — Estimate r with Limited Early Data</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">When only a few early observations are available, assume the series is still approximately exponential and estimate r before fitting the full logistic curve.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Doubling time Td:</strong> if the population doubles every Td periods, r ≈ ln(2) / Td.</li>
+            <li><strong>Known percentage growth s per period:</strong> r = ln(1 + s).</li>
+            <li><strong>Two early points:</strong> r ≈ ln(N₂/N₁) / (t₂ - t₁).</li>
+            <li><strong>Benchmark:</strong> use industry reports or reference data.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong>Takeaway:</strong> Early estimates of r provide a starting guess for K and speed up logistic fitting when data is sparse.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Estimate r from early observations
+# -----------------------------
+# Suppose we only know the first 8 weeks from the app data
+early = df.iloc[:8].copy()
+print("Early observations:")
+print(early)
+
+# Method A: two-point estimate
+N1, t1 = early.iloc[0]['users'], early.iloc[0]['week']
+N2, t2 = early.iloc[-1]['users'], early.iloc[-1]['week']
+r_two_point = np.log(N2 / N1) / (t2 - t1)
+print(f"\nTwo-point r estimate: {r_two_point:.4f}")
+
+# Method B: regression on log(users) vs. time
+early['log_users'] = np.log(early['users'])
+coef = np.polyfit(early['week'], early['log_users'], 1)
+r_log_linear = coef[0]
+print(f"Log-linear r estimate: {r_log_linear:.4f}")
+
+# Method C: known 15.5% weekly growth
+s = 0.155
+r_pct = np.log(1 + s)
+print(f"From 15.5% weekly growth: r = ln(1.155) = {r_pct:.4f}")
+
+# Compare with true r
+print(f"True r used to generate data: {r:.4f}")
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 6: Worked Example -->
+    <section id="m6" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Worked Example: Small Dataset</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">The slide provides a small dataset with carrying capacity K = 5,000 and early values from week 0 to week 7. We fit the logistic model and compare it with the Desmos result.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Data:</strong> 8 early observations starting at 100.</li>
+            <li><strong>Assumed K:</strong> 5,000 (set by market research).</li>
+            <li><strong>Fit:</strong> fix K and estimate r and N₀, or estimate all three.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
+            <strong>Takeaway:</strong> Even with only a few points, a reasonable K assumption lets you project the full S-curve.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Reproduce the slide's small dataset
+# -----------------------------
+slide_data = pd.DataFrame({
+    'week': [0, 1, 2, 3, 4, 5, 6, 7],
+    'users': [100.0, 115.81, 134.05, 155.07, 179.26,
+              207.07, 238.98, 275.53]
+})
+print(slide_data)
+
+# Fit with K fixed at 5000
+def logistic_fixed_K(t, r, N0):
+    K = 5000
+    return K / (1 + ((K - N0) / N0) * np.exp(-r * t))
+
+popt_fixed, _ = curve_fit(logistic_fixed_K, slide_data['week'], slide_data['users'],
+                          p0=[0.15, 100], bounds=([0, 0], [2, 5000]))
+r_fixed, N0_fixed = popt_fixed
+print(f"\nWith K=5000 fixed:")
+print(f"  r  = {r_fixed:.4f}")
+print(f"  N0 = {N0_fixed:.2f}")
+
+# Equivalent Desmos-style equation: y = 5000 / (1 + e^(-(0.15*x - 3.89182)))
+# Our fitted form can be rewritten similarly
+A_fixed = (5000 - N0_fixed) / N0_fixed
+x0_fixed = np.log(A_fixed) / r_fixed
+print(f"  Equivalent: y = 5000 / (1 + e^(-({r_fixed:.4f}*x - {r_fixed*x0_fixed:.4f})))")
+
+# Plot
+weeks_extended = np.linspace(0, 50, 200)
+plt.figure(figsize=(12, 5))
+plt.scatter(slide_data['week'], slide_data['users'], color='steelblue', s=80, label='Observed data')
+plt.plot(weeks_extended, logistic_fixed_K(weeks_extended, *popt_fixed),
+         color='purple', linewidth=2, label='Fitted logistic (K=5000)')
+plt.axhline(y=5000, color='red', linestyle='--', alpha=0.7, label='K = 5,000')
+plt.title('Worked Example: Small-Dataset Logistic Fit')
+plt.xlabel('Week')
+plt.ylabel('Users')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 7: Forecast -->
+    <section id="m7" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Forecast Future Values</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Once the model is fitted, plug future time points into the logistic function to obtain forecasts and a saturation horizon.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Point forecast:</strong> predicted value at each future week.</li>
+            <li><strong>Saturation:</strong> when does the curve reach, say, 95% of K?</li>
+            <li><strong>Visual check:</strong> overlay forecasts on historical data.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong>Takeaway:</strong> Logistic forecasts naturally level off; they do not blow up like exponential projections.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Forecast using the worked-example model
+# -----------------------------
+future_weeks = np.arange(8, 21)
+forecast = logistic_fixed_K(future_weeks, *popt_fixed)
+forecast_df = pd.DataFrame({'week': future_weeks, 'forecast_users': forecast.round(2)})
+print(forecast_df)
+
+# Time to reach 95% of K
+K_target = 0.95 * 5000
+# Solve K / (1 + A*e^(-rt)) = 0.95K  =>  t = (ln(19) + ln(A)) / r
+time_to_95 = (np.log(19) + np.log(A_fixed)) / r_fixed
+print(f"\nTime to reach 95% of K (4,750 users): week {time_to_95:.1f}")
+
+# Plot history + forecast
+all_weeks = np.concatenate([slide_data['week'], future_weeks])
+all_values = np.concatenate([slide_data['users'], forecast])
+
+plt.figure(figsize=(12, 5))
+plt.scatter(slide_data['week'], slide_data['users'], color='steelblue', s=80, label='Observed')
+plt.plot(future_weeks, forecast, color='purple', linewidth=2, linestyle='--', label='Forecast')
+plt.plot(all_weeks, logistic_fixed_K(all_weeks, *popt_fixed), color='gray', alpha=0.5, label='Full curve')
+plt.axhline(y=5000, color='red', linestyle='--', alpha=0.7, label='K = 5,000')
+plt.axhline(y=K_target, color='orange', linestyle=':', alpha=0.7, label='95% of K')
+plt.title('Logistic Growth Forecast')
+plt.xlabel('Week')
+plt.ylabel('Users')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 8: Summary -->
+    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. Summary</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">Logistic growth is the go-to model when growth must eventually slow down.</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>Shape:</strong> S-curve from slow start → rapid growth → saturation.</li>
+            <li><strong>Key parameters:</strong> K (capacity), r (growth rate), N₀ or x₀ (timing).</li>
+            <li><strong>Full data:</strong> non-linear least squares fits all parameters.</li>
+            <li><strong>Sparse data:</strong> estimate r from early exponential behavior and fix K from domain knowledge.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-slate-100 rounded-lg text-sm text-slate-800">
+            <strong>Takeaway:</strong> Always ask: is there a hard ceiling? If yes, logistic growth is likely more realistic than pure exponential growth.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># -----------------------------
+# Final summary table
+# -----------------------------
+summary = pd.DataFrame({
+    'Step': [
+        'Concept',
+        'Formula',
+        'Full-data fit',
+        'Sparse-data r estimate',
+        'Worked example',
+        'Forecast'
+    ],
+    'Key Output': [
+        'Logistic = exponential growth with a ceiling',
+        'N(t) = K / (1 + A·e^(-rt))',
+        f'K={K_fit:,.0f}, r={r_fit:.4f}, R²={r2:.4f}',
+        f'Two-point r={r_two_point:.4f}; log-linear r={r_log_linear:.4f}',
+        f'K=5000 fixed, r={r_fixed:.4f}, N0={N0_fixed:.2f}',
+        f'95% of K reached at week {time_to_95:.1f}'
+    ]
+})
+
+print("\n=== Logistic Growth Modeling Summary ===")
+print(summary.to_string(index=False))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8">
+      Generated for classroom use — Logistic Growth Model Demo
+    </footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.nextElementSibling.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = original, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
