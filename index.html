@@ -97,11 +97,11 @@ prob = pulp.LpProblem(&quot;Juice_Shop&quot;, pulp.LpMaximize)
 x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 9·x + 6·y, &quot;Total_Revenue&quot;
+prob += 9*x + 6*y, &quot;Total_Revenue&quot;
 
-prob += 0.2·x &lt;= 50, &quot;Apple_Constraint&quot;
-prob += 0.15·y &lt;= 30, &quot;Orange_Constraint&quot;
-prob += 5·x + 8·y &lt;= 2000, &quot;Sugar_Constraint&quot;
+prob += 0.2*x &lt;= 50, &quot;Apple_Constraint&quot;
+prob += 0.15*y &lt;= 30, &quot;Orange_Constraint&quot;
+prob += 5*x + 8*y &lt;= 2000, &quot;Sugar_Constraint&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -128,12 +128,12 @@ prob = pulp.LpProblem(&quot;Juice_Shop_Extended&quot;, pulp.LpMaximize)
 x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 9·x + 6·y, &quot;Total_Revenue&quot;
+prob += 9*x + 6*y, &quot;Total_Revenue&quot;
 
-prob += 0.2·x &lt;= 50, &quot;Apple_Constraint&quot;
-prob += 0.15·y &lt;= 30, &quot;Orange_Constraint&quot;
-prob += 5·x + 8·y &lt;= 2000, &quot;Sugar_Constraint&quot;
-prob += x &lt;= 1.5·y, &quot;Marketing_Mix_Constraint&quot;  # NEW CONSTRAINT
+prob += 0.2*x &lt;= 50, &quot;Apple_Constraint&quot;
+prob += 0.15*y &lt;= 30, &quot;Orange_Constraint&quot;
+prob += 5*x + 8*y &lt;= 2000, &quot;Sugar_Constraint&quot;
+prob += x &lt;= 1.5*y, &quot;Marketing_Mix_Constraint&quot;  # NEW CONSTRAINT
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -183,8 +183,8 @@ prob = pulp.LpProblem(&quot;School_Trip_Buses&quot;, pulp.LpMinimize)
 x1 = pulp.LpVariable(&quot;Large_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
 x2 = pulp.LpVariable(&quot;Small_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
 
-prob += 900·x1 + 600·x2, &quot;Total_Cost&quot;
-prob += 50·x1 + 30·x2 &gt;= 270, &quot;Capacity_Constraint&quot;
+prob += 900*x1 + 600*x2, &quot;Total_Cost&quot;
+prob += 50*x1 + 30*x2 &gt;= 270, &quot;Capacity_Constraint&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -211,8 +211,8 @@ prob = pulp.LpProblem(&quot;School_Trip_Buses_Extended&quot;, pulp.LpMinimize)
 x1 = pulp.LpVariable(&quot;Large_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
 x2 = pulp.LpVariable(&quot;Small_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
 
-prob += 900·x1 + 600·x2, &quot;Total_Cost&quot;
-prob += 50·x1 + 30·x2 &gt;= 270, &quot;Capacity_Constraint&quot;
+prob += 900*x1 + 600*x2, &quot;Total_Cost&quot;
+prob += 50*x1 + 30*x2 &gt;= 270, &quot;Capacity_Constraint&quot;
 prob += x1 + x2 &lt;= 6, &quot;Parking_Limit&quot;  # NEW CONSTRAINT
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
@@ -262,9 +262,9 @@ print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
 
 def objective(w):
     wA, wB = w
-    ret = 0.08·wA + 0.05·wB
-    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2·wA·wB·0.2·0.15·0.08
-    return -(ret - 0.5·var)
+    ret = 0.08*wA + 0.05*wB
+    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
+    return -(ret - 0.5*var)
 
 constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
 bounds = [(0, None), (0, None)]
@@ -288,9 +288,9 @@ print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</
 
 def objective(w):
     wA, wB = w
-    ret_after_tax = 0.08*(1 - 0.20)*wA + 0.05·wB  # MODIFIED: Plan A taxed 20%
-    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2·wA·wB·0.2·0.15·0.08
-    return -(ret_after_tax - 0.5·var)
+    ret_after_tax = 0.08*(1 - 0.20)*wA + 0.05*wB  # MODIFIED: Plan A taxed 20%
+    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
+    return -(ret_after_tax - 0.5*var)
 
 constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
 bounds = [(0, None), (0, None)]
@@ -865,8 +865,8 @@ prob = pulp.LpProblem(&quot;Factory_Mix&quot;, pulp.LpMaximize)
 x = pulp.LpVariable(&quot;Chairs&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Tables&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 40·x + 90·y, &quot;Profit&quot;
-prob += 4·x + 10·y &lt;= 200, &quot;Wood_Limit&quot;
+prob += 40*x + 90*y, &quot;Profit&quot;
+prob += 4*x + 10*y &lt;= 200, &quot;Wood_Limit&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -892,8 +892,8 @@ prob = pulp.LpProblem(&quot;Factory_Mix_Extended&quot;, pulp.LpMaximize)
 x = pulp.LpVariable(&quot;Chairs&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Tables&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 20·x + 40·y, &quot;Net_Profit_After_Labor&quot;  # MODIFIED OBJECTIVE
-prob += 4·x + 10·y &lt;= 200, &quot;Wood_Limit&quot;
+prob += 20*x + 40*y, &quot;Net_Profit_After_Labor&quot;  # MODIFIED OBJECTIVE
+prob += 4*x + 10*y &lt;= 200, &quot;Wood_Limit&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -937,8 +937,8 @@ prob = pulp.LpProblem(&quot;Delivery_Trucks&quot;, pulp.LpMinimize)
 v = pulp.LpVariable(&quot;Vans&quot;, lowBound=0, cat=&quot;Integer&quot;)
 t = pulp.LpVariable(&quot;Trucks&quot;, lowBound=0, cat=&quot;Integer&quot;)
 
-prob += 100·v + 180·t, &quot;Total_Cost&quot;
-prob += 20·v + 40·t &gt;= 120, &quot;Capacity&quot;
+prob += 100*v + 180*t, &quot;Total_Cost&quot;
+prob += 20*v + 40*t &gt;= 120, &quot;Capacity&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -964,8 +964,8 @@ prob = pulp.LpProblem(&quot;Delivery_Trucks_Extended&quot;, pulp.LpMinimize)
 v = pulp.LpVariable(&quot;Vans&quot;, lowBound=0, cat=&quot;Integer&quot;)
 t = pulp.LpVariable(&quot;Trucks&quot;, lowBound=0, cat=&quot;Integer&quot;)
 
-prob += 100·v + 180·t, &quot;Total_Cost&quot;
-prob += 20·v + 40·t &gt;= 120, &quot;Capacity&quot;
+prob += 100*v + 180*t, &quot;Total_Cost&quot;
+prob += 20*v + 40*t &gt;= 120, &quot;Capacity&quot;
 prob += t &gt;= 1, &quot;At_Least_One_Truck&quot;  # NEW CONSTRAINT
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
@@ -1087,8 +1087,8 @@ r = pulp.LpVariable(&quot;Rice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 b = pulp.LpVariable(&quot;Beans&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
 prob += r + b, &quot;Total_Weight&quot;
-prob += 3·r + 2·b &gt;= 600, &quot;Calories&quot;
-prob += r + 3·b &gt;= 300, &quot;Protein&quot;
+prob += 3*r + 2*b &gt;= 600, &quot;Calories&quot;
+prob += r + 3*b &gt;= 300, &quot;Protein&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -1114,9 +1114,9 @@ prob = pulp.LpProblem(&quot;Diet_Planning_Extended&quot;, pulp.LpMinimize)
 r = pulp.LpVariable(&quot;Rice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 b = pulp.LpVariable(&quot;Beans&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 0.01·r + 0.03·b, &quot;Total_Cost&quot;  # MODIFIED OBJECTIVE
-prob += 3·r + 2·b &gt;= 600, &quot;Calories&quot;
-prob += r + 3·b &gt;= 300, &quot;Protein&quot;
+prob += 0.01*r + 0.03*b, &quot;Total_Cost&quot;  # MODIFIED OBJECTIVE
+prob += 3*r + 2*b &gt;= 600, &quot;Calories&quot;
+prob += r + 3*b &gt;= 300, &quot;Protein&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -1237,9 +1237,9 @@ prob = pulp.LpProblem(&quot;Blending&quot;, pulp.LpMinimize)
 x1 = pulp.LpVariable(&quot;Raw_Material_1&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 x2 = pulp.LpVariable(&quot;Raw_Material_2&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 5·x1 + 4·x2, &quot;Cost&quot;
-prob += 3·x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
-prob += x1 + 2·x2 &gt;= 8, &quot;Ingredient_B&quot;
+prob += 5*x1 + 4*x2, &quot;Cost&quot;
+prob += 3*x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
+prob += x1 + 2*x2 &gt;= 8, &quot;Ingredient_B&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -1265,9 +1265,9 @@ prob = pulp.LpProblem(&quot;Blending_Extended&quot;, pulp.LpMinimize)
 x1 = pulp.LpVariable(&quot;Raw_Material_1&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 x2 = pulp.LpVariable(&quot;Raw_Material_2&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 
-prob += 5·x1 + 4·x2, &quot;Cost&quot;
-prob += 3·x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
-prob += x1 + 2·x2 &gt;= 8, &quot;Ingredient_B&quot;
+prob += 5*x1 + 4*x2, &quot;Cost&quot;
+prob += 3*x1 + x2 &gt;= 9, &quot;Ingredient_A&quot;
+prob += x1 + 2*x2 &gt;= 8, &quot;Ingredient_B&quot;
 prob += x1 &lt;= 0.4*(x1 + x2), &quot;Max_40_Percent_RM1&quot;  # NEW CONSTRAINT
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
@@ -1325,10 +1325,10 @@ x = pulp.LpVariable(&quot;Bread&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Cakes&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 z = pulp.LpVariable(&quot;Rent_Oven&quot;, cat=&quot;Binary&quot;)
 
-prob += 2·x + 5·y - 20·z, &quot;Net_Profit&quot;
-prob += 0.5·x + 1.5·y &lt;= 30, &quot;Flour_Limit&quot;
-prob += x &lt;= M·z, &quot;Bread_Only_If_Oven&quot;
-prob += y &lt;= M·z, &quot;Cakes_Only_If_Oven&quot;
+prob += 2*x + 5*y - 20*z, &quot;Net_Profit&quot;
+prob += 0.5*x + 1.5*y &lt;= 30, &quot;Flour_Limit&quot;
+prob += x &lt;= M*z, &quot;Bread_Only_If_Oven&quot;
+prob += y &lt;= M*z, &quot;Cakes_Only_If_Oven&quot;
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
@@ -1359,10 +1359,10 @@ x = pulp.LpVariable(&quot;Bread&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 y = pulp.LpVariable(&quot;Cakes&quot;, lowBound=0, cat=&quot;Continuous&quot;)
 z = pulp.LpVariable(&quot;Rent_Oven&quot;, cat=&quot;Binary&quot;)
 
-prob += 2·x + 5·y - 20·z, &quot;Net_Profit&quot;
-prob += 0.5·x + 1.5·y &lt;= 30, &quot;Flour_Limit&quot;
-prob += x &lt;= M·z, &quot;Bread_Only_If_Oven&quot;
-prob += y &lt;= M·z, &quot;Cakes_Only_If_Oven&quot;
+prob += 2*x + 5*y - 20*z, &quot;Net_Profit&quot;
+prob += 0.5*x + 1.5*y &lt;= 30, &quot;Flour_Limit&quot;
+prob += x &lt;= M*z, &quot;Bread_Only_If_Oven&quot;
+prob += y &lt;= M*z, &quot;Cakes_Only_If_Oven&quot;
 prob += x/80 + y/30 &lt;= 1, &quot;Oven_Capacity&quot;  # NEW CONSTRAINT
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
