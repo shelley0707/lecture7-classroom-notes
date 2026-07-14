@@ -144,7 +144,7 @@ y2 = logistic_midpoint(t, K, r, x0)
 print(f"Max absolute difference: {np.max(np.abs(y1 - y2)):.2e}")
 
 plt.figure(figsize=(12, 5))
-plt.plot(t, y1, label='N(t) = K / (1 + A·e^(-rt))', color='steelblue', linewidth=2)
+plt.plot(t, y1, label='N(t) = K / (1 + A*e^(-rt))', color='steelblue', linewidth=2)
 plt.axhline(y=K, color='green', linestyle='--', alpha=0.7, label=f'K = {K}')
 plt.axvline(x=x0, color='orange', linestyle='--', alpha=0.7, label=f'Midpoint x0 = {x0:.2f}')
 plt.title('Logistic Growth Curve')
@@ -468,7 +468,7 @@ summary = pd.DataFrame({
     ],
     'Key Output': [
         'Logistic = exponential growth with a ceiling',
-        'N(t) = K / (1 + A·e^(-rt))',
+        'N(t) = K / (1 + A*e^(-rt))',
         f'K={K_fit:,.0f}, r={r_fit:.4f}, R²={r2:.4f}',
         f'Two-point r={r_two_point:.4f}; log-linear r={r_log_linear:.4f}',
         f'K=5000 fixed, r={r_fixed:.4f}, N0={N0_fixed:.2f}',
