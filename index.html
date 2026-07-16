@@ -141,6 +141,85 @@ print(f&quot;Apple juice: {x.varValue:.2f} servings&quot;)
 print(f&quot;Orange juice: {y.varValue:.2f} servings&quot;)
 print(f&quot;Max revenue: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
         </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Feasible Region</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The feasible region is bounded by the apple limit (x &lt;= 250), the orange limit (y &lt;= 200), and the sugar constraint (5x + 8y &lt;= 2000). The optimal corner is marked in red.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+import numpy as np
+import matplotlib.pyplot as plt
+
+prob = pulp.LpProblem(&quot;Juice_Shop_Viz&quot;, pulp.LpMaximize)
+x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+prob += 9*x + 6*y
+prob += 0.2*x &lt;= 50
+prob += 0.15*y &lt;= 30
+prob += 5*x + 8*y &lt;= 2000
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+x_opt, y_opt = x.varValue, y.varValue
+
+fig, ax = plt.subplots(figsize=(7, 5))
+from matplotlib.patches import Polygon
+verts = [(0, 0), (250, 0), (250, 93.75), (80, 200), (0, 200)]
+poly = Polygon(verts, alpha=0.2, color=&quot;blue&quot;, label=&quot;Feasible region&quot;)
+ax.add_patch(poly)
+ax.axvline(x=250, color=&quot;green&quot;, linestyle=&quot;--&quot;, label=&quot;Apple limit: x=250&quot;)
+ax.axhline(y=200, color=&quot;purple&quot;, linestyle=&quot;--&quot;, label=&quot;Orange limit: y=200&quot;)
+x1 = np.linspace(0, 260, 400)
+ax.plot(x1, (2000 - 5*x1)/8, color=&quot;orange&quot;, label=&quot;Sugar: 5x+8y=2000&quot;)
+ax.plot(x_opt, y_opt, &quot;ro&quot;, markersize=8, label=&quot;Optimum ({:.1f}, {:.1f})&quot;.format(x_opt, y_opt))
+ax.set_xlim(0, 280)
+ax.set_ylim(0, 240)
+ax.set_xlabel(&quot;Apple juice servings&quot;)
+ax.set_ylabel(&quot;Orange juice servings&quot;)
+ax.set_title(&quot;Juice Shop Feasible Region&quot;)
+ax.legend(loc=&quot;upper right&quot;)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()</code></pre>
+        </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Sensitivity Analysis: &plusmn;20% Parameter Changes</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Vary each parameter by &plusmn;20% while holding the others at their base values. The table shows how the maximum revenue changes. Notice that orange supply is not binding, so changing it does not affect the result.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+def solve_juice(rev_apple=9, rev_orange=6, apple_sup=50, orange_sup=30, sugar_sup=2000):
+    prob = pulp.LpProblem(&quot;Juice_Shop_Sensitivity&quot;, pulp.LpMaximize)
+    x = pulp.LpVariable(&quot;Apple_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+    y = pulp.LpVariable(&quot;Orange_Juice&quot;, lowBound=0, cat=&quot;Continuous&quot;)
+    prob += rev_apple*x + rev_orange*y
+    prob += 0.2*x &lt;= apple_sup
+    prob += 0.15*y &lt;= orange_sup
+    prob += 5*x + 8*y &lt;= sugar_sup
+    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    return pulp.value(prob.objective)
+
+base = solve_juice()
+params = {
+    &quot;Apple revenue&quot;: (&quot;rev_apple&quot;, 9),
+    &quot;Orange revenue&quot;: (&quot;rev_orange&quot;, 6),
+    &quot;Apple supply&quot;: (&quot;apple_sup&quot;, 50),
+    &quot;Orange supply&quot;: (&quot;orange_sup&quot;, 30),
+    &quot;Sugar supply&quot;: (&quot;sugar_sup&quot;, 2000)
+}
+
+print(&quot;Base max revenue: ${:.2f}&quot;.format(base))
+print(&quot;{:<20} {:>10} {:>10} {:>10}&quot;.format(&quot;Parameter&quot;, &quot;-20%&quot;, &quot;Base&quot;, &quot;+20%&quot;))
+for name, (key, val) in params.items():
+    low = solve_juice(**{key: val*0.8})
+    high = solve_juice(**{key: val*1.2})
+    print(&quot;{:<20} ${:>9.2f} ${:>9.2f} ${:>9.2f}&quot;.format(name, low, base, high))</code></pre>
+        </div>
     </section>
 
 
@@ -221,6 +300,76 @@ print(f&quot;Large buses: {int(x1.varValue)}&quot;)
 print(f&quot;Small buses: {int(x2.varValue)}&quot;)
 print(f&quot;Min cost: ${pulp.value(prob.objective):.2f}&quot;)</code></pre>
         </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Feasible Integer Solutions</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Each dot represents one integer combination of large and small buses that satisfies the capacity constraint. Color shows total cost, and the cheapest feasible mix is marked with a red star.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+import numpy as np
+import matplotlib.pyplot as plt
+
+large = np.arange(0, 8)
+small = np.arange(0, 12)
+feasible = []
+for L in large:
+    for S in small:
+        if 50*L + 30*S &gt;= 270:
+            feasible.append((L, S, 900*L + 600*S))
+feasible = np.array(feasible)
+
+fig, ax = plt.subplots(figsize=(7, 5))
+scatter = ax.scatter(feasible[:,0], feasible[:,1], c=feasible[:,2], cmap=&quot;viridis_r&quot;, s=80)
+plt.colorbar(scatter, ax=ax, label=&quot;Total cost&quot;)
+opt = feasible[np.argmin(feasible[:,2])]
+ax.plot(opt[0], opt[1], &quot;r*&quot;, markersize=15, label=&quot;Optimum ({}, {}) = ${:.0f}&quot;.format(int(opt[0]), int(opt[1]), opt[2]))
+ax.set_xlabel(&quot;Large buses&quot;)
+ax.set_ylabel(&quot;Small buses&quot;)
+ax.set_title(&quot;School Trip Buses: Feasible Integer Solutions&quot;)
+ax.legend()
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()</code></pre>
+        </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Sensitivity Analysis: &plusmn;20% Parameter Changes</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Vary each parameter by &plusmn;20% to see how the minimum cost and the optimal bus mix change. Because the variables must be integers, small parameter changes can flip the best combination.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import pulp
+
+def solve_buses(large_cost=900, small_cost=600, large_cap=50, small_cap=30, students=270):
+    prob = pulp.LpProblem(&quot;School_Trip_Buses_Sensitivity&quot;, pulp.LpMinimize)
+    x1 = pulp.LpVariable(&quot;Large_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+    x2 = pulp.LpVariable(&quot;Small_Buses&quot;, lowBound=0, cat=&quot;Integer&quot;)
+    prob += large_cost*x1 + small_cost*x2
+    prob += large_cap*x1 + small_cap*x2 &gt;= students
+    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    return int(x1.varValue), int(x2.varValue), pulp.value(prob.objective)
+
+base_L, base_S, base_cost = solve_buses()
+params = {
+    &quot;Large bus cost&quot;: (&quot;large_cost&quot;, 900),
+    &quot;Small bus cost&quot;: (&quot;small_cost&quot;, 600),
+    &quot;Large capacity&quot;: (&quot;large_cap&quot;, 50),
+    &quot;Small capacity&quot;: (&quot;small_cap&quot;, 30),
+    &quot;Total students&quot;: (&quot;students&quot;, 270)
+}
+
+print(&quot;Base: {} large, {} small, cost=${:.2f}&quot;.format(base_L, base_S, base_cost))
+print(&quot;{:<20} {:<20} {:<20} {:<20}&quot;.format(&quot;Parameter&quot;, &quot;-20%&quot;, &quot;Base&quot;, &quot;+20%&quot;))
+for name, (key, val) in params.items():
+    low = solve_buses(**{key: val*0.8})
+    high = solve_buses(**{key: val*1.2})
+    fmt = lambda r: &quot;{}L,{}S=${:.0f}&quot;.format(r[0], r[1], r[2])
+    print(&quot;{:<20} {:<20} {:<20} {:<20}&quot;.format(name, fmt(low), fmt((base_L, base_S, base_cost)), fmt(high)))</code></pre>
+        </div>
     </section>
 
 
@@ -297,6 +446,89 @@ bounds = [(0, None), (0, None)]
 
 res = minimize(objective, x0=[500, 500], bounds=bounds, constraints=constraints)
 print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</code></pre>
+        </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Objective Surface</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">The contour plot shows the risk-adjusted return for different investment amounts. Because risk grows quadratically, the optimum invests only a small fraction of the available budget.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+import numpy as np
+import matplotlib.pyplot as plt
+
+def raw_obj(wA, wB):
+    ret = 0.08*wA + 0.05*wB
+    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
+    return ret - 0.5*var
+
+wA = np.linspace(0, 40, 100)
+wB = np.linspace(0, 40, 100)
+WA, WB = np.meshgrid(wA, wB)
+Z = np.vectorize(raw_obj)(WA, WB)
+
+fig, ax = plt.subplots(figsize=(7, 5))
+contour = ax.contourf(WA, WB, Z, levels=20, cmap=&quot;RdYlGn&quot;)
+plt.colorbar(contour, ax=ax, label=&quot;Risk-adjusted return ($)&quot;)
+
+def solve_savings(ret_a=0.08, ret_b=0.05, vol_a=0.15, vol_b=0.08, corr=0.2, risk_aversion=0.5, budget=1000):
+    def objective(w):
+        wA, wB = w
+        ret = ret_a*wA + ret_b*wB
+        var = (vol_a**2)*(wA**2) + (vol_b**2)*(wB**2) + 2*wA*wB*corr*vol_a*vol_b
+        return -(ret - risk_aversion*var)
+    res = minimize(objective, x0=[500, 500], bounds=[(0, None), (0, None)],
+                   constraints={&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: budget - sum(w)})
+    return res.x[0], res.x[1], -res.fun
+
+opt_wA, opt_wB, opt_obj = solve_savings()
+ax.plot(opt_wA, opt_wB, &quot;r*&quot;, markersize=15, label=&quot;Optimum ({:.1f}, {:.1f})&quot;.format(opt_wA, opt_wB))
+ax.set_xlabel(&quot;Investment in Plan A ($)&quot;)
+ax.set_ylabel(&quot;Investment in Plan B ($)&quot;)
+ax.set_title(&quot;Two Savings Plans: Objective Surface&quot;)
+ax.legend()
+plt.tight_layout()
+plt.show()</code></pre>
+        </div>
+
+<h3 class="font-semibold text-slate-900 mb-2 mt-6">Sensitivity Analysis: &plusmn;20% Parameter Changes</h3>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Vary each parameter by &plusmn;20% to see how the optimal allocation (A, B) and the best risk-adjusted return change. Returns, volatilities, and the risk-aversion weight all shift the solution.</p>
+<div class="relative mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+          </div>
+          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+
+def solve_savings(ret_a=0.08, ret_b=0.05, vol_a=0.15, vol_b=0.08, corr=0.2, risk_aversion=0.5, budget=1000):
+    def objective(w):
+        wA, wB = w
+        ret = ret_a*wA + ret_b*wB
+        var = (vol_a**2)*(wA**2) + (vol_b**2)*(wB**2) + 2*wA*wB*corr*vol_a*vol_b
+        return -(ret - risk_aversion*var)
+    res = minimize(objective, x0=[500, 500], bounds=[(0, None), (0, None)],
+                   constraints={&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: budget - sum(w)})
+    return res.x[0], res.x[1], -res.fun
+
+opt_wA, opt_wB, opt_obj = solve_savings()
+params = {
+    &quot;Plan A return&quot;: (&quot;ret_a&quot;, 0.08),
+    &quot;Plan B return&quot;: (&quot;ret_b&quot;, 0.05),
+    &quot;Plan A volatility&quot;: (&quot;vol_a&quot;, 0.15),
+    &quot;Plan B volatility&quot;: (&quot;vol_b&quot;, 0.08),
+    &quot;Correlation&quot;: (&quot;corr&quot;, 0.2),
+    &quot;Risk aversion&quot;: (&quot;risk_aversion&quot;, 0.5)
+}
+
+fmt = lambda r: &quot;A={:.1f},B={:.1f},obj={:.2f}&quot;.format(r[0], r[1], r[2])
+print(&quot;Base: A=${:.2f}, B=${:.2f}, objective=${:.4f}&quot;.format(opt_wA, opt_wB, opt_obj))
+print(&quot;{:<22} {:>24} {:>24} {:>24}&quot;.format(&quot;Parameter&quot;, &quot;-20%&quot;, &quot;Base&quot;, &quot;+20%&quot;))
+for name, (key, val) in params.items():
+    low = solve_savings(**{key: val*0.8})
+    high = solve_savings(**{key: val*1.2})
+    print(&quot;{:<22} {:>24} {:>24} {:>24}&quot;.format(name, fmt(low), fmt((opt_wA, opt_wB, opt_obj)), fmt(high)))</code></pre>
         </div>
     </section>
 
