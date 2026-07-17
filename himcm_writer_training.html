@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HiMCM 写作手培养计划 · 14 周从零到赛前</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  .card { transition: box-shadow .2s, transform .2s; }
+  .card:hover { box-shadow: 0 10px 30px -12px rgba(217,119,6,.35); }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <header class="bg-gradient-to-br from-amber-900 via-orange-900 to-slate-900 text-white px-6 py-10">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-wrap items-center gap-3 mb-3 text-sm">
+        <span class="bg-amber-500/20 border border-amber-400/40 text-amber-200 px-3 py-1 rounded-full">角色 3 / 3</span>
+        <a href="himcm_programmer_training.html" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition">→ 编程手计划</a>
+        <a href="himcm_modeler_training.html" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition">→ 建模手计划</a>
+        <a href="himcm_research_training.html" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition">→ Research 计划</a>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold">HiMCM 写作手（Academic Writer）培养计划</h1>
+      <p class="mt-3 text-amber-100 text-lg">14 周从零到赛前 · 先看懂"论文长什么样"，再学怎么写 · 把团队的模型讲成一篇让评委信服的论文</p>
+      <p class="mt-2 text-amber-200/80 text-sm">默认起点：没写过学术论文，也还不懂模型。别担心——你不需要会推导公式，但要能把模型"讲成人话"，所以每一步都从看懂开始。</p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <h2 class="text-xl font-bold mb-2">写作手在队里干什么？</h2>
+      <p class="text-slate-600 leading-relaxed">你是团队的"翻译官 + 讲故事的人"：把建模手的思路、编程手的结果，组织成一篇结构完整、逻辑清楚、语言专业的论文。评委通常先读你的摘要（Summary），一页纸决定第一印象。你不必自己建模或写代码，但你要理解到能把每个模型"为什么用、在算什么、结果说明了什么"讲清楚。写作手的水平，直接决定一份好工作能拿多少分。</p>
+      <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-slate-700">
+        <span class="font-semibold text-amber-800">来自 O 奖范文的规律：</span>高分论文的结构主线几乎固定——<strong>摘要 → 问题重述 → 假设 → 变量符号 → 模型构建与求解 → 结果与灵敏度 → 优缺点 → 结论 → 参考文献</strong>。我们就按这条主线，一周攻克一块。
+      </div>
+      <div class="mt-4 grid sm:grid-cols-3 gap-3 text-sm">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3"><span class="font-semibold text-amber-800">核心能力</span><p class="text-slate-600 mt-1">论文结构 + 清晰表达 + 图表呈现 + 把技术翻译成建议。</p></div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-3"><span class="font-semibold text-orange-800">协作</span><p class="text-slate-600 mt-1">向建模手要逻辑，向编程手要图表和数据。</p></div>
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-3"><span class="font-semibold text-rose-800">赛场价值</span><p class="text-slate-600 mt-1">摘要抓人、主线完整、图文清晰、结论落到现实。</p></div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mb-8 text-sm">
+      <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">阶段 A · 看懂论文（第 1–2 周）</span>
+      <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">阶段 B · 逐块攻克主线（第 3–10 周）</span>
+      <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">阶段 C · 语言·排版·实战（第 11–14 周）</span>
+    </div>
+
+    <div id="weeks" class="space-y-5"></div>
+
+    <section class="bg-white rounded-xl shadow-sm border-2 border-amber-300 p-6 mt-10">
+      <h2 class="text-xl font-bold mb-4">写作手成熟度自检（每写一块问自己）</h2>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4"><div class="font-bold mb-1">① 不懂模型的人看得懂吗</div><p class="text-slate-600">让一个没参赛的同学读，他能说出这段在讲什么。</p></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4"><div class="font-bold mb-1">② 摘要能独立成立吗</div><p class="text-slate-600">只读摘要，就能知道问题、方法、结果、建议。</p></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4"><div class="font-bold mb-1">③ 图会自己说话吗</div><p class="text-slate-600">每张图有编号、标题、图注，正文有引用和解读。</p></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4"><div class="font-bold mb-1">④ 结论落到现实了吗</div><p class="text-slate-600">技术结果被翻译成给决策者的具体建议，而非一串数字。</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
+    <div class="max-w-5xl mx-auto text-sm text-slate-500">
+      HiMCM 写作手培养计划 · 与编程手、建模手三份计划配套使用 · 起点假设：没写过论文、不懂模型，从"看懂 O 奖范文"开始。
+    </div>
+  </footer>
+
+<script>
+const weeks = [
+  {w:1, phase:"A", pc:"emerald", t:"HiMCM 论文长什么样 + 评分标准", goal:"先当读者：看懂一篇 O 奖论文的整体结构和评分逻辑。",
+   learn:"论文标准主线：摘要/总结、问题重述、假设、变量符号、模型构建与求解、结果、优缺点、结论、参考文献、附录。评委看重：模型是否匹配问题、假设是否合理、有没有验证、结论能否落地。",
+   task:"精读 1–2 篇 O 奖范文，画出它的“章节结构树”，标出每部分大概占多少篇幅。",
+   deliver:"一张论文结构树 + 三条你观察到的共性。",
+   check:"能凭记忆说出一篇 HiMCM 论文从头到尾有哪几大块。",
+   res:[{n:"必读：获奖范文 sample paper（本地）", u:""},{n:"必读：HiMCM O奖范文全局共性总结报告（本地）", u:""}]},
+  {w:2, phase:"A", pc:"emerald", t:"Summary（摘要）：评委的第一眼", goal:"理解为什么摘要最重要，学会拆解优秀摘要。",
+   learn:"一页摘要要独立讲清：问题是什么、用了什么方法、得到什么关键结果、给出什么建议。高分摘要节奏=“短句交代动作，中句解释原因”；开门见山，不玩口号。",
+   task:"找 3 篇范文的摘要，各用一句话总结它的“问题-方法-结果-建议”四要素。",
+   deliver:"3 份摘要拆解表。",
+   check:"能指出一段摘要缺了四要素里的哪一项。",
+   res:[{n:"参考：O奖范文摘要写法（共性报告）", u:""}]},
+
+  {w:3, phase:"B", pc:"amber", t:"问题重述与 Introduction", goal:"学会用自己的话重述问题，并交代研究背景与“我们要做什么”。",
+   learn:"Restatement 不是抄题，而是提炼核心决策问题；Introduction 常含背景、问题重述、“Our Work”路线图。让评委快速进入状态。",
+   task:"选一道真题，写一段问题重述 + 一段 Our Work（我们分几步解决）。",
+   deliver:"问题重述 + 工作路线各一段。",
+   check:"没读过原题的人，读你的重述也能懂题目在问什么。",
+   res:[{n:"配套：建模手拆题结果（要来用）", u:"himcm_modeler_training.html"}]},
+  {w:4, phase:"B", pc:"amber", t:"假设与变量符号：把模型的地基写清楚", goal:"学会写“合理且有理由”的假设，以及规范的符号说明。",
+   learn:"每条假设都要配一句 justification（为什么这样简化是合理的）；符号表统一、每个变量给定义和单位；这是评委高频检查项，也是 O 奖论文标配。",
+   task:"为一个模型写 4–6 条假设（每条带理由）+ 一张符号说明表。",
+   deliver:"假设清单 + 符号表。",
+   check:"每条假设都能回答“如果不这么假设会怎样”。",
+   res:[]},
+  {w:5, phase:"B", pc:"amber", t:"清晰呈现变量/目标/约束（像 LP/IP 那样）", goal:"学会把一个模型的核心要素写到“一目了然”。",
+   learn:"优化类要清楚写决策变量、目标函数、约束条件；动态类要写状态变量与变化率；评价类要写指标与权重。用文字定义 + 公式 + 符号三位一体，评委扫读就能抓住。",
+   task:"挑建模手的一个模型，把它的“变量/目标/约束（或状态/方程）”写成规范的论文段落。",
+   deliver:"一段结构清晰的模型要素呈现。",
+   check:"编程手读你这段，能直接对上他的代码。",
+   res:[{n:"参考：LP/IP/NLP 课堂笔记（呈现范式）", u:"regression_model_classroom.html"},{n:"配套：建模手计划", u:"himcm_modeler_training.html"}]},
+  {w:6, phase:"B", pc:"amber", t:"模型建立段落：把模型讲成人话", goal:"用文字+公式介绍一个模型，让不懂它的人也能看懂。",
+   learn:"套路：先说这个模型解决什么问题→为什么选它（选择理由）→核心公式与每一项含义→怎么把本题映射进去。避免直接甩公式不解释。",
+   task:"为团队用到的某个模型写完整的“模型建立”小节（选择理由+公式+映射）。",
+   deliver:"一节完整的模型构建文字。",
+   check:"一个没学过该模型的同学，读完能复述它大概在干什么。",
+   res:[{n:"参考：各模型课堂笔记（了解模型本质）", u:"differential_equation_classroom.html"}]},
+  {w:7, phase:"B", pc:"amber", t:"结果呈现：让图表自己说话", goal:"学会规范地放图放表，并在正文引用解读。",
+   learn:"每张图要有编号、标题、坐标轴标签、图注；表格要有表头和单位；正文要“引用图号+说明这张图告诉我们什么”；不要放没解释的图。",
+   task:"拿编程手给的 2–3 张图，为每张写编号+图注+一段正文解读。",
+   deliver:"图文结合的结果小节。",
+   check:"删掉图，只读文字也知道结果是什么；删掉文字，看图也懂大意。",
+   res:[{n:"参考：图表类型库 chart_type_gallery（本地）", u:""},{n:"参考：制图软件与AI工具清单（本地）", u:""}]},
+  {w:8, phase:"B", pc:"amber", t:"从结果到现实建议", goal:"把数学输出翻译成给决策者的行动建议——高分论文的灵魂。",
+   learn:"O 奖套路：把技术结论翻译成管理语言（如给 city officials 的建议信/路线图）；在成本、效率、公平、环境之间讲权衡（trade-off），而不是只报一个最优数字。",
+   task:"基于一个模型结果，写一段“给决策者的建议”，包含至少一个 trade-off。",
+   deliver:"一段现实建议（含权衡分析）。",
+   check:"建议具体到“该做什么”，而不是“结果是 X”。",
+   res:[{n:"参考：O奖范文利益相关方写作共性", u:""}]},
+  {w:9, phase:"B", pc:"amber", t:"灵敏度分析与模型评价段落", goal:"学会写模型的“可信度”和 strengths / weaknesses。",
+   learn:"灵敏度段落：说明改关键参数后结论是否稳健；优缺点段落：诚实列 strengths 和 weaknesses（评委反而更信任）；这是 O 奖论文高频模块。",
+   task:"根据编程手的灵敏度结果，写一段灵敏度分析 + 一段模型优缺点。",
+   deliver:"灵敏度 + 优缺点两段。",
+   check:"优点不吹、缺点不回避，并给出改进方向。",
+   res:[{n:"配套：编程手灵敏度分析（要数据）", u:"himcm_programmer_training.html"}]},
+  {w:10, phase:"B", pc:"amber", t:"结论、参考文献与附录", goal:"收尾三件事：呼应问题的结论、够用的引用、规范的附录。",
+   learn:"结论要回扣问题、总结关键发现与建议；参考文献“够支撑模型即可”（官方数据+方法来源+行业/政府资料三类），和正文形成闭环；附录放代码和额外图表。",
+   task:"为一篇练习论文写结论段 + 整理一份 6–10 条的参考文献 + 规划附录内容。",
+   deliver:"结论 + 参考文献 + 附录清单。",
+   check:"参考文献每一条都在正文真正用到，不是凑数。",
+   res:[]},
+
+  {w:11, phase:"C", pc:"rose", t:"学术语言与写作风格", goal:"从“能写”升级到“写得专业、清楚、简洁”。",
+   learn:"句子节奏：短句交代动作、中句解释原因、长句承载限定条件；只加粗真正承担结构功能的词（assumptions、objective、constraints、sensitivity、recommendation）；时态一致；避免口语与空话。",
+   task:"拿自己前几周写的一段，做一次“精简改写”，删掉冗词、拆开过长句子。",
+   deliver:"改写前后对照。",
+   check:"同一段话更短、更清楚，信息没丢。",
+   res:[{n:"参考：数模竞赛核心软技能专项训练集（本地）", u:""}]},
+  {w:12, phase:"C", pc:"rose", t:"逻辑连贯与故事线", goal:"让整篇论文读起来是“一条线”，段落之间自然衔接。",
+   learn:"用过渡句连接章节；每段一个主旨句；让“问题→方法→结果→建议”形成叙事线；站在评委视角检查“读到这里他会不会困惑”。",
+   task:"给一篇练习论文加上章节之间的过渡句，并为每段补主旨句。",
+   deliver:"加了衔接的改进版。",
+   check:"从头顺读一遍，不会在任何地方“卡住/跳跃”。",
+   res:[]},
+  {w:13, phase:"C", pc:"rose", t:"排版、模板与提交规范", goal:"用模板把论文排得专业，控制页数与图文布局。",
+   learn:"LaTeX 或 Word 模板；标题页与目录；页数控制与篇幅分配；图表居中与编号；提交格式检查清单（Summary Sheet、页码、命名）。",
+   task:"把一篇练习论文套进模板，做完整排版，导出 PDF 自查格式。",
+   deliver:"一份排版完成的 PDF。",
+   check:"格式统一、图表编号连续、无排版报错。",
+   res:[{n:"素材：report template.tex（本地课件）", u:""}]},
+  {w:14, phase:"C", pc:"rose", t:"赛前实战：36 小时成稿演练", goal:"基于团队真实模型，限时完成一篇完整论文。",
+   learn:"和建模手/编程手并行推进：边建模边起草，先搭结构再填内容，最后统一语言与排版；预留时间打磨摘要。",
+   task:"选一道往年真题，联合队友在 36 小时内产出一篇结构完整的参赛级论文。",
+   deliver:"一篇完整论文（含摘要、主线、图表、结论、参考文献）。",
+   check:"复盘：哪一块最费时？摘要是不是最后才写好？下次如何用模板与分工提速。",
+   res:[{n:"素材：往年赛题 / 获奖范文（本地）", u:""},{n:"配套：编程手 & 建模手计划", u:"himcm_modeler_training.html"}]},
+];
+
+const badge = {emerald:"bg-emerald-100 text-emerald-800 border-emerald-200", amber:"bg-amber-100 text-amber-800 border-amber-200", rose:"bg-rose-100 text-rose-800 border-rose-200"};
+const border = {emerald:"border-emerald-400", amber:"border-amber-400", rose:"border-rose-400"};
+
+document.getElementById("weeks").innerHTML = weeks.map(function(x){
+  var res = x.res.length ? '<div class="mt-4 flex flex-wrap gap-2">' + x.res.map(function(r){
+    return r.u ? '<a href="'+r.u+'" class="text-xs bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔗 '+r.n+'</a>'
+               : '<span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg">📎 '+r.n+'</span>';
+  }).join('') + '</div>' : '';
+  return '<section class="card bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 '+border[x.pc]+' p-6">'
+    + '<div class="flex flex-wrap items-center gap-3 mb-3">'
+    +   '<span class="'+badge[x.pc]+' border font-bold px-3 py-1 rounded-lg text-sm">第 '+x.w+' 周</span>'
+    +   '<h3 class="text-lg font-bold text-slate-800">'+x.t+'</h3>'
+    + '</div>'
+    + '<p class="text-slate-700 font-medium mb-4 bg-slate-50 rounded-lg px-3 py-2">🎯 '+x.goal+'</p>'
+    + '<div class="grid sm:grid-cols-2 gap-3 text-sm">'
+    +   '<div class="bg-amber-50 border border-amber-100 rounded-lg p-3"><div class="font-semibold text-amber-800 mb-1">学什么</div><p class="text-slate-600">'+x.learn+'</p></div>'
+    +   '<div class="bg-orange-50 border border-orange-100 rounded-lg p-3"><div class="font-semibold text-orange-800 mb-1">动手任务</div><p class="text-slate-600">'+x.task+'</p></div>'
+    +   '<div class="bg-rose-50 border border-rose-100 rounded-lg p-3"><div class="font-semibold text-rose-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p></div>'
+    +   '<div class="bg-pink-50 border border-pink-100 rounded-lg p-3"><div class="font-semibold text-pink-800 mb-1">达标标准</div><p class="text-slate-600">'+x.check+'</p></div>'
+    + '</div>' + res
+    + '</section>';
+}).join('');
+</script>
+</body>
+</html>
