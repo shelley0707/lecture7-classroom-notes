@@ -426,6 +426,55 @@ plt.title(&quot;Phase Portrait: Rabbits vs Foxes&quot;)
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
       </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Direction Field &amp; Environmental Limits</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A direction field draws the arrow (dR/dt, dF/dt) at each point, so any trajectory simply follows the arrows. The classic model has no resource limit on rabbits, so every orbit is a <strong>closed cycle</strong> circling the equilibrium forever. But if the environment can only sustain so many rabbits, we add a carrying capacity K to the prey equation: dR/dt = a*R*(1 - R/K) - b*R*F. Watch how the same arrows now <strong>spiral inward</strong> to a single stable point instead of looping.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+K = 50  # environmental carrying capacity for rabbits
+
+def draw_field(ax, deriv, starts, title, eq=None):
+    R, F = np.meshgrid(np.linspace(0.1, 60, 20), np.linspace(0.1, 25, 20))
+    dR, dF = deriv(R, F)
+    speed = np.hypot(dR, dF)
+    speed[speed == 0] = 1
+    ax.quiver(R, F, dR / speed, dF / speed, speed, cmap=&quot;viridis&quot;, alpha=0.6)
+    for s in starts:
+        sol = solve_ivp(lambda t, y: deriv(*y), (0, 60), s,
+                        t_eval=np.linspace(0, 60, 4000))
+        ax.plot(sol.y[0], sol.y[1], lw=1.5)
+    if eq:
+        ax.plot(*eq, &quot;ro&quot;, markersize=9)
+    ax.set_xlabel(&quot;Rabbits R&quot;)
+    ax.set_ylabel(&quot;Foxes F&quot;)
+    ax.set_title(title)
+
+classic = lambda R, F: (a*R - b*R*F, -c*F + d*R*F)
+limited = lambda R, F: (a*R*(1 - R/K) - b*R*F, -c*F + d*R*F)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))
+draw_field(ax1, classic, [[20, 4], [30, 6], [40, 9]],
+           &quot;Unlimited resources: closed cycles (neutral)&quot;)
+draw_field(ax2, limited, [[10, 3], [40, 9], [55, 15]],
+           &quot;Carrying capacity K=50: spiral to stable coexistence&quot;,
+           eq=(c/d, a/b * (1 - (c/d)/K)))
+plt.tight_layout()
+plt.show()
+
+print(&quot;Equilibrium rabbits R* = c/d = {:.0f} (same in both models)&quot;.format(c/d))
+print(&quot;Classic foxes  F* = a/b = {:.0f}  -&gt; orbits circle this point forever&quot;.format(a/b))
+print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.format(a/b * (1 - (c/d)/K)))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The classic model assumes rabbits could multiply without bound if foxes vanished — an environment with infinite production. That is why its orbits never settle: nothing damps the swings. Adding K says the land can only feed so many rabbits. Now the arrows pull every path toward one coexistence point, and the boom-and-bust cycles fade into a steady balance. Try shrinking K toward R* = c/d = 20: what happens to the foxes when the environment can barely support the prey they depend on? Which is more realistic for a real ecosystem — endless cycles, or a resource-limited balance that absorbs shocks?</p>
+      </div>
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-sm">Sensitivity</span>
