@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HiMCM Research 队员培养计划</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Noto Sans SC', 'Inter', sans-serif; }
+    .topic-card { break-inside: avoid; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .topic-card { box-shadow: none; border: 1px solid #e5e7eb; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <header class="bg-slate-900 text-white py-10 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-bold">HiMCM Research 队员培养计划</h1>
+      <p class="mt-3 text-slate-300 text-lg">10 周前沿话题 · 每次 30–60 分钟 · 练检索，更练"把大问题拆成可建模的小问题"</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm">
+        <span class="bg-teal-600 px-3 py-1 rounded-full">前沿检索</span>
+        <span class="bg-emerald-600 px-3 py-1 rounded-full">问题拆解</span>
+        <span class="bg-rose-600 px-3 py-1 rounded-full">建模思维</span>
+        <span class="bg-indigo-600 px-3 py-1 rounded-full">团队分享</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+      <p class="text-slate-600 leading-relaxed">
+        Research 队员的价值不是"读新闻"，而是把一个庞大、模糊的真实世界议题，翻译成建模队友能上手的<strong>子问题、变量、数据源和模型类型</strong>。这份计划把 10 个话题横跨 HiMCM 常考领域，并且<strong>每个话题都对应一种你们已经学过的建模方法</strong>——研究完顺便积累"这类问题该用什么模型"的直觉。核心训练目标只有一句话：
+      </p>
+      <p class="text-center text-lg font-semibold text-slate-800 my-4 p-3 bg-indigo-50 rounded-lg">
+        把"一个大话题" → 拆成"3–5 个可以写成数学的子问题" + "每个子问题的关键变量和数据来源"
+      </p>
+    </div>
+
+    <!-- 每周固定流程 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+      <h2 class="text-xl font-bold mb-4">每周固定流程（30–60 分钟）</h2>
+      <div class="grid sm:grid-cols-4 gap-3 text-sm">
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+          <div class="font-bold text-teal-800 mb-1">① 检索 · 10–15 分钟</div>
+          <p class="text-slate-600">从"推荐资源"里找 1–2 条近 1–2 年的新闻或报告，记下标题、来源、日期、链接。</p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div class="font-bold text-amber-800 mb-1">② 提炼 · 10 分钟</div>
+          <p class="text-slate-600">抓出 3–5 个关键数字或机制（谁在变、变多少、受什么驱动）。</p>
+        </div>
+        <div class="bg-violet-50 border border-violet-200 rounded-lg p-4">
+          <div class="font-bold text-violet-800 mb-1">③ 拆解 · 15–20 分钟</div>
+          <p class="text-slate-600">回答本话题的"要拆解的问题"，输出子问题 + 变量 + 数据源 + 建议模型类型。</p>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-4">
+          <div class="font-bold text-rose-800 mb-1">④ 分享 · 5 分钟稿</div>
+          <p class="text-slate-600">准备一段 5 分钟口头分享：1 句结论 + 1 张图/因果图 + 1 个"这能怎么建模"。</p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 bg-slate-100 rounded-lg text-sm text-slate-700">
+        <strong>判断来源是否靠谱（30 秒自检）：</strong>是不是权威机构（政府/联合国/顶刊/大学）？有没有原始数据或引用？日期是否近 2 年？有没有明显立场偏向？——凡是转述的二手结论，尽量顺藤摸瓜找到一手来源。
+      </div>
+    </section>
+
+    <div class="flex items-center gap-3 mb-6 mt-10">
+      <div class="h-px flex-1 bg-slate-300"></div>
+      <h2 class="text-lg font-bold text-slate-700 uppercase tracking-wide">10 个 Research 话题</h2>
+      <div class="h-px flex-1 bg-slate-300"></div>
+    </div>
+
+    <!-- Topic 1 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 1 周</span>
+        <h2 class="text-xl font-bold">气候变暖到底由哪些部分组成？（热身）</h2>
+        <span class="bg-teal-100 text-teal-700 text-xs font-semibold px-2 py-1 rounded">对应方法：系统拆解 / 微分方程</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">这是你提到的"锚点"话题，用来示范整套拆解方法。全球变暖不是一个变量，而是一整套相互反馈的子系统。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">一张因果结构图，把"全球变暖"拆成 5 个子系统（温室气体排放、地球能量收支、海洋吸热、冰盖与海平面、极端天气反馈），每个子系统标出 1 个核心变量 + 1 个可查数据源。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>这个系统的"输入"是什么（人为排放）？"状态"是什么（温度、CO₂ 浓度、海平面）？</li>
+          <li>哪里存在反馈回路（如冰盖融化→反照率下降→更暖）？</li>
+          <li>哪些子系统可以写成"变化率"，也就是能用微分方程表达？</li>
+          <li>不同子系统的时间尺度差多少（年 vs 百年）？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.ipcc.ch/report/ar6/wg1/" class="text-sky-700 underline">IPCC AR6 报告 Summary for Policymakers</a>（最权威的一手综述）</li>
+          <li><a href="https://climate.nasa.gov/" class="text-sky-700 underline">NASA Climate — Vital Signs</a>（关键指标实时数据）</li>
+          <li><a href="https://ourworldindata.org/co2-and-greenhouse-gas-emissions" class="text-sky-700 underline">Our World in Data — CO₂ &amp; 温室气体</a>（可下载数据集）</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 2 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 2 周</span>
+        <h2 class="text-xl font-bold">能源转型：一个地区怎么从化石能源切到可再生？</h2>
+        <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded">对应方法：线性/整数规划 (LP/IP)</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">能源转型本质是"在满足用电需求的前提下，如何配置各类电源使成本或碳排放最低"——一个经典优化问题。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">说清楚可再生能源替代的 3 个关键约束（间歇性、储能容量、成本），并指出这个问题的决策变量、目标函数、约束分别是什么——即把它写成一个 LP/IP 的雏形。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>决策变量是什么（各类电源的装机量 / 发电量）？</li>
+          <li>目标是最小化成本，还是最小化碳排放，还是两者权衡？</li>
+          <li>约束有哪些（任意时刻供给≥需求、储能上限、预算、场地）？</li>
+          <li>"太阳只在白天、风时有时无"这种间歇性，怎么塞进约束里？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.iea.org/energy-system" class="text-sky-700 underline">IEA — Energy System</a>（国际能源署，各类电源现状）</li>
+          <li><a href="https://ourworldindata.org/energy" class="text-sky-700 underline">Our World in Data — Energy</a></li>
+          <li><a href="https://www.eia.gov/" class="text-sky-700 underline">美国能源信息署 EIA</a>（含发电成本数据）</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 3 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 3 周</span>
+        <h2 class="text-xl font-bold">传染病传播：新闻里的 R₀ 怎么变成模型？</h2>
+        <span class="bg-rose-100 text-rose-700 text-xs font-semibold px-2 py-1 rounded">对应方法：微分方程 (SIR)</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">直接呼应你们做过的 SIR 笔记。让队员找一条真实疫情新闻，把新闻语言翻译成模型参数。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">找一条近期传染病新闻，指出它的传播途径和大致 R₀，并说明 SIR 模型需要哪些参数（β、γ）、其中哪些能直接从新闻/数据里估出来，哪些只能假设。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>人群该分成哪几个"房室"（S/I/R，要不要加 E 潜伏、D 死亡）？</li>
+          <li>β（传播率）和 γ（康复率）分别对应现实中的什么？</li>
+          <li>戴口罩、封控、疫苗这些干预，如何进入方程（改哪个参数）？</li>
+          <li>R₀ = β/γ 超过 1 和小于 1 分别意味着什么？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.who.int/emergencies/disease-outbreak-news" class="text-sky-700 underline">WHO — Disease Outbreak News</a>（一手疫情通报）</li>
+          <li><a href="https://www.cdc.gov/" class="text-sky-700 underline">美国 CDC</a></li>
+          <li><a href="https://ourworldindata.org/epidemiology" class="text-sky-700 underline">Our World in Data — 流行病数据</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 4 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 4 周</span>
+        <h2 class="text-xl font-bold">入侵物种扩散：蒲公英是怎么"占领"一片土地的？</h2>
+        <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded">对应方法：仿真 / 微分方程</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">直接对标 2023 HiMCM A 题（蒲公英扩散）。这是理解"空间扩散"建模的绝佳入口。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">选一个入侵物种，用一句话描述它的扩散机制，并把"扩散"拆成 3 个可建模要素：繁殖率、单次传播距离的分布、环境承载力。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>该用"只看总数"的模型，还是"看每株在哪"的空间模型？</li>
+          <li>种子传播距离是固定的，还是一个随机分布（该用什么分布）？</li>
+          <li>气候/地形怎么影响扩散——能不能变成承载力 K 的空间差异？</li>
+          <li>这题更适合微分方程，还是基于智能体的仿真？为什么？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.comap.com/contests/himcm-midmcm" class="text-sky-700 underline">COMAP HiMCM 官网</a>（找 2023 A 题原题）</li>
+          <li><a href="https://www.usgs.gov/centers/wetland-and-aquatic-research-center/science/invasive-species" class="text-sky-700 underline">USGS — 入侵物种</a></li>
+          <li><a href="https://www.cabi.org/isc/" class="text-sky-700 underline">CABI Invasive Species Compendium</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 5 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 5 周</span>
+        <h2 class="text-xl font-bold">水资源分配：缺水城市的水该怎么分？</h2>
+        <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded">对应方法：网络流 / 线性规划</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">水从水源流向不同用户，是一个典型的"供-需-约束"分配问题，可用网络流或 LP 建模。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">找一个缺水地区案例，列出这个地区水的"供给 - 需求 - 损耗"三本账，并指出哪个分配环节最值得优化。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>供给源有哪些（河流、地下水、海水淡化、回用）？各有多少？</li>
+          <li>需求部门有哪些（居民、农业、工业、生态）？优先级如何？</li>
+          <li>目标是"总满足最大"还是"最缺的人损失最小"？（公平 vs 效率）</li>
+          <li>有没有必须保留的"生态基流"这类硬约束？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.unwater.org/" class="text-sky-700 underline">UN Water</a></li>
+          <li><a href="https://www.usgs.gov/mission-areas/water-resources" class="text-sky-700 underline">USGS — Water Resources</a></li>
+          <li><a href="https://www.wri.org/aqueduct" class="text-sky-700 underline">WRI Aqueduct 全球水风险地图</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 6 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 6 周</span>
+        <h2 class="text-xl font-bold">循环经济：一个塑料瓶的一生会去哪里？</h2>
+        <span class="bg-rose-100 text-rose-700 text-xs font-semibold px-2 py-1 rounded">对应方法：马尔可夫链 / 存量流量</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">呼应 2023 HiMCM B 题（回收）。材料在"使用/回收/填埋"等状态间转移，天然是一个马尔可夫链。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">追踪一种材料（塑料或电池），画出它"生产 → 使用 → 回收 / 填埋 / 焚烧"的流向图，并标出哪个转移概率是提高回收率的关键杠杆。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>材料一共有哪几种"状态"？状态之间怎么转移？</li>
+          <li>转移概率（如回收率）从哪里查？稳定吗？</li>
+          <li>如果反复迭代，长期会稳定在什么分布（多少最终被回收）？</li>
+          <li>改哪一个概率，对"长期回收率"影响最大？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://ellenmacarthurfoundation.org/topics/circular-economy-introduction/overview" class="text-sky-700 underline">Ellen MacArthur Foundation — 循环经济</a></li>
+          <li><a href="https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling" class="text-sky-700 underline">US EPA — 材料与回收数据</a></li>
+          <li><a href="https://ourworldindata.org/plastic-pollution" class="text-sky-700 underline">Our World in Data — 塑料污染</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 7 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 7 周</span>
+        <h2 class="text-xl font-bold">野火蔓延：火是怎么"爬"过一片山林的？</h2>
+        <span class="bg-teal-100 text-teal-700 text-xs font-semibold px-2 py-1 rounded">对应方法：元胞自动机 / ABM 仿真</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">呼应你们仿真笔记里的 ABM。野火蔓延是"局部规则→全局涌现"的经典案例。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">找一次近期野火事件，列出决定其蔓延的 3 个物理因子（风、地形坡度、燃料/植被），并说明为什么它适合用网格上的元胞自动机/ABM 而不是单个方程。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>把土地划成网格后，每个格子有哪些状态（未燃/燃烧中/烧毁）？</li>
+          <li>"火从一个格子点燃邻居"的概率取决于什么？</li>
+          <li>风向如何让蔓延变得不对称（顺风更快）？</li>
+          <li>这和你们做过的病毒传播 ABM 有什么共同的"局部规则"结构？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.nifc.gov/fire-information/statistics" class="text-sky-700 underline">美国国家跨部门消防中心 NIFC 统计</a></li>
+          <li><a href="https://www.fire.ca.gov/incidents" class="text-sky-700 underline">Cal Fire 火情记录</a></li>
+          <li><a href="https://firms.modaps.eosdis.nasa.gov/" class="text-sky-700 underline">NASA FIRMS 全球火点实时地图</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 8 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 8 周</span>
+        <h2 class="text-xl font-bold">电动车与充电桩：充电站应该建在哪？</h2>
+        <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded">对应方法：设施选址 / 整数规划</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">EV 普及带来的充电桩布局，是一个经典的"设施选址"整数规划问题。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">找 EV 普及率数据，说明"充电桩选址"问题的决策变量（在哪些候选点建站）与约束（覆盖、预算），并点明这是一个整数规划问题。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>需求点在哪（人口/车流密度）？候选站点有哪些？</li>
+          <li>决策变量为什么是 0/1（建或不建），因此为什么是"整数"规划？</li>
+          <li>目标是"覆盖最多需求"还是"总建设成本最低"？</li>
+          <li>"每个小区 5 公里内必须有一个桩"这种覆盖要求，怎么写成约束？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.iea.org/reports/global-ev-outlook-2024" class="text-sky-700 underline">IEA — Global EV Outlook</a></li>
+          <li><a href="https://ourworldindata.org/transport" class="text-sky-700 underline">Our World in Data — Transport</a></li>
+          <li><a href="https://afdc.energy.gov/data" class="text-sky-700 underline">US AFDC — 替代燃料与充电设施数据</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 9 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-sm">第 9 周</span>
+        <h2 class="text-xl font-bold">气候与粮食：气温和降水怎么决定收成？</h2>
+        <span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2 py-1 rounded">对应方法：回归 / 时间序列</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">呼应你们的时间序列笔记。作物产量随气候变量变化，是回归与时间序列预测的好素材。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">找一条气候影响农业的新闻/数据，说明"产量"如何依赖气候变量（温度、降水、CO₂），并指出哪一部分适合用回归、哪一部分适合用时间序列预测。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>自变量（气候因子）和因变量（产量）分别是什么？</li>
+          <li>关系是线性的，还是有"最适温度、过高反而减产"的非线性？</li>
+          <li>产量数据有没有趋势和季节性（因此需要时间序列而非普通回归）？</li>
+          <li>怎么区分"长期气候趋势"和"当年天气波动"两种影响？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.fao.org/faostat/en/" class="text-sky-700 underline">FAO FAOSTAT — 全球农业数据</a></li>
+          <li><a href="https://ourworldindata.org/agricultural-production" class="text-sky-700 underline">Our World in Data — 农业产量</a></li>
+          <li><a href="https://data.worldbank.org/topic/agriculture-and-rural-development" class="text-sky-700 underline">World Bank — 农业数据</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Topic 10 -->
+    <section class="topic-card bg-white rounded-xl shadow-sm border border-2 border-indigo-300 p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <span class="bg-indigo-600 text-white font-bold px-3 py-1 rounded-lg text-sm">第 10 周</span>
+        <h2 class="text-xl font-bold">综合演练：独立完成一次完整拆解（Capstone）</h2>
+        <span class="bg-slate-200 text-slate-700 text-xs font-semibold px-2 py-1 rounded">对应方法：自选</span>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">前 9 周每次都有我给的脚手架，这一周撤掉脚手架，让队员独立走完全流程——这是检验培养成果的关键一周。</p>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm">我要的结论（交付物）</h3>
+        <p class="text-slate-700 text-sm">任选一个极端天气或可持续发展议题，独立产出一份一页纸拆解：背景 → 3–5 个子问题 → 每个子问题的关键变量 → 数据源 → 建议用哪种模型（并说明理由）。</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm">要拆解的问题</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>这个议题的核心不确定性是什么？</li>
+          <li>如果只能建一个子模型，你选哪个？为什么它最关键？</li>
+          <li>你选的模型类型，和前 9 周哪一周最像？</li>
+          <li>最大的数据缺口在哪，缺了要怎么假设？</li>
+        </ul>
+      </div>
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm">推荐资源</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><a href="https://www.climate.gov/" class="text-sky-700 underline">NOAA Climate.gov</a></li>
+          <li><a href="https://www.emdat.be/" class="text-sky-700 underline">EM-DAT 国际灾害数据库</a></li>
+          <li><a href="https://www.comap.com/contests/himcm-midmcm" class="text-sky-700 underline">COMAP 历年 HiMCM 真题</a>（对照真题练拆解）</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 评价表 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <h2 class="text-xl font-bold mb-4">每周分享的评价标准（帮你快速打分）</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse">
+          <thead>
+            <tr class="border-b-2 border-slate-300 text-slate-700">
+              <th class="py-2 pr-4">维度</th>
+              <th class="py-2 pr-4">不合格</th>
+              <th class="py-2 pr-4">合格</th>
+              <th class="py-2">优秀</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-600">
+            <tr class="border-b border-slate-200">
+              <td class="py-2 pr-4 font-semibold">来源质量</td>
+              <td class="py-2 pr-4">随便一个博客/自媒体</td>
+              <td class="py-2 pr-4">权威机构二手报道</td>
+              <td class="py-2">找到一手数据/原始报告</td>
+            </tr>
+            <tr class="border-b border-slate-200">
+              <td class="py-2 pr-4 font-semibold">拆解深度</td>
+              <td class="py-2 pr-4">只复述新闻</td>
+              <td class="py-2 pr-4">列出了子问题</td>
+              <td class="py-2">子问题+变量+数据源齐全</td>
+            </tr>
+            <tr class="border-b border-slate-200">
+              <td class="py-2 pr-4 font-semibold">建模意识</td>
+              <td class="py-2 pr-4">没提怎么建模</td>
+              <td class="py-2 pr-4">说出了模型类型</td>
+              <td class="py-2">能说清为什么选这个模型</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 font-semibold">表达</td>
+              <td class="py-2 pr-4">超时/念稿</td>
+              <td class="py-2 pr-4">5 分钟讲清楚</td>
+              <td class="py-2">有一张自制的图辅助</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-900">
+        <strong>贯穿始终的一句话：</strong>每周结束时，队员都应该能回答"如果 HiMCM 出这个话题，我们第一步会建什么模型、需要什么数据"。10 周下来，他不只是知道很多新闻，而是练成了团队里那个"能把任何真实问题翻译成建模语言"的人。
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
+    <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
+      为 HiMCM 团队 Research 队员培养设计 · 每次 30–60 分钟 · 练检索，更练拆解与建模思维。
+    </div>
+  </footer>
+
+</body>
+</html>
