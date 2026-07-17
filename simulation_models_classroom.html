@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation &amp; Stochastic Models</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'Fira Code', monospace; }
+    .example-card { break-inside: avoid; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .example-card { box-shadow: none; border: 1px solid #e5e7eb; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <header class="bg-slate-900 text-white py-10 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-bold">Simulation &amp; Stochastic Models</h1>
+      <p class="mt-3 text-slate-300 text-lg">Classroom Notes: Embracing Uncertainty — From Random Sampling to Emergent Behavior</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm">
+        <span class="bg-teal-600 px-3 py-1 rounded-full">Monte Carlo</span>
+        <span class="bg-emerald-600 px-3 py-1 rounded-full">Agent-Based</span>
+        <span class="bg-rose-600 px-3 py-1 rounded-full">Markov Chains</span>
+        <span class="bg-indigo-600 px-3 py-1 rounded-full">Parameter Insight</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+      <p class="text-slate-600 leading-relaxed">
+        A <strong>deterministic</strong> model gives the same output for the same input (a cannonball&#x27;s trajectory). A <strong>stochastic</strong> model embraces uncertainty: it does not predict one fixed answer but the <strong>distribution</strong> of possible answers (a 60% chance of rain). This lecture builds three of the most useful stochastic tools. To keep every model as precise as a linear program, each example below is stated with the same four-part contract:
+      </p>
+      <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3"><strong class="text-sky-800">State &amp; Random Variables</strong><br><span class="text-slate-600">what the simulation tracks and what is drawn at random — the stochastic analog of <em>decision variables</em>.</span></div>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3"><strong class="text-amber-800">Model Rules / Distributions</strong><br><span class="text-slate-600">the equations, update rules, or probability laws every variable must obey — the analog of <em>constraints</em>.</span></div>
+        <div class="bg-violet-50 border border-violet-200 rounded-lg p-3"><strong class="text-violet-800">Output Metric</strong><br><span class="text-slate-600">the quantity we estimate from many runs — the analog of the <em>objective function</em>.</span></div>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-3"><strong class="text-green-800">Parameters (assumed)</strong><br><span class="text-slate-600">the fixed numbers we feed in and later vary to gain insight.</span></div>
+      </div>
+      <p class="text-slate-600 leading-relaxed mt-4">Every block is copy-paste-ready and uses <strong>numpy</strong> and <strong>matplotlib</strong>. Click <strong>Copy</strong> to grab any block.</p>
+    </div>
+
+    <!-- ============ PART A: MONTE CARLO ============ -->
+    <div class="flex items-center gap-3 mb-4 mt-10">
+      <div class="h-px flex-1 bg-teal-300"></div>
+      <h2 class="text-lg font-bold text-teal-700 uppercase tracking-wide">Part A &nbsp;&middot;&nbsp; Monte Carlo Simulation</h2>
+      <div class="h-px flex-1 bg-teal-300"></div>
+    </div>
+    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
+      <strong>Core idea (top-down):</strong> no complicated formula needed. Define the probability distribution for each uncertain input, then let a computer &quot;roll the dice&quot; thousands of times. The frequency of outcomes across all trials approximates the true probability — using <em>quantitative</em> change (many trials) to produce <em>qualitative</em> insight (the answer). The four steps: (1) define the problem, (2) build a probability model, (3) run many random trials, (4) analyze the results.
+    </p>
+
+    <!-- Example 1: Pi -->
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
+        <h2 class="text-xl font-bold">Example 1 — Estimating &pi; by Throwing Darts</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Throw darts blindly at a 2&times;2 square with an inscribed circle of radius 1. The fraction landing inside the circle equals the ratio of areas, &pi;/4. Counting hits therefore estimates &pi; — the &quot;hello world&quot; of Monte Carlo.</p>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>(x, y) = coordinates of one dart, each drawn at random</li>
+          <li>hit = 1 if the dart lands inside the circle, else 0</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>x ~ Uniform(-1, 1), y ~ Uniform(-1, 1) — every spot equally likely</li>
+          <li>inside the circle when x&sup2; + y&sup2; &le; 1</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">&pi; &asymp; 4 &times; (darts inside circle / total darts)</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Number of darts (trials): swept over 10 to 100,000</li>
+        </ul>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
+N = 100000
+x = np.random.uniform(-1, 1, N)
+y = np.random.uniform(-1, 1, N)
+inside = x**2 + y**2 &lt;= 1
+
+pi_estimate = 4 * inside.mean()
+print(&quot;Estimate of pi with {} darts: {:.5f}&quot;.format(N, pi_estimate))
+
+# --- Convergence: accuracy grows with the number of trials ---
+trials = np.logspace(1, 5, 30).astype(int)
+estimates = [4 * (np.random.uniform(-1, 1, n)**2 + np.random.uniform(-1, 1, n)**2 &lt;= 1).mean()
+             for n in trials]
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+ax1.scatter(x[:3000][inside[:3000]], y[:3000][inside[:3000]], s=4, color=&quot;teal&quot;)
+ax1.scatter(x[:3000][~inside[:3000]], y[:3000][~inside[:3000]], s=4, color=&quot;lightcoral&quot;)
+ax1.set_aspect(&quot;equal&quot;); ax1.set_title(&quot;Darts: inside vs outside the circle&quot;)
+ax2.semilogx(trials, estimates, marker=&quot;o&quot;)
+ax2.axhline(np.pi, color=&quot;red&quot;, ls=&quot;--&quot;, label=&quot;true pi&quot;)
+ax2.set_xlabel(&quot;Number of trials&quot;); ax2.set_ylabel(&quot;Estimate&quot;)
+ax2.set_title(&quot;Law of Large Numbers: convergence to pi&quot;); ax2.legend()
+plt.tight_layout(); plt.show()</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the only knob is the trial count N. Watch the estimate jitter wildly for small N and tighten around &pi; as N grows — this is the Law of Large Numbers in action. The error shrinks like 1/&radic;N, so to gain one more decimal place of accuracy you need about 100&times; more darts. Ask yourself: why does quadrupling N only halve the error, and what does that imply about the cost of a &quot;very precise&quot; Monte Carlo answer?</p>
+      </div>
+    </section>
+
+    <!-- Example 2: Wandering leaf -->
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
+        <h2 class="text-xl font-bold">Example 2 — The Wandering Leaf</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A leaf detaches 5 m above the ground and drifts down at a steady 1 m/s. A gusty horizontal wind pushes it sideways with a random speed. Where does it land? A single answer is meaningless — we want the <em>distribution</em> of landing spots so a groundskeeper knows where leaves tend to gather.</p>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>V = horizontal wind speed (m/s), the random input</li>
+          <li>X = final horizontal landing position (m), the output of each trial</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>V ~ Normal(&mu; = 5, &sigma; = 3) — natural phenomena cluster around a mean</li>
+          <li>fall time t = height / descent speed = 5 / 1 = 5 s (deterministic)</li>
+          <li>landing position X = V &times; t (physics rule linking random input to output)</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">The full distribution of X: its mean, spread, and the probability the leaf drifts past a chosen distance (e.g. P(X &gt; 20 m)).</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Initial height H = 5 m, descent speed = 1 m/s</li>
+          <li>Wind mean &mu; = 5 m/s, wind std &sigma; = 3 m/s</li>
+          <li>Trials = 20,000</li>
+        </ul>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(1)
+H, descent = 5.0, 1.0        # height (m), vertical speed (m/s)
+t_fall = H / descent         # 5 seconds in the air
+N = 20000
+
+# Compare how the SPREAD of wind changes where leaves pile up
+plt.figure(figsize=(10, 5))
+for sigma in [1, 3, 6]:
+    V = np.random.normal(5, sigma, N)   # random wind speed
+    X = V * t_fall                      # landing position
+    plt.hist(X, bins=60, alpha=0.5, density=True,
+             label=&quot;wind std = {}  ->  P(X&gt;20m) = {:.2f}&quot;.format(sigma, np.mean(X &gt; 20)))
+
+plt.axvline(25, color=&quot;black&quot;, ls=&quot;--&quot;, label=&quot;mean landing = 25 m&quot;)
+plt.xlabel(&quot;Horizontal landing position X (m)&quot;)
+plt.ylabel(&quot;Probability density&quot;)
+plt.title(&quot;Where the Leaf Lands: more wind variability = wider spread&quot;)
+plt.legend(); plt.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+
+V = np.random.normal(5, 3, N)
+X = V * t_fall
+print(&quot;Mean landing: {:.1f} m&quot;.format(X.mean()))
+print(&quot;Std of landing: {:.1f} m&quot;.format(X.std()))
+print(&quot;P(leaf drifts past 20 m): {:.1%}&quot;.format(np.mean(X &gt; 20)))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the mean landing spot (25 m) is fixed by the average wind, but the <em>risk</em> of a leaf drifting far depends entirely on &sigma;. Larger &sigma; flattens and widens the histogram, raising P(X&gt;20m). This separates the <em>expected</em> outcome from its <em>uncertainty</em> — the whole point of stochastic modeling. Then think deeper: what if the initial height were also random, or the descent were not a straight line? Each added random variable is one more input to sample, and the Monte Carlo recipe never changes.</p>
+      </div>
+    </section>
+
+    <!-- Example 3: Product launch -->
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
+        <h2 class="text-xl font-bold">Example 3 — Product Launch Timeline &amp; Risk</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A startup must ship its flagship product. Eight tasks (A&ndash;H) run partly in parallel and partly in sequence, but each task&#x27;s duration is uncertain. The CEO wants the probability of launching within the critical 30-day window and needs to know which task is the real bottleneck.</p>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>d_A &hellip; d_H = the random duration of each of the eight tasks</li>
+          <li>finish_i = the time task i completes, given its predecessors</li>
+          <li>T = total project time = finish time of the final task H</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Durations: A~N(10,2), B~N(7,1.5), C~N(8,2), D~N(6,1), E~U(5,10), F~N(12,3), G~U(3,7), H=1</li>
+          <li>Dependencies: C after A; D after B; E after C &amp; D; G after A &amp; B; H after E, F &amp; G</li>
+          <li>A task starts only when <em>all</em> its predecessors finish: finish = max(predecessor finishes) + duration</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">Distribution of total time T; P(T &le; 30 days); and the correlation of each task with T to reveal the bottleneck.</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Task means / spreads as above; launch deadline = 30 days</li>
+          <li>Trials = 10,000</li>
+        </ul>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(2)
+N = 10000
+durations = {k: np.zeros(N) for k in &quot;ABCDEFG&quot;}
+durations[&quot;A&quot;] = np.random.normal(10, 2, N)
+durations[&quot;B&quot;] = np.random.normal(7, 1.5, N)
+durations[&quot;C&quot;] = np.random.normal(8, 2, N)
+durations[&quot;D&quot;] = np.random.normal(6, 1, N)
+durations[&quot;E&quot;] = np.random.uniform(5, 10, N)
+durations[&quot;F&quot;] = np.random.normal(12, 3, N)
+durations[&quot;G&quot;] = np.random.uniform(3, 7, N)
+
+# Finish times follow the dependency network (a task waits for its predecessors)
+fA, fB = durations[&quot;A&quot;], durations[&quot;B&quot;]
+fC = fA + durations[&quot;C&quot;]
+fD = fB + durations[&quot;D&quot;]
+fE = np.maximum(fC, fD) + durations[&quot;E&quot;]
+fG = np.maximum(fA, fB) + durations[&quot;G&quot;]
+fF = durations[&quot;F&quot;]
+T = np.maximum.reduce([fE, fF, fG]) + 1   # + H (constant 1 day)
+
+print(&quot;Mean completion time: {:.1f} days&quot;.format(T.mean()))
+print(&quot;P(launch within 30 days): {:.1%}&quot;.format(np.mean(T &lt;= 30)))
+print(&quot;90th percentile (plan-for-this): {:.1f} days&quot;.format(np.percentile(T, 90)))
+
+# Which task drives the total? Correlate each duration with T.
+print(&quot;\nBottleneck ranking (correlation of task duration with total time):&quot;)
+for k in sorted(durations, key=lambda k: -np.corrcoef(durations[k], T)[0, 1]):
+    print(&quot;  Task {}: {:+.2f}&quot;.format(k, np.corrcoef(durations[k], T)[0, 1]))
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+ax1.hist(T, bins=50, color=&quot;teal&quot;, alpha=0.7)
+ax1.axvline(30, color=&quot;red&quot;, ls=&quot;--&quot;, label=&quot;30-day deadline&quot;)
+ax1.set_xlabel(&quot;Total project time (days)&quot;); ax1.set_ylabel(&quot;Frequency&quot;)
+ax1.set_title(&quot;Distribution of Launch Time&quot;); ax1.legend()
+corrs = {k: np.corrcoef(durations[k], T)[0, 1] for k in durations}
+ax2.barh(list(corrs), list(corrs.values()), color=&quot;slateblue&quot;)
+ax2.set_xlabel(&quot;Correlation with total time&quot;)
+ax2.set_title(&quot;Bottleneck: which task controls the schedule?&quot;)
+plt.tight_layout(); plt.show()</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> a single-point estimate (&quot;about 27 days&quot;) hides the risk — the simulation shows only ~87% of runs finish by day 30. The correlation chart is the payoff: the task most correlated with T is the true bottleneck, so shortening <em>it</em> (not a random task) buys the most schedule safety. Try halving the std of the top task versus the bottom task and re-run: which actually raises P(T&le;30)? This is how a modeler turns &quot;work harder&quot; into &quot;work on the right thing.&quot;</p>
+      </div>
+    </section>
+
+    <!-- ============ PART B: AGENT-BASED ============ -->
+    <div class="flex items-center gap-3 mb-4 mt-10">
+      <div class="h-px flex-1 bg-emerald-300"></div>
+      <h2 class="text-lg font-bold text-emerald-700 uppercase tracking-wide">Part B &nbsp;&middot;&nbsp; Agent-Based Simulation</h2>
+      <div class="h-px flex-1 bg-emerald-300"></div>
+    </div>
+    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
+      <strong>Core idea (bottom-up):</strong> instead of one equation for the whole system, define simple rules for <em>individual</em> agents and let global patterns <em>emerge</em> from their local interactions — like a stadium &quot;Mexican wave&quot; that nobody choreographs. The three pillars are <strong>Agents</strong> (autonomous individuals with their own state), the <strong>Environment</strong> (the stage and its resources), and <strong>Rules</strong> (how agents act and interact). This is the natural counterpart to the Lotka-Volterra differential equations: here each animal is its own decision-maker.
+    </p>
+
+    <!-- Example 4: Wolf-Sheep-Grass -->
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">Agent-Based</span>
+        <h2 class="text-xl font-bold">Example 4 — The Wolf-Sheep-Grass Ecosystem</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A grid world holds three kinds of agents: grass (regrows), sheep (eat grass), and wolves (eat sheep). Nobody programs the population curves — the predator-prey oscillations <em>emerge</em> from four simple local rules. This is the agent-level story behind the smooth Lotka-Volterra curves.</p>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">Agents &amp; State (the &quot;variables&quot;)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Each sheep &amp; wolf: position (x, y) on the grid and an energy level</li>
+          <li>Environment: a grid cell is either grass = 1 (grown) or 0 (eaten)</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Rules (the &quot;constraints&quot;)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><strong>Move:</strong> every agent takes one random step and loses 1 energy (living costs energy)</li>
+          <li><strong>Eat:</strong> a sheep on a grass cell eats it (+energy, grass&rarr;0); a wolf on a sheep&#x27;s cell eats it (+energy)</li>
+          <li><strong>Reproduce:</strong> an agent with energy above a threshold splits, sharing energy with its offspring</li>
+          <li><strong>Die:</strong> any agent whose energy hits 0 is removed; grass regrows at a fixed probability</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">The three population counts (grass, sheep, wolves) over time, and whether they settle into stable oscillations or one species collapses.</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Grid 30&times;30; start 60 sheep, 20 wolves</li>
+          <li>Energy from grass = +4, from sheep = +20; grass regrowth prob = 0.03</li>
+          <li>Reproduce thresholds: sheep &gt; 15, wolf &gt; 40; run for 200 steps</li>
+        </ul>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(3)
+
+class Ecosystem:
+    def __init__(self, size=30, n_sheep=60, n_wolves=20, regrow=0.03):
+        self.size, self.regrow = size, regrow
+        rand_pos = lambda: [np.random.randint(0, size), np.random.randint(0, size)]
+        self.sheep  = [rand_pos() + [5]  for _ in range(n_sheep)]   # [x, y, energy]
+        self.wolves = [rand_pos() + [20] for _ in range(n_wolves)]
+        self.grass  = np.random.randint(0, 2, (size, size))
+
+    def _move(self, a):
+        a[0] = (a[0] + np.random.randint(-1, 2)) % self.size
+        a[1] = (a[1] + np.random.randint(-1, 2)) % self.size
+
+    def step(self):
+        # Environment: grass regrows on empty cells
+        regrow = (self.grass == 0) & (np.random.random(self.grass.shape) &lt; self.regrow)
+        self.grass = np.where(regrow, 1, self.grass)
+        # Sheep: move, graze, reproduce, die
+        survivors = []
+        for s in self.sheep:
+            self._move(s); s[2] -= 1
+            if self.grass[s[0], s[1]] == 1:
+                self.grass[s[0], s[1]] = 0; s[2] += 4
+            if s[2] &gt; 15:
+                s[2] //= 2; survivors.append([s[0], s[1], s[2]])
+            if s[2] &gt; 0: survivors.append(s)
+        self.sheep = survivors
+        # Wolves: move, hunt, reproduce, die
+        survivors = []
+        for w in self.wolves:
+            self._move(w); w[2] -= 1
+            for s in self.sheep:
+                if s[0] == w[0] and s[1] == w[1]:
+                    w[2] += 20; self.sheep.remove(s); break
+            if w[2] &gt; 40:
+                w[2] //= 2; survivors.append([w[0], w[1], w[2]])
+            if w[2] &gt; 0: survivors.append(w)
+        self.wolves = survivors
+
+eco = Ecosystem()
+sheep_hist, wolf_hist, grass_hist = [], [], []
+for _ in range(200):
+    eco.step()
+    sheep_hist.append(len(eco.sheep))
+    wolf_hist.append(len(eco.wolves))
+    grass_hist.append(int(eco.grass.sum()))
+
+plt.figure(figsize=(11, 5))
+plt.plot(sheep_hist, label=&quot;Sheep&quot;, color=&quot;seagreen&quot;)
+plt.plot(wolf_hist, label=&quot;Wolves&quot;, color=&quot;firebrick&quot;)
+plt.plot(np.array(grass_hist) / 10, label=&quot;Grass / 10&quot;, color=&quot;goldenrod&quot;, alpha=0.6)
+plt.xlabel(&quot;Time step&quot;); plt.ylabel(&quot;Population&quot;)
+plt.title(&quot;Emergent Predator-Prey Cycles from Simple Local Rules&quot;)
+plt.legend(); plt.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+
+print(&quot;Final -> sheep: {}, wolves: {}, grass cells: {}&quot;.format(
+    sheep_hist[-1], wolf_hist[-1], grass_hist[-1]))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> no equation dictated the cycles — they <em>emerged</em>. Now experiment like an ecologist. Raise the grass regrowth rate: do sheep explode and then crash the wolves, or does the system find a new balance? Increase the wolves&#x27; energy gain (hunting efficiency): does a &quot;better&quot; predator win, or does it eat itself into starvation by wiping out its own food? What happens if wolves start too few? These are the deck&#x27;s discussion questions, and each is answered by changing one number and watching the emergent result — the bottom-up mirror of the sensitivity analysis you did on the Lotka-Volterra equations.</p>
+      </div>
+    </section>
+
+    <!-- ============ PART C: MARKOV CHAINS ============ -->
+    <div class="flex items-center gap-3 mb-4 mt-10">
+      <div class="h-px flex-1 bg-rose-300"></div>
+      <h2 class="text-lg font-bold text-rose-700 uppercase tracking-wide">Part C &nbsp;&middot;&nbsp; Markov Chains</h2>
+      <div class="h-px flex-1 bg-rose-300"></div>
+    </div>
+    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
+      <strong>Core idea (memoryless):</strong> the future depends only on the <em>present</em> state, not the path taken to get there — like deciding your next chess move from the current board alone. Formally P(X&#8345;&#8321; | X&#8345;, &hellip;, X&#8321;) = P(X&#8345;&#8321; | X&#8345;). A single <strong>transition matrix</strong> P encodes all behavior, and repeatedly applying it reveals the long-run <strong>stationary distribution</strong> &pi; = &pi;P — where the system settles regardless of where it started.
+    </p>
+
+    <!-- Example 5: Bike sharing -->
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">Markov Chain</span>
+        <h2 class="text-xl font-bold">Example 5 — Bike-Sharing Station Balance</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A district has three bike stations A, B, C. Each trip a bike takes moves it between stations with fixed, historically-measured probabilities. Operators want to know the long-run distribution of bikes — which stations fill up and which run dry — so they can rebalance efficiently.</p>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State Space (the &quot;variables&quot;)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>State = the station a bike currently sits at: S = {A, B, C}</li>
+          <li>&pi;&#8348; = distribution vector = fraction of bikes at each station at time t</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules (the &quot;constraints&quot;)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>Transition matrix P: entry P[i][j] = probability a bike at station i moves to j</li>
+          <li>Each row sums to 1 (a bike must go somewhere)</li>
+          <li>Markov property: next station depends only on the current station</li>
+          <li>Evolution rule: &pi;&#8348;&#8330;&#8321; = &pi;&#8348; &middot; P</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">The stationary distribution &pi; satisfying &pi; = &pi;P — the long-run share of bikes per station, independent of the starting arrangement.</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>P = [[0.6, 0.3, 0.1], [0.2, 0.5, 0.3], [0.3, 0.2, 0.5]]</li>
+          <li>Start: all bikes at station A; iterate 30 steps</li>
+        </ul>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+# Transition matrix: row i -> probabilities of moving to A, B, C
+P = np.array([[0.6, 0.3, 0.1],
+              [0.2, 0.5, 0.3],
+              [0.3, 0.2, 0.5]])
+stations = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]
+
+# --- Iterate the evolution rule pi_{t+1} = pi_t * P ---
+pi = np.array([1.0, 0.0, 0.0])   # start: every bike at A
+history = [pi]
+for _ in range(30):
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+# --- Verify with the eigenvector of P^T for eigenvalue 1 ---
+vals, vecs = np.linalg.eig(P.T)
+stationary = np.real(vecs[:, np.argmin(np.abs(vals - 1))])
+stationary /= stationary.sum()
+
+for s, p in zip(stations, stationary):
+    print(&quot;Station {}: long-run share = {:.1%}&quot;.format(s, p))
+
+plt.figure(figsize=(10, 5))
+for i, s in enumerate(stations):
+    plt.plot(history[:, i], marker=&quot;o&quot;, label=&quot;Station &quot; + s)
+    plt.axhline(stationary[i], color=&quot;gray&quot;, ls=&quot;:&quot;, alpha=0.5)
+plt.xlabel(&quot;Time step&quot;); plt.ylabel(&quot;Share of bikes&quot;)
+plt.title(&quot;Convergence to the Stationary Distribution (starts all at A)&quot;)
+plt.legend(); plt.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> notice the curves forget their start — begin with every bike at A and they still settle to the same 38% / 34% / 28% split. That is the stationary distribution, and it tells operators station A quietly accumulates bikes while C runs dry, so trucks should carry bikes C&rarr;A each night. Now change one row of P (say users increasingly ride <em>to</em> C) and re-run: how does the steady state shift, and how many steps until it re-stabilizes? Try making a station &quot;sticky&quot; (raise its self-transition): does the whole network slow to equilibrium? This is exactly how Google&#x27;s PageRank ranks web pages — states are pages, transitions are links, and the stationary distribution is importance.</p>
+      </div>
+    </section>
+
+    <!-- Wrap up -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <h2 class="text-xl font-bold mb-3">Choosing Your Stochastic Tool</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse">
+          <thead>
+            <tr class="border-b-2 border-slate-300 text-slate-700">
+              <th class="py-2 pr-4">Model</th>
+              <th class="py-2 pr-4">Worldview</th>
+              <th class="py-2 pr-4">Best when&hellip;</th>
+              <th class="py-2">Key output</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-600">
+            <tr class="border-b border-slate-200">
+              <td class="py-2 pr-4 font-semibold text-teal-700">Monte Carlo</td>
+              <td class="py-2 pr-4">Top-down: sample the whole system</td>
+              <td class="py-2 pr-4">inputs are uncertain and you want the distribution / risk of an outcome</td>
+              <td class="py-2">probability &amp; percentiles of a result</td>
+            </tr>
+            <tr class="border-b border-slate-200">
+              <td class="py-2 pr-4 font-semibold text-emerald-700">Agent-Based</td>
+              <td class="py-2 pr-4">Bottom-up: rules for individuals</td>
+              <td class="py-2 pr-4">system behavior emerges from many interacting, heterogeneous actors</td>
+              <td class="py-2">emergent global patterns over time</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 font-semibold text-rose-700">Markov Chain</td>
+              <td class="py-2 pr-4">Memoryless state transitions</td>
+              <td class="py-2 pr-4">the next state depends only on the current one, with fixed probabilities</td>
+              <td class="py-2">long-run stationary distribution</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-900">
+        <strong>Expert&#x27;s synthesis:</strong> every stochastic model answers &quot;what usually happens, and how uncertain is it?&quot; rather than &quot;what is the single answer?&quot; The modeling skill is matching the tool to the question: use Monte Carlo to quantify <em>risk</em>, agent-based models to explain <em>emergence</em>, and Markov chains to find <em>long-run equilibria</em>. In all three, insight comes not from a single run but from <strong>changing a parameter and watching how the distribution moves</strong>.
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
+    <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
+      Generated for classroom use. Simulation demos use numpy and matplotlib.
+    </div>
+  </footer>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.nextElementSibling;
+      const code = pre.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = original, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
