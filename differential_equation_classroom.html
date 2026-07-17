@@ -702,6 +702,141 @@ plt.show()
 R_naught = beta / gamma
 print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))</code></pre>
       </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Phase Plane &amp; the Epidemic Threshold</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Instead of watching curves over time, plot infectious I against susceptible S. Infections can only grow while dI/dt &gt; 0, which means S &gt; N/R0. That vertical line is the <strong>epidemic threshold</strong>: the trajectory rises until it hits S = N/R0, peaks there, then falls. Notice every curve stops with susceptibles still left over — an outbreak ends not when everyone is infected, but when too few remain to sustain it.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def sir(t, y, beta, gamma, N):
+    S, I, R = y
+    return [-beta*S*I/N, beta*S*I/N - gamma*I, gamma*I]
+
+N, I0, gamma = 10000, 10, 0.1
+t_eval = np.linspace(0, 200, 1000)
+
+plt.figure(figsize=(8, 6))
+for R0 in [0.8, 1.5, 2.5, 4.0]:
+    beta = R0 * gamma
+    sol = solve_ivp(sir, (0, 200), [N - I0, I0, 0], args=(beta, gamma, N), t_eval=t_eval)
+    line, = plt.plot(sol.y[0], sol.y[1], label=&quot;R0 = {:.1f}&quot;.format(R0))
+    plt.axvline(N / R0, color=line.get_color(), ls=&quot;:&quot;, alpha=0.6)
+
+plt.xlabel(&quot;Susceptible S&quot;)
+plt.ylabel(&quot;Infectious I&quot;)
+plt.title(&quot;S-I Phase Plane: I peaks exactly at S = N/R0&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+for R0 in [0.8, 2.5]:
+    print(&quot;R0={:.1f}: infections grow only while S &gt; N/R0 = {:.0f}&quot;.format(R0, N / R0))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> For R0 = 0.8 the threshold N/R0 sits beyond the whole population, so the trajectory can never rise — the disease dies out immediately. Why does raising R0 pull the threshold line to the left, and why does that alone guarantee a bigger peak? If an outbreak always leaves susceptibles behind, what does that tell you about the true meaning of &quot;herd immunity&quot; — is it a target you vaccinate toward, or something the epidemic imposes on its own?</p>
+      </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Waning Immunity — One Wave or Endless Waves?</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">The basic SIR assumes recovery grants permanent immunity, so R only grows. But for many diseases immunity fades. Add a return flow at rate ω from R back to S — this is the <strong>SIRS model</strong>: dS/dt = -β*S*I/N + ω*R and dR/dt = γ*I - ω*R. This one extra arrow decides whether the disease is a single historical event or a permanent endemic presence, mirroring how a carrying capacity turned the predator-prey cycle into a stable spiral.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def sirs(t, y, beta, gamma, omega, N):
+    S, I, R = y
+    dS = -beta*S*I/N + omega*R
+    dI = beta*S*I/N - gamma*I
+    dR = gamma*I - omega*R
+    return [dS, dI, dR]
+
+N, I0 = 10000, 10
+beta, gamma = 0.3, 0.1
+t_eval = np.linspace(0, 600, 2000)
+
+plt.figure(figsize=(10, 5))
+for omega, label in [(0.0, &quot;omega = 0  (lifelong immunity)&quot;),
+                     (0.02, &quot;omega = 0.02  (immunity fades)&quot;)]:
+    sol = solve_ivp(sirs, (0, 600), [N - I0, I0, 0], args=(beta, gamma, omega, N), t_eval=t_eval)
+    plt.plot(sol.t, sol.y[1], label=label)
+
+plt.xlabel(&quot;Time (days)&quot;)
+plt.ylabel(&quot;Infectious I&quot;)
+plt.title(&quot;Waning Immunity Turns One Outbreak into Recurring Waves&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print(&quot;Endemic susceptible level S* = N/R0 = {:.0f}&quot;.format(N * gamma / beta))
+print(&quot;omega=0: disease dies out.  omega&gt;0: it settles to a steady endemic level.&quot;)</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> With ω = 0 the outbreak burns through once and vanishes; with ω &gt; 0 the same infection returns in damped waves and never truly leaves. Yet the long-run susceptible level lands right back at S* = N/R0 — the very threshold from the phase plane. Why does the system keep returning to that magic number? If you were a public-health planner, would you rather face a disease with lifelong immunity or one with fast-waning immunity, and how would that change your vaccination schedule?</p>
+      </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Invasion of a New Variant</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Just as a foreign predator invaded the rabbit-fox world, a more transmissible <strong>variant</strong> can invade an ongoing epidemic. Two strains draw from the same pool of susceptibles: dI1/dt = β1*S*I1/N - γ*I1 and dI2/dt = β2*S*I2/N - γ*I2. Each strain survives only while S stays above its own threshold N/R0. The higher-R0 variant has the <strong>lower</strong> threshold, so it keeps growing after susceptibles fall below the resident strain's line — starving the old strain out. This is the epidemic twin of the predator &quot;R* rule&quot;: here it is the &quot;R0 rule.&quot;</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def two_strain(t, y, b1, b2, gamma, N):
+    S, I1, I2, R = y
+    dS = -b1*S*I1/N - b2*S*I2/N
+    dI1 = b1*S*I1/N - gamma*I1
+    dI2 = b2*S*I2/N - gamma*I2
+    dR = gamma*(I1 + I2)
+    return [dS, dI1, dI2, dR]
+
+N, gamma = 10000, 0.1
+b1, b2 = 0.15, 0.30    # R0_1 = 1.5 (resident), R0_2 = 3.0 (variant)
+
+# Phase 1: resident strain spreading alone
+s1 = solve_ivp(two_strain, (0, 25), [N - 10, 10, 0, 0],
+               args=(b1, b2, gamma, N), t_eval=np.linspace(0, 25, 500))
+
+# Phase 2: introduce 5 cases of the new variant
+y_intro = [s1.y[0][-1], s1.y[1][-1], 5.0, s1.y[3][-1]]
+s2 = solve_ivp(two_strain, (25, 150), y_intro,
+               args=(b1, b2, gamma, N), t_eval=np.linspace(25, 150, 2500))
+
+t = np.concatenate([s1.t, s2.t])
+I1 = np.concatenate([s1.y[1], s2.y[1]])
+I2 = np.concatenate([s1.y[2], s2.y[2]])
+
+plt.figure(figsize=(10, 5))
+plt.plot(t, I1, label=&quot;Resident strain (R0=1.5)&quot;)
+plt.plot(t, I2, label=&quot;New variant (R0=3.0)&quot;)
+plt.axvline(25, color=&quot;gray&quot;, ls=&quot;--&quot;, alpha=0.7)
+plt.text(27, plt.ylim()[1]*0.9, &quot;variant introduced&quot;, color=&quot;gray&quot;)
+plt.xlabel(&quot;Time (days)&quot;)
+plt.ylabel(&quot;Infectious individuals&quot;)
+plt.title(&quot;A More Transmissible Variant Replaces the Resident Strain&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print(&quot;Susceptible threshold N/R0: resident = {:.0f}, variant = {:.0f}&quot;.format(N/1.5, N/3.0))
+print(&quot;Peak infections: resident = {:.0f}, variant = {:.0f}&quot;.format(I1.max(), I2.max()))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The variant never fights the old strain directly — it simply consumes susceptibles faster and pushes S below the level the resident strain needs, exactly like the alien predator that never touched a fox. What single number decides which strain wins, and how is it the mirror image of the prey break-even level in Example 6? This is why real-world variants (think successive COVID waves) tend to be ever more transmissible: selection rewards the lowest susceptible threshold. If you could intervene, would you lower β for everyone (masks, distancing) or target the variant specifically — and would either change who ultimately wins?</p>
+      </div>
     </section>
 
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
