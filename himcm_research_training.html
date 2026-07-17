@@ -23,7 +23,7 @@
   <header class="bg-slate-900 text-white py-10 px-6">
     <div class="max-w-5xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-bold">HiMCM Research 队员培养计划</h1>
-      <p class="mt-3 text-slate-300 text-lg">10 周前沿话题 · 每次 30–60 分钟 · 练检索，更练"把大问题拆成可建模的小问题"</p>
+      <p class="mt-3 text-slate-300 text-lg">Part 1：10 周前沿话题（每周布置什么）· Part 2：知识库搭建指南（成果怎么沉淀）</p>
       <div class="mt-4 flex flex-wrap gap-2 text-sm">
         <span class="bg-teal-600 px-3 py-1 rounded-full">前沿检索</span>
         <span class="bg-emerald-600 px-3 py-1 rounded-full">问题拆解</span>
@@ -42,6 +42,10 @@
       <p class="text-center text-lg font-semibold text-slate-800 my-4 p-3 bg-indigo-50 rounded-lg">
         把"一个大话题" → 拆成"3–5 个可以写成数学的子问题" + "每个子问题的关键变量和数据来源"
       </p>
+      <div class="mt-5 flex flex-wrap gap-3 text-sm">
+        <a href="#part1" class="flex-1 min-w-[200px] bg-teal-600 hover:bg-teal-700 text-white text-center font-semibold px-4 py-3 rounded-lg transition">Part 1 · 10 周 Research 话题（每周给他布置什么）</a>
+        <a href="#part2" class="flex-1 min-w-[200px] bg-indigo-600 hover:bg-indigo-700 text-white text-center font-semibold px-4 py-3 rounded-lg transition">Part 2 · 知识库搭建执行指南（他自己怎么沉淀）</a>
+      </div>
     </div>
 
     <!-- 每周固定流程 -->
@@ -70,9 +74,9 @@
       </div>
     </section>
 
-    <div class="flex items-center gap-3 mb-6 mt-10">
+    <div id="part1" class="flex items-center gap-3 mb-6 mt-10 scroll-mt-6">
       <div class="h-px flex-1 bg-slate-300"></div>
-      <h2 class="text-lg font-bold text-slate-700 uppercase tracking-wide">10 个 Research 话题</h2>
+      <h2 class="text-lg font-bold text-slate-700 uppercase tracking-wide">Part 1 · 10 个 Research 话题</h2>
       <div class="h-px flex-1 bg-slate-300"></div>
     </div>
 
@@ -432,11 +436,181 @@
       </div>
     </section>
 
+    <!-- ============ PART 2 ============ -->
+    <div id="part2" class="flex items-center gap-3 mb-6 mt-12 scroll-mt-6">
+      <div class="h-px flex-1 bg-slate-300"></div>
+      <h2 class="text-lg font-bold text-slate-700 uppercase tracking-wide">Part 2 · 知识库搭建执行指南</h2>
+      <div class="h-px flex-1 bg-slate-300"></div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+      <p class="text-slate-600 leading-relaxed">
+        Part 1 解决"每周研究什么"，Part 2 解决"研究成果往哪放、怎么越攒越值钱"。目标：10 周后，队员手里有一套<strong>属于你们团队的赛题知识库</strong>——下次比赛拿到题，5 分钟就能定位"这类题用什么模型、去哪找数据、往年怎么做"。
+      </p>
+      <p class="text-center text-base font-semibold text-slate-800 my-4 p-3 bg-teal-50 rounded-lg">
+        一句话交给 Research Lead：按下面的结构建文件夹，每周往里填东西，10 周后就是一套团队专属知识库。
+      </p>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 1</span>
+        <h2 class="text-xl font-bold">先搭骨架：建一个主文件夹 + 4 个子文件夹</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">所有东西都放进同一个主文件夹，四个子文件夹各管一件事。看到名字就知道该往哪放。</p>
+      <pre class="bg-slate-900 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto leading-relaxed">HiMCM_Knowledge_Base/
+├── 01_历年赛题档案/      ← 往年题目怎么分类、考什么
+├── 02_开源数据集仓库/    ← 按主题存好用的数据源链接
+├── 03_模型工具箱/        ← "这类问题→用什么模型"速查
+└── 04_每周研究产出/      ← Part 1 每周作业的成品往这放</pre>
+      <div class="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3"><span class="font-semibold text-teal-800">01 赛题档案</span><p class="text-slate-600 mt-1">积累"题感"：这些年考过哪些方向。</p></div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3"><span class="font-semibold text-emerald-800">02 数据仓库</span><p class="text-slate-600 mt-1">比赛时最耗时的就是找数据，提前存好。</p></div>
+        <div class="bg-violet-50 border border-violet-200 rounded-lg p-3"><span class="font-semibold text-violet-800">03 模型工具箱</span><p class="text-slate-600 mt-1">把 Part 1 学的"问题→模型"沉淀成手册。</p></div>
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-3"><span class="font-semibold text-rose-800">04 每周产出</span><p class="text-slate-600 mt-1">Part 1 的作业直接归档到这里。</p></div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 2</span>
+        <h2 class="text-xl font-bold">01_历年赛题档案：做一张"赛题分类映射表"</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">建一个 Excel，一行一道题。填 5 列就够，重点是<strong>主题标签</strong>和<strong>考察能力</strong>——这两列以后帮你一眼认出"新题属于哪一类"。</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse">
+          <thead><tr class="border-b-2 border-slate-300 text-slate-700">
+            <th class="py-2 pr-4">年份</th><th class="py-2 pr-4">A/B 题</th><th class="py-2 pr-4">主题标签</th><th class="py-2 pr-4">考察能力</th><th class="py-2">一句话题目</th>
+          </tr></thead>
+          <tbody class="text-slate-600">
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">2023</td><td class="py-2 pr-4">A</td><td class="py-2 pr-4">生态 / 入侵物种</td><td class="py-2 pr-4">空间扩散 / 仿真</td><td class="py-2">蒲公英如何扩散</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">2023</td><td class="py-2 pr-4">B</td><td class="py-2 pr-4">可持续 / 回收</td><td class="py-2 pr-4">存量流量 / 马尔可夫</td><td class="py-2">如何提高回收率</td></tr>
+            <tr><td class="py-2 pr-4">2022</td><td class="py-2 pr-4">A</td><td class="py-2 pr-4">…</td><td class="py-2 pr-4">…</td><td class="py-2">…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-3 bg-violet-50 border border-violet-200 rounded-lg text-sm text-slate-700">
+        <strong>怎么填：</strong>去 <a href="https://www.comap.com/contests/himcm-midmcm" class="text-violet-700 underline">COMAP 官网</a>逐年抄题目，每周填 2–3 年，几周就填满。<strong>怎么用：</strong>填到 5 年后按"主题标签"排序，就能看出 HiMCM 反复考的几个大方向。
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 3</span>
+        <h2 class="text-xl font-bold">02_数据集仓库：按主题存"数据源清单"</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">按主题各建一个文档，把 Part 1 找到的好数据源随手存进去。每条只记 4 项：<strong>名字 · 链接 · 有什么数据 · 能不能直接下载</strong>。</p>
+      <pre class="bg-slate-900 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto leading-relaxed">## 气候与能源
+- Our World in Data | ourworldindata.org | CO₂/能源/气温 | ✅ 可下载 CSV
+- IPCC AR6         | ipcc.ch            | 权威气候综述   | ⚠️ 报告为主
+
+## 传染病
+- WHO Outbreak News | who.int | 一手疫情通报 | ⚠️ 需自己整理
+- Our World in Data | …       | 病例/疫苗数据 | ✅ 可下载</pre>
+      <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-slate-700">
+        <strong>关键：</strong>一定要标"能不能直接下载"。比赛时能一键拿到 CSV 的数据源，价值远高于只有图表的网站。
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 4</span>
+        <h2 class="text-xl font-bold">03_模型工具箱：一张"问题→模型"速查手册</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">这是知识库的核心。把 Part 1 学到的对应关系整理成一张表——看到问题特征，立刻知道候选模型。</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse">
+          <thead><tr class="border-b-2 border-slate-300 text-slate-700">
+            <th class="py-2 pr-4">问题长这样</th><th class="py-2 pr-4">首选模型</th><th class="py-2">对应第几周</th>
+          </tr></thead>
+          <tbody class="text-slate-600">
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">在约束下让成本/收益最优</td><td class="py-2 pr-4">线性/整数规划 LP/IP</td><td class="py-2">第 2、5、8 周</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">数量随时间连续变化、有反馈</td><td class="py-2 pr-4">微分方程 (SIR / Lotka-Volterra)</td><td class="py-2">第 1、3 周</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">个体按局部规则互动、看全局涌现</td><td class="py-2 pr-4">ABM / 元胞自动机仿真</td><td class="py-2">第 4、7 周</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4">在若干状态间按概率转移</td><td class="py-2 pr-4">马尔可夫链</td><td class="py-2">第 6 周</td></tr>
+            <tr><td class="py-2 pr-4">有时间趋势 / 季节性，要预测</td><td class="py-2 pr-4">回归 / 时间序列 (SARIMA)</td><td class="py-2">第 9 周</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 p-3 bg-violet-50 border border-violet-200 rounded-lg text-sm text-slate-700">
+        <strong>怎么长大：</strong>每周研究完，问一句"这题还能用什么模型"，把新条目加进表里。表越长，团队的"建模直觉"越强。
+      </div>
+    </section>
+
+    <!-- Step 5 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 5</span>
+        <h2 class="text-xl font-bold">04_每周产出：用同一个模板归档</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">Part 1 每周的作业，都按这个模板写成一个文件存进来（文件名如 <code class="bg-slate-100 px-1 rounded">Week03_传染病SIR.md</code>）。模板固定，以后翻找和复用都快。</p>
+      <pre class="bg-slate-900 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto leading-relaxed"># 第 X 周 · 话题名
+
+## 1. 新闻/来源（标题·机构·日期·链接）
+## 2. 关键数字与机制（3–5 条）
+## 3. 拆成的子问题（3–5 个）
+## 4. 每个子问题：关键变量 + 数据源
+## 5. 建议模型 + 为什么选它
+## 6. 一句话结论（分享时先说这句）</pre>
+      <div class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-slate-700">
+        <strong>为什么统一模板：</strong>格式一致，10 篇产出就是一本"拆解案例集"，新队员照着看就能学会怎么拆题。
+      </div>
+    </section>
+
+    <!-- Step 6 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="bg-teal-600 text-white font-bold px-3 py-1 rounded-lg text-sm">Step 6</span>
+        <h2 class="text-xl font-bold">10 周执行日历：每周同时喂两件事</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-4">每周做 Part 1 的话题时，顺手更新知识库的对应部分。研究和沉淀同步进行，不额外加负担。</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse">
+          <thead><tr class="border-b-2 border-slate-300 text-slate-700">
+            <th class="py-2 pr-4">周</th><th class="py-2 pr-4">Part 1 话题</th><th class="py-2">顺手更新知识库</th>
+          </tr></thead>
+          <tbody class="text-slate-600">
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4 font-semibold">1–2</td><td class="py-2 pr-4">气候拆解 / 能源转型</td><td class="py-2">建好文件夹骨架 + 开始填赛题表</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4 font-semibold">3–4</td><td class="py-2 pr-4">SIR / 入侵物种</td><td class="py-2">填数据源清单（气候·传染病·生态）</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4 font-semibold">5–6</td><td class="py-2 pr-4">水资源 / 回收</td><td class="py-2">开始写"问题→模型"速查表</td></tr>
+            <tr class="border-b border-slate-200"><td class="py-2 pr-4 font-semibold">7–8</td><td class="py-2 pr-4">野火 / 充电桩</td><td class="py-2">补全模型表 + 赛题表填到 5 年</td></tr>
+            <tr><td class="py-2 pr-4 font-semibold">9–10</td><td class="py-2 pr-4">粮食 / Capstone</td><td class="py-2">写 README 导航，知识库成型</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tips -->
+    <section class="bg-white rounded-xl shadow-sm border border-2 border-indigo-300 p-6 mb-6">
+      <h2 class="text-xl font-bold mb-4">让知识库真正好用的 3 个小习惯</h2>
+      <div class="grid sm:grid-cols-3 gap-4 text-sm">
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="font-bold text-slate-800 mb-1">① 控制时间</div>
+          <p class="text-slate-600">每周更新知识库控制在 15 分钟内，只填不修饰，先有再好。</p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="font-bold text-slate-800 mb-1">② 写个 README</div>
+          <p class="text-slate-600">主文件夹放一个 README，用几行链接指向四个子文件夹，5 秒定位。</p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="font-bold text-slate-800 mb-1">③ 每月横向比一次</div>
+          <p class="text-slate-600">月底翻一遍产出，问"哪些题其实是同一类"，合并进模型速查表。</p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-900">
+        <strong>10 周后你会有：</strong>一张赛题分类表 + 一份分主题数据源清单 + 一张"问题→模型"速查表 + 10 篇标准化拆解案例。这套东西，就是你们团队下次比赛开局最快的底牌。
+      </div>
+    </section>
+
   </main>
 
   <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
     <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
-      为 HiMCM 团队 Research 队员培养设计 · 每次 30–60 分钟 · 练检索，更练拆解与建模思维。
+      为 HiMCM 团队 Research 队员培养设计 · Part 1 每周话题 + Part 2 知识库沉淀 · 练检索，更练拆解与建模思维。
     </div>
   </footer>
 
