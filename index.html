@@ -376,163 +376,125 @@ for name, (key, val) in params.items():
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">NLP</span>
-        <h2 class="text-xl font-bold">Example 3 — Two Savings Plans (Non-Linear Programming)</h2>
+        <h2 class="text-xl font-bold">Example 3 — Cylindrical Can Design (Non-Linear Programming)</h2>
       </div>
       <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">You want to invest your pocket money into two savings plans, Plan A and Plan B. Each plan has its own expected return and risk. Putting everything into one plan may be too risky; splitting the money can balance return and risk.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>Let wA = amount invested in Plan A</li>
-<li>Let wB = amount invested in Plan B</li>
-</ul>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize risk-adjusted return: return minus a penalty for variance.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>Budget: wA + wB &lt;= total pocket money</li>
-<li>Non-negativity: wA, wB &gt;= 0</li>
-</ul>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Non-Linear Programming (NLP), because portfolio risk involves squared terms.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>Plan A expected return: 8%; volatility (std): 15%</li>
-<li>Plan B expected return: 5%; volatility (std): 8%</li>
-<li>Correlation between plans: 0.2</li>
-<li>Total pocket money: $1000</li>
-<li>Risk-aversion weight in objective: 0.5</li>
-</ul>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
-
-def objective(w):
-    wA, wB = w
-    ret = 0.08*wA + 0.05*wB
-    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
-    return -(ret - 0.5*var)
-
-constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
-bounds = [(0, None), (0, None)]
-
-res = minimize(objective, x0=[500, 500], bounds=bounds, constraints=constraints)
-print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</code></pre>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A soda company wants to design a cylindrical can that holds a fixed volume of liquid. The goal is to minimize the amount of aluminum used, which is proportional to the can's total surface area.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>r = radius of the base (cm)</li>
+        <li>h = height of the can (cm)</li>
+      </ul>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Minimize surface area: A = 2πr² + 2πrh.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>Volume: πr²h = V</li>
+        <li>Non-negativity: r, h &gt; 0</li>
+      </ul>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Non-Linear Programming (NLP), because the objective contains squared terms and the volume constraint couples r and h non-linearly.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>Volume to hold: V = 355 cm³ (standard soda can)</li>
+      </ul>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-<h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: After-Tax Return (Modifies Objective)</h3>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Plan A returns are taxed at 20%, while Plan B returns are tax-free. We now want to maximize after-tax risk-adjusted return.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the return term from 0.08·wA + 0.05·wB to 0.08&lt;em&gt;(1 - 0.20)&lt;/em&gt;wA + 0.05·wB = 0.064·wA + 0.05·wB.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Only the objective function coefficients change; the variance term remains quadratic, so it is still NLP.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
-
-def objective(w):
-    wA, wB = w
-    ret_after_tax = 0.08*(1 - 0.20)*wA + 0.05*wB  # MODIFIED: Plan A taxed 20%
-    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
-    return -(ret_after_tax - 0.5*var)
-
-constraints = {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 1000 - sum(w)}
-bounds = [(0, None), (0, None)]
-
-res = minimize(objective, x0=[500, 500], bounds=bounds, constraints=constraints)
-print(f&quot;Invest in A: ${res.x[0]:.2f}, Invest in B: ${res.x[1]:.2f}&quot;)</code></pre>
-        </div>
-
-<h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Objective Surface</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">The contour plot shows the risk-adjusted return for different investment amounts. Because risk grows quadratically, the optimum invests only a small fraction of the available budget.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
-import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import minimize
 
-def raw_obj(wA, wB):
-    ret = 0.08*wA + 0.05*wB
-    var = (0.15**2)*(wA**2) + (0.08**2)*(wB**2) + 2*wA*wB*0.2*0.15*0.08
-    return ret - 0.5*var
+V = 355  # cm^3
 
-wA = np.linspace(0, 40, 100)
-wB = np.linspace(0, 40, 100)
-WA, WB = np.meshgrid(wA, wB)
-Z = np.vectorize(raw_obj)(WA, WB)
+def surface_area(r):
+    return 2 * np.pi * r**2 + 2 * V / r
 
-fig, ax = plt.subplots(figsize=(7, 5))
-contour = ax.contourf(WA, WB, Z, levels=20, cmap=&quot;RdYlGn&quot;)
-plt.colorbar(contour, ax=ax, label=&quot;Risk-adjusted return ($)&quot;)
+r_opt = minimize(surface_area, x0=[3], bounds=[(0.1, None)])
+r_val = r_opt.x[0]
+h_val = V / (np.pi * r_val**2)
 
-def solve_savings(ret_a=0.08, ret_b=0.05, vol_a=0.15, vol_b=0.08, corr=0.2, risk_aversion=0.5, budget=1000):
-    def objective(w):
-        wA, wB = w
-        ret = ret_a*wA + ret_b*wB
-        var = (vol_a**2)*(wA**2) + (vol_b**2)*(wB**2) + 2*wA*wB*corr*vol_a*vol_b
-        return -(ret - risk_aversion*var)
-    res = minimize(objective, x0=[500, 500], bounds=[(0, None), (0, None)],
-                   constraints={&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: budget - sum(w)})
-    return res.x[0], res.x[1], -res.fun
+print(&quot;Optimal radius: {:.3f} cm&quot;.format(r_val))
+print(&quot;Optimal height: {:.3f} cm&quot;.format(h_val))
+print(&quot;Minimum surface area: {:.3f} cm^2&quot;.format(surface_area(r_val)))
+print(&quot;Height / diameter ratio: {:.3f}&quot;.format(h_val / (2*r_val)))
 
-opt_wA, opt_wB, opt_obj = solve_savings()
-ax.plot(opt_wA, opt_wB, &quot;r*&quot;, markersize=15, label=&quot;Optimum ({:.1f}, {:.1f})&quot;.format(opt_wA, opt_wB))
-ax.set_xlabel(&quot;Investment in Plan A ($)&quot;)
-ax.set_ylabel(&quot;Investment in Plan B ($)&quot;)
-ax.set_title(&quot;Two Savings Plans: Objective Surface&quot;)
-ax.legend()
-plt.tight_layout()
+r_range = np.linspace(1, 8, 200)
+plt.figure(figsize=(8, 4))
+plt.plot(r_range, surface_area(r_range), label=&quot;Surface area&quot;)
+plt.plot(r_val, surface_area(r_val), &quot;ro&quot;, label=&quot;Optimum&quot;)
+plt.xlabel(&quot;Radius (cm)&quot;)
+plt.ylabel(&quot;Surface area (cm^2)&quot;)
+plt.title(&quot;Cylindrical Can: Minimize Surface Area for Fixed Volume&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Marketing Requirement (Nonlinear Constraint)</h3>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Marketing wants the can to look taller, so the height must be at least 3 times the radius. This adds a nonlinear inequality constraint.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Add h &gt;= 3r, which becomes V/(πr²) - 3r &gt;= 0.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is nonlinear in r, so the problem remains a constrained NLP.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+from scipy.optimize import minimize
 
-<h3 class="font-semibold text-slate-900 mb-2 mt-6">Sensitivity Analysis: &plusmn;20% Parameter Changes</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Vary each parameter by &plusmn;20% to see how the optimal allocation (A, B) and the best risk-adjusted return change. Returns, volatilities, and the risk-aversion weight all shift the solution.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
+V = 355  # cm^3
 
-def solve_savings(ret_a=0.08, ret_b=0.05, vol_a=0.15, vol_b=0.08, corr=0.2, risk_aversion=0.5, budget=1000):
-    def objective(w):
-        wA, wB = w
-        ret = ret_a*wA + ret_b*wB
-        var = (vol_a**2)*(wA**2) + (vol_b**2)*(wB**2) + 2*wA*wB*corr*vol_a*vol_b
-        return -(ret - risk_aversion*var)
-    res = minimize(objective, x0=[500, 500], bounds=[(0, None), (0, None)],
-                   constraints={&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: budget - sum(w)})
-    return res.x[0], res.x[1], -res.fun
+def surface_area_2d(x):
+    r, h = x
+    return 2 * np.pi * r**2 + 2 * np.pi * r * h
 
-opt_wA, opt_wB, opt_obj = solve_savings()
-params = {
-    &quot;Plan A return&quot;: (&quot;ret_a&quot;, 0.08),
-    &quot;Plan B return&quot;: (&quot;ret_b&quot;, 0.05),
-    &quot;Plan A volatility&quot;: (&quot;vol_a&quot;, 0.15),
-    &quot;Plan B volatility&quot;: (&quot;vol_b&quot;, 0.08),
-    &quot;Correlation&quot;: (&quot;corr&quot;, 0.2),
-    &quot;Risk aversion&quot;: (&quot;risk_aversion&quot;, 0.5)
-}
+constraints = [
+    {&quot;type&quot;: &quot;eq&quot;, &quot;fun&quot;: lambda x: np.pi * x[0]**2 * x[1] - V},
+    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda x: x[1] - 3 * x[0]}
+]
 
-fmt = lambda r: &quot;A={:.1f},B={:.1f},obj={:.2f}&quot;.format(r[0], r[1], r[2])
-print(&quot;Base: A=${:.2f}, B=${:.2f}, objective=${:.4f}&quot;.format(opt_wA, opt_wB, opt_obj))
-print(&quot;{:<22} {:>24} {:>24} {:>24}&quot;.format(&quot;Parameter&quot;, &quot;-20%&quot;, &quot;Base&quot;, &quot;+20%&quot;))
-for name, (key, val) in params.items():
-    low = solve_savings(**{key: val*0.8})
-    high = solve_savings(**{key: val*1.2})
-    print(&quot;{:<22} {:>24} {:>24} {:>24}&quot;.format(name, fmt(low), fmt((opt_wA, opt_wB, opt_obj)), fmt(high)))</code></pre>
+res = minimize(surface_area_2d, x0=[3, 10], bounds=[(0.1, None), (0.1, None)],
+               constraints=constraints, method=&quot;SLSQP&quot;)
+r_ext, h_ext = res.x
+print(&quot;Constrained radius: {:.3f} cm&quot;.format(r_ext))
+print(&quot;Constrained height: {:.3f} cm&quot;.format(h_ext))
+print(&quot;Constrained surface area: {:.3f} cm^2&quot;.format(surface_area_2d(res.x)))</code></pre>
+      </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Sensitivity Analysis: ±20% Volume Changes</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Vary the required volume by ±20% and observe how the optimal radius, height, and minimum surface area change.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+from scipy.optimize import minimize
+
+def solve_can(V):
+    def sa(r):
+        return 2 * np.pi * r**2 + 2 * V / r
+    r_opt = minimize(sa, x0=[3], bounds=[(0.1, None)])
+    r = r_opt.x[0]
+    h = V / (np.pi * r**2)
+    return r, h, sa(r)
+
+base_V = 355
+base_r, base_h, base_sa = solve_can(base_V)
+print(&quot;Base V={:.0f}: r={:.2f}, h={:.2f}, SA={:.2f}&quot;.format(base_V, base_r, base_h, base_sa))
+
+for pct in [-0.2, 0.0, 0.2]:
+    V_test = base_V * (1 + pct)
+    r, h, sa = solve_can(V_test)
+    label = &quot;{}20%&quot;.format(&quot;+&quot; if pct &gt; 0 else &quot;-&quot;)
+    print(&quot;V {} ({:.0f}): r={:.2f}, h={:.2f}, SA={:.2f}&quot;.format(label, V_test, r, h, sa))</code></pre>
+      </div>
     </section>
-
-
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">IP</span>
@@ -923,146 +885,146 @@ print(f&quot;Minimum total time: {pulp.value(prob.objective):.0f}&quot;)</code><
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">NLP</span>
-        <h2 class="text-xl font-bold">NLP Example — Portfolio Selection Problem</h2>
+        <h2 class="text-xl font-bold">NLP Example — Fitting an Exponential Decay Model</h2>
       </div>
       <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">An investor wants to build a portfolio of four stocks: Tech, Pharma, Energy, and Consumer. Each stock has an expected return, a volatility (risk), and correlations with the other stocks.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>Let wi = weight invested in stock i</li>
-</ul>
-<h3 class="font-semibold text-slate-900 mb-2 mt-6">P1. Unconstrained Non-Linear Programming</h3>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Optimization Objective</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Maximize the portfolio Sharpe ratio (expected return / risk).</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Constraints</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>None on weights; short selling and leverage are allowed.</li>
-</ul>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Unconstrained Non-Linear Programming (NLP).</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
-import numpy as np
-
-returns = np.array([0.12, 0.08, 0.10, 0.07])
-vol = np.array([0.25, 0.15, 0.20, 0.12])
-corr = np.array([
-    [1.0, 0.3, 0.5, 0.2],
-    [0.3, 1.0, 0.2, 0.4],
-    [0.5, 0.2, 1.0, 0.3],
-    [0.2, 0.4, 0.3, 1.0]
-])
-Sigma = np.outer(vol, vol) * corr
-risk_free = 0.02
-
-def sharpe(w):
-    port_ret = returns @ w
-    port_risk = np.sqrt(w @ Sigma @ w)
-    return -(port_ret - risk_free) / port_risk
-
-res = minimize(sharpe, x0=np.ones(4)/4, method=&quot;SLSQP&quot;)
-print(&quot;Weights:&quot;, np.round(res.x, 4))
-print(&quot;Sum of weights:&quot;, res.x.sum())</code></pre>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A drug concentration in blood decays exponentially after injection. We have noisy measurements at several time points and want to estimate the initial concentration C0 and the decay rate λ.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Decision Variables</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>C0 = initial concentration</li>
+        <li>λ = decay rate</li>
+      </ul>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">P1. Non-Linear Least Squares Fit</h3>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Model</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">C(t) = C0 * exp(-λt). We minimize the sum of squared errors between the model and observed data.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>Time points (hours): [0, 1, 2, 3, 4, 5, 6, 8, 10]</li>
+        <li>Measured concentrations (mg/L): [10.2, 6.8, 4.5, 3.1, 2.0, 1.3, 0.9, 0.4, 0.2]</li>
+      </ul>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Transaction Costs (Modifies Objective)</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Rebalancing incurs transaction costs proportional to the absolute change in weights. We maximize Sharpe ratio minus a 0.5% penalty on total absolute weight changes.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Objective</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Change the objective to: maximize (Sharpe ratio) - 0.005 * sum(|wi|).</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">The absolute value terms are non-linear but still smooth enough for numerical optimization.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>from scipy.optimize import minimize
-import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-returns = np.array([0.12, 0.08, 0.10, 0.07])
-vol = np.array([0.25, 0.15, 0.20, 0.12])
-corr = np.array([
-    [1.0, 0.3, 0.5, 0.2],
-    [0.3, 1.0, 0.2, 0.4],
-    [0.5, 0.2, 1.0, 0.3],
-    [0.2, 0.4, 0.3, 1.0]
-])
-Sigma = np.outer(vol, vol) * corr
-risk_free = 0.02
+t_data = np.array([0, 1, 2, 3, 4, 5, 6, 8, 10])
+C_data = np.array([10.2, 6.8, 4.5, 3.1, 2.0, 1.3, 0.9, 0.4, 0.2])
 
-def sharpe_with_cost(w):
-    port_ret = returns @ w
-    port_risk = np.sqrt(w @ Sigma @ w)
-    transaction_cost = 0.005 * np.sum(np.abs(w))
-    return -((port_ret - risk_free) / port_risk - transaction_cost)  # MODIFIED OBJECTIVE
+def decay_model(t, C0, lam):
+    return C0 * np.exp(-lam * t)
 
-res = minimize(sharpe_with_cost, x0=np.ones(4)/4, method=&quot;SLSQP&quot;)
-print(&quot;Weights:&quot;, np.round(res.x, 4))
-print(&quot;Sum of weights:&quot;, res.x.sum())</code></pre>
+popt, _ = curve_fit(decay_model, t_data, C_data, p0=[10, 0.5])
+C0_fit, lam_fit = popt
+
+print(&quot;Initial concentration C0 = {:.3f}&quot;.format(C0_fit))
+print(&quot;Decay rate lambda = {:.3f}&quot;.format(lam_fit))
+print(&quot;Half-life = {:.3f} hours&quot;.format(np.log(2) / lam_fit))
+
+t_fit = np.linspace(0, 10, 200)
+plt.figure(figsize=(8, 4))
+plt.scatter(t_data, C_data, label=&quot;Observed data&quot;)
+plt.plot(t_fit, decay_model(t_fit, C0_fit, lam_fit), color=&quot;red&quot;, label=&quot;Fitted exponential&quot;)
+plt.xlabel(&quot;Time (hours)&quot;)
+plt.ylabel(&quot;Concentration (mg/L)&quot;)
+plt.title(&quot;Exponential Decay Fit&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Compare with a Power-Law Model</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A competing theory says concentration decays as a power law C(t) = C0 * t^(-p). We fit both models and compare their sum of squared errors.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Both C0 and p appear non-linearly in the power-law model, so fitting it is still an NLP problem.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-<h3 class="font-semibold text-slate-900 mb-2 mt-6">P2. Constrained Non-Linear Programming (KKT Method)</h3>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Additional Constraints</h3>
-<ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-<li>No short selling: wi &gt;= 0</li>
-<li>Full investment: sum(wi) = 1</li>
-<li>Sector limits: Tech &lt;= 40%, Energy &lt;= 30%</li>
-</ul>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Constrained NLP.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>constraints = [
-    {&quot;type&quot;: &quot;eq&quot;, &quot;fun&quot;: lambda w: np.sum(w) - 1},
-    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.40 - w[0]},
-    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.30 - w[2]}
-]
-bounds = [(0, None)] * 4
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+from scipy.optimize import curve_fit
 
-res = minimize(sharpe, x0=np.ones(4)/4, bounds=bounds, constraints=constraints, method=&quot;SLSQP&quot;)
-labels = [&quot;Tech&quot;, &quot;Pharma&quot;, &quot;Energy&quot;, &quot;Consumer&quot;]
-for l, w in zip(labels, res.x):
-    print(f&quot;  {l}: {w:.2%}&quot;)
-print(f&quot;Sum of weights: {res.x.sum():.4f}&quot;)</code></pre>
+t_data = np.array([0, 1, 2, 3, 4, 5, 6, 8, 10])
+C_data = np.array([10.2, 6.8, 4.5, 3.1, 2.0, 1.3, 0.9, 0.4, 0.2])
+
+def decay_model(t, C0, lam):
+    return C0 * np.exp(-lam * t)
+
+def power_model(t, C0, p):
+    return C0 * t**(-p)
+
+popt_exp, _ = curve_fit(decay_model, t_data, C_data, p0=[10, 0.5])
+popt_pow, _ = curve_fit(power_model, t_data[1:], C_data[1:], p0=[10, 1])
+
+sse_exp = np.sum((C_data - decay_model(t_data, *popt_exp))**2)
+sse_pow = np.sum((C_data[1:] - power_model(t_data[1:], *popt_pow))**2)
+
+print(&quot;Exponential SSE: {:.4f}&quot;.format(sse_exp))
+print(&quot;Power-law SSE: {:.4f}&quot;.format(sse_pow))</code></pre>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">P2. Log-Linear Regression (Linearized Approach)</h3>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Approach</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Taking the natural log of the exponential model gives ln(C) = ln(C0) - λt. This is linear in t, so we can estimate ln(C0) and λ with ordinary least squares.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Model Selection</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Linear regression on log-transformed data. The result approximates the non-linear fit and demonstrates how logarithms turn exponentials into straight lines.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Minimum Dividend Yield (Modifies Constraints)</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">The portfolio must generate at least a 4% dividend yield. Suppose Tech, Pharma, Energy, and Consumer have dividend yields of 1%, 3%, 4%, and 5% respectively.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Modified Constraint</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">Add a linear constraint: 0.01·w0 + 0.03·w1 + 0.04·w2 + 0.05·w3 &gt;= 0.04.</p>
-<h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
-<p class="text-slate-600 text-sm leading-relaxed mb-4">The new constraint is linear in weights, so the problem remains a constrained NLP.</p>
-<div class="relative mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-            <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-          </div>
-          <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>dividend_yields = np.array([0.01, 0.03, 0.04, 0.05])
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
 
-constraints = [
-    {&quot;type&quot;: &quot;eq&quot;, &quot;fun&quot;: lambda w: np.sum(w) - 1},
-    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.40 - w[0]},
-    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: 0.30 - w[2]},
-    {&quot;type&quot;: &quot;ineq&quot;, &quot;fun&quot;: lambda w: dividend_yields @ w - 0.04}  # NEW CONSTRAINT
-]
-bounds = [(0, None)] * 4
+t_data = np.array([0, 1, 2, 3, 4, 5, 6, 8, 10])
+C_data = np.array([10.2, 6.8, 4.5, 3.1, 2.0, 1.3, 0.9, 0.4, 0.2])
 
-res = minimize(sharpe, x0=np.ones(4)/4, bounds=bounds, constraints=constraints, method=&quot;SLSQP&quot;)
-labels = [&quot;Tech&quot;, &quot;Pharma&quot;, &quot;Energy&quot;, &quot;Consumer&quot;]
-for l, w in zip(labels, res.x):
-    print(f&quot;  {l}: {w:.2%}&quot;)
-print(f&quot;Sum of weights: {res.x.sum():.4f}&quot;)
-print(f&quot;Dividend yield: {dividend_yields @ res.x:.2%}&quot;)</code></pre>
+slope, intercept = np.polyfit(t_data, np.log(C_data), 1)
+C0_log = np.exp(intercept)
+lam_log = -slope
+
+print(&quot;Log-linear C0 = {:.3f}&quot;.format(C0_log))
+print(&quot;Log-linear lambda = {:.3f}&quot;.format(lam_log))
+
+plt.figure(figsize=(8, 4))
+plt.scatter(t_data, np.log(C_data), label=&quot;ln(observed)&quot;)
+plt.plot(t_data, intercept + slope * t_data, color=&quot;red&quot;, label=&quot;Linear fit&quot;)
+plt.xlabel(&quot;Time (hours)&quot;)
+plt.ylabel(&quot;ln(Concentration)&quot;)
+plt.title(&quot;Log-Linear Regression for Exponential Decay&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+      </div>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">#### Extension: Weighted Least Squares</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">New Scenario</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Early measurements may be more reliable than late ones (near the detection limit). We fit the exponential model with weights that decrease over time.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why this keeps it NLP</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">The model structure is unchanged; only the loss function is weighted. Weighted non-linear least squares is still an NLP problem.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+from scipy.optimize import curve_fit
+
+t_data = np.array([0, 1, 2, 3, 4, 5, 6, 8, 10])
+C_data = np.array([10.2, 6.8, 4.5, 3.1, 2.0, 1.3, 0.9, 0.4, 0.2])
+
+def decay_model(t, C0, lam):
+    return C0 * np.exp(-lam * t)
+
+weights = 1 / t_data[1:]  # weight later points less
+popt_weighted, _ = curve_fit(decay_model, t_data[1:], C_data[1:],
+                              p0=[10, 0.5], sigma=1/np.sqrt(weights))
+
+print(&quot;Weighted fit: C0 = {:.3f}, lambda = {:.3f}&quot;.format(popt_weighted[0], popt_weighted[1]))</code></pre>
+      </div>
     </section>
-
-
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm">LP</span>
