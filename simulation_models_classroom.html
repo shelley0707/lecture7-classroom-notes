@@ -204,6 +204,99 @@ print(&quot;P(leaf drifts past 20 m): {:.1%}&quot;.format(np.mean(X &gt; 20)))</
       <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
         <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the mean landing spot (25 m) is fixed by the average wind, but the <em>risk</em> of a leaf drifting far depends entirely on &sigma;. Larger &sigma; flattens and widens the histogram, raising P(X&gt;20m). This separates the <em>expected</em> outcome from its <em>uncertainty</em> — the whole point of stochastic modeling. Then think deeper: what if the initial height were also random, or the descent were not a straight line? Each added random variable is one more input to sample, and the Monte Carlo recipe never changes.</p>
       </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: A 2-D Wind Field &amp; a Bird&#x27;s-Eye Map of 10,000 Leaves</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">The 1-D model only let the leaf drift left or right. Reality is 2-D: wind has both a <strong>speed</strong> and a <strong>direction</strong>, and leaves drop from a range of <strong>heights</strong>. We promote all three to random variables, place the tree at the origin (0, 0), and simulate where 10,000 leaves settle on the ground — then look straight down from above.</p>
+
+      <div class="bg-slate-100 border border-slate-300 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-slate-800 mb-2 text-sm uppercase tracking-wide">How to define a random variable with a given distribution</h3>
+        <p class="text-slate-600 text-sm mb-2">The pattern is always <code>np.random.&lt;distribution&gt;(parameters, size=N)</code>. Pick the distribution that matches the <em>nature</em> of the quantity:</p>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li><strong>Normal(&mu;, &sigma;)</strong> &mdash; <code>np.random.normal(mu, sigma, N)</code> &mdash; natural quantities that cluster around an average (wind speed, direction).</li>
+          <li><strong>Uniform(a, b)</strong> &mdash; <code>np.random.uniform(a, b, N)</code> &mdash; any value in a range equally likely (drop height between two branches).</li>
+          <li><strong>Exponential(scale)</strong> &mdash; <code>np.random.exponential(scale, N)</code> &mdash; waiting times or &quot;mostly small, occasionally large&quot; gusts.</li>
+          <li><strong>Poisson(&lambda;)</strong> &mdash; <code>np.random.poisson(lam, N)</code> &mdash; counts of events in a fixed window.</li>
+        </ul>
+      </div>
+
+      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables (now three)</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>wind_speed = how fast the wind pushes (m/s)</li>
+          <li>wind_angle = which compass direction the wind blows toward (radians)</li>
+          <li>height = the branch height the leaf falls from (m)</li>
+          <li>(x, y) = the leaf&#x27;s final position on the ground, seen from above</li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
+        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
+        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
+          <li>wind_speed ~ Normal(&mu;=5, &sigma;=2), clipped at 0 (speed can&#x27;t be negative)</li>
+          <li>wind_angle ~ Normal(0, 0.5) &mdash; a prevailing wind blowing east, with some wobble</li>
+          <li>height ~ Uniform(4, 6) &mdash; leaves hang between 4 m and 6 m</li>
+          <li>fall time t = height / descent; drift distance r = wind_speed &times; t</li>
+          <li>convert polar drift to map coordinates: x = r&middot;cos(angle), y = r&middot;sin(angle)</li>
+        </ul>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-4">
+        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
+        <p class="text-slate-700 text-sm">The 2-D landing map of 10,000 leaves: where they pile up, the mean drift distance, and the probability a leaf lands more than 15 m from the trunk.</p>
+      </div>
+
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(7)
+N = 10000                       # simulate 10,000 leaves
+descent = 1.0                   # vertical fall speed (m/s), fixed
+
+# ---------------------------------------------------------------
+# Define EACH random variable with its own distribution.
+# Template:  variable = np.random.<distribution>(params, size=N)
+# ---------------------------------------------------------------
+wind_speed = np.random.normal(5, 2, N)      # Normal: clusters near 5 m/s
+wind_speed = np.clip(wind_speed, 0, None)   # a speed cannot be negative
+wind_angle = np.random.normal(0.0, 0.5, N)  # Normal: prevailing wind blows east (0 rad)
+height     = np.random.uniform(4, 6, N)     # Uniform: any branch 4-6 m is equally likely
+
+# ---------------------------------------------------------------
+# Physics: turn the random inputs into a landing position (x, y)
+# ---------------------------------------------------------------
+t_fall = height / descent          # time in the air
+r      = wind_speed * t_fall       # how far the wind carries it (radial)
+x      = r * np.cos(wind_angle)    # east-west landing coordinate
+y      = r * np.sin(wind_angle)    # north-south landing coordinate
+
+# ---------------------------------------------------------------
+# Bird's-eye view: look straight down at the ground
+# ---------------------------------------------------------------
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+ax1.scatter(x, y, s=3, alpha=0.15, color=&quot;saddlebrown&quot;)
+ax1.plot(0, 0, marker=&quot;*&quot;, color=&quot;green&quot;, markersize=18, label=&quot;tree trunk&quot;)
+ax1.set_aspect(&quot;equal&quot;); ax1.set_xlabel(&quot;East-West (m)&quot;); ax1.set_ylabel(&quot;North-South (m)&quot;)
+ax1.set_title(&quot;Bird's-eye view: where 10,000 leaves land&quot;); ax1.legend()
+
+hb = ax2.hexbin(x, y, gridsize=45, cmap=&quot;YlOrBr&quot;, mincnt=1)
+ax2.plot(0, 0, marker=&quot;*&quot;, color=&quot;green&quot;, markersize=18)
+ax2.set_aspect(&quot;equal&quot;); ax2.set_xlabel(&quot;East-West (m)&quot;); ax2.set_ylabel(&quot;North-South (m)&quot;)
+ax2.set_title(&quot;Leaf density (where they pile up)&quot;)
+fig.colorbar(hb, ax=ax2, label=&quot;leaves per cell&quot;)
+plt.tight_layout(); plt.show()
+
+dist = np.sqrt(x**2 + y**2)
+print(&quot;Mean drift distance from trunk: {:.1f} m&quot;.format(dist.mean()))
+print(&quot;Leaves settle around x = {:.1f} m (downwind), y ~ {:.1f} m&quot;.format(x.mean(), y.mean()))
+print(&quot;P(leaf lands more than 15 m away): {:.1%}&quot;.format(np.mean(dist &gt; 15)))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the map is a cigar shape stretched east — the prevailing wind direction sets <em>where</em> the pile forms, while the angle spread &sigma; sets how much it fans out sideways. Turn the angle into <code>np.random.uniform(0, 2*np.pi, N)</code> and the leaves scatter in a full ring around the trunk; shrink the angle&#x27;s &sigma; toward 0 and they collapse back to the 1-D line from before. This is the key lesson: <strong>each extra random variable adds a new dimension of realism, but the recipe never changes</strong> — define a distribution, sample N times, push the samples through the physics, and read the resulting map. If you were a city planner deciding where to place leaf-collection bins, which single parameter would you measure most carefully?</p>
+      </div>
     </section>
 
     <!-- Example 3: Product launch -->
