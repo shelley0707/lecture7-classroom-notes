@@ -50,6 +50,26 @@
 
     <div id="weeks" class="space-y-5"></div>
 
+    <!-- 赛前准备包 -->
+    <section class="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-xl shadow-sm border-2 border-sky-300 p-6 mt-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-2xl">🎒</span>
+        <h2 class="text-xl font-bold text-sky-900">编程手赛前准备包（开赛前必须备好）</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-5">比赛只有 36 小时，临场从零写代码来不及。下面这 6 样必须在赛前打包成“拿来即用”的模板库，开赛后只改数据、调参数。</p>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">① 环境自检清单</div><p class="text-slate-600">Anaconda / Colab 可正常运行；numpy、pandas、matplotlib、scipy、sklearn、statsmodels、pulp 均已安装；记录各库版本号，避免临场装包失败。</p></div>
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">② 代码模板库</div><p class="text-slate-600">回归 / 时间序列 / 优化(LP·IP) / 微分方程 / 蒙特卡洛仿真 各备一个“最小可跑”模板，换掉数据就能出结果。</p></div>
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">③ 通用数据载入器</div><p class="text-slate-600">封装好 read_csv + 缺失值处理 + 日期解析 + 基本清洗的函数，任何 CSV 一行调用即入表。</p></div>
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">④ 出版级绘图模板</div><p class="text-slate-600">统一配色 / 字号 / dpi 的 plot 样式函数 + savefig 封装，出图即达论文标准，无需再手调。</p></div>
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">⑤ 灵敏度扫描模板</div><p class="text-slate-600">一维参数曲线 + 二维热力图的现成循环代码，建模手一说要看某参数，几分钟出对比图。</p></div>
+        <div class="bg-white border border-sky-200 rounded-lg p-4"><div class="font-bold text-sky-800 mb-1">⑥ 报错急救卡</div><p class="text-slate-600">整理常见 Python / 库报错（shape 不匹配、类型错误、solve_ivp 不收敛等）与解决方案，卡壳时秒查。</p></div>
+      </div>
+      <div class="mt-5 bg-white/70 border border-cyan-200 rounded-lg p-3 text-sm text-slate-600">
+        📌 配套：数据源总表见 <a href="himcm_research_training.html" class="text-sky-700 underline font-medium">Research 计划</a>；交付规范与写作手对接见 <a href="himcm_writer_training.html" class="text-sky-700 underline font-medium">写作手计划</a>。
+      </div>
+    </section>
+
     <!-- Rubric -->
     <section class="bg-white rounded-xl shadow-sm border-2 border-cyan-300 p-6 mt-10">
       <h2 class="text-xl font-bold mb-4">编程手成熟度自检（每阶段问自己）</h2>
@@ -75,30 +95,35 @@ const weeks = [
    learn:"安装 Anaconda / 用 Google Colab；认识 Jupyter Notebook；变量、数字、字符串、列表、字典；if 判断、for 循环、函数 def。",
    task:"在 Notebook 里写一个函数：输入一列数字，返回平均值和最大值（先不用任何库，纯 Python）。",
    deliver:"一个 .ipynb，能正确输出结果，代码有注释。",
+   spec:["自定义函数一个（def）","for 循环 + if 判断各至少一处","关键行有中文注释","正确打印平均值与最大值"],
    check:"不看教程也能独立写出一个带 for 循环和 if 判断的小函数。",
    res:[]},
   {w:2, phase:"A", pc:"emerald", t:"NumPy：数组与向量化", goal:"学会用数组代替手写循环，为所有模型打底。",
    learn:"np.array、shape、切片；向量化运算（整列一起算）；np.mean/sum/max；np.linspace、np.arange；np.random 生成随机数。",
    task:"用 NumPy 把上周的求平均改成一行；再生成 1000 个正态分布随机数并算均值方差。",
    deliver:"对比“纯 Python 循环”和“NumPy 向量化”两种写法的 Notebook。",
+   spec:["纯循环版与向量化版代码并列","两种写法运行耗时对比","随机数的均值与方差结果","一句话说明向量化为何更快"],
    check:"能说清楚为什么向量化更快，并能把一段 for 循环改写成数组运算。",
    res:[{n:"课件：basics 1 - numpy_pandas_operations.ipynb", u:""}]},
   {w:3, phase:"A", pc:"emerald", t:"Pandas：读数据与清洗", goal:"能把一份真实 CSV 变成干净、可分析的表。",
    learn:"pd.read_csv；DataFrame 的行列选择 loc/iloc；缺失值处理 dropna/fillna；筛选、排序、groupby 分组统计；日期解析。",
    task:"下载一份真实 CSV（如某地气温或人口），读进来、清洗缺失值、按年份分组求平均。",
    deliver:"一份清洗流程 Notebook，附清洗前后的数据对比。",
+   spec:["read_csv 读入与 head() 结构预览","缺失值处理前后行数对比","按年份 groupby 的分组统计表","每个清洗步骤有注释"],
    check:"拿到任意 CSV，能在 10 分钟内读入、看结构、清掉明显脏数据。",
    res:[{n:"课件：basics 2 - Pandas_Dataframe_Guide.ipynb", u:""}]},
   {w:4, phase:"A", pc:"emerald", t:"Matplotlib：把数据画出来", goal:"画出清楚、能看懂的基础图。",
    learn:"折线图 plot、散点图 scatter、柱状图 bar、直方图 hist；加标题/坐标轴标签/图例；一张图画多条线。",
    task:"用上周清洗好的数据画 3 种图，每张都配完整标题和坐标轴标签。",
    deliver:"3 张带完整标注的图。",
+   spec:["折线/散点/柱或直方 共 3 种图","每张含标题 + x/y 轴标签 + 图例","统一的数据来源标注","坐标轴单位清晰"],
    check:"任何一张图，别人不看代码也能看懂横纵轴是什么、在讲什么。",
    res:[{n:"课件：basics 3 - Comprehensive_Data_Visualization_Guide.ipynb", u:""}]},
   {w:5, phase:"A", pc:"emerald", t:"出版级图表：让图能直接进论文", goal:"从“能看”升级到“能发表”。",
    learn:"subplots 多子图排版；配色与字号规范；figure 尺寸与 dpi；plt.savefig 存 300dpi PNG/PDF；caption 该写什么。",
    task:"把第 4 周的图重做成一张 2×2 组合图，导出 300dpi，配一段图注。",
    deliver:"一张出版级组合图 + 图注文字。",
+   spec:["2×2 组合子图一张","300dpi PNG/PDF 导出文件","统一配色与字号","一段完整图注（说明图在讲什么）"],
    check:"图导出后放大不糊，颜色/字号统一，写作手能直接贴进论文。",
    res:[{n:"参考：获奖范文 chart_type_gallery（图表类型库）", u:""},{n:"参考：HiMCM 制图软件与AI工具推荐清单", u:""}]},
 
@@ -106,36 +131,42 @@ const weeks = [
    learn:"用 numpy.polyfit 或 sklearn.LinearRegression 拟合；读系数与 R²；画拟合线 + 预测未来点；散点+拟合线叠加图。",
    task:"用一份两列数据做回归，输出方程、R²，并画出拟合效果和外推预测。",
    deliver:"回归 Notebook + 一张拟合预测图。",
+   spec:["拟合代码（polyfit 或 sklearn）","回归方程 + 系数打印","R² 数值","散点 + 拟合线 + 外推预测 叠加图"],
    check:"能解释代码里每个系数对应模型公式的哪一项。",
    res:[{n:"课堂笔记：Regression Model", u:"regression_model_classroom.html"}]},
   {w:7, phase:"B", pc:"sky", t:"时间序列代码：分解与 SARIMA", goal:"实现“看趋势/季节 + 做预测”的完整流程。",
    learn:"statsmodels 的 seasonal_decompose（趋势/季节/残差）；ADF 平稳性检验；SARIMA 拟合与 forecast；画预测区间。",
    task:"对一份带季节性的月度数据做分解，再用 SARIMA 预测未来 12 个月。",
    deliver:"分解图 + 预测图（含历史与预测对比）。",
+   spec:["趋势/季节/残差 三分解图","ADF 平稳性检验结果","SARIMA 预测未来 12 期","含预测区间的历史 vs 预测对比图"],
    check:"改变季节周期参数，能重跑并解释预测怎么变。",
    res:[{n:"课堂笔记：Time Series (Hawaii Visitors)", u:"timeseries_hawaii_visitors_classroom.html"}]},
   {w:8, phase:"B", pc:"sky", t:"优化求解：LP / IP", goal:"用代码解出“约束下的最优方案”。",
    learn:"用 PuLP 或 scipy.optimize.linprog 建模；定义决策变量、目标函数、约束；读最优解；整数约束（IP）。",
    task:"实现一个资源分配 LP（如预算分配），输出最优方案和目标值；再加整数约束变成 IP。",
    deliver:"LP 与 IP 两版求解 Notebook，附最优解说明。",
+   spec:["决策变量/目标/约束 的代码定义","LP 最优解 + 目标函数值","IP（整数约束）版最优解","每个变量的现实含义说明"],
    check:"能把建模手写的“变量/目标/约束”三件套一一对应到代码里。",
    res:[{n:"课件：lecture 7 - LP/IP/NLP", u:""}]},
   {w:9, phase:"B", pc:"sky", t:"微分方程数值解：SIR 与 Lotka-Volterra", goal:"让“随时间演化的系统”跑出轨迹。",
    learn:"scipy.integrate.solve_ivp 求解 ODE；定义变化率函数 dydt；设初值与时间区间；画多变量随时间曲线；相图。",
    task:"实现 SIR 传染病模型和 Lotka-Volterra 捕食模型，各画一张随时间演化图。",
    deliver:"两个动态模型 Notebook + 演化曲线图。",
+   spec:["dydt 变化率函数定义","初值与时间区间设置","多变量随时间演化曲线图","关键参数（如传染率）标注"],
    check:"改一个参数（如传染率）能重跑，并观察峰值/平衡点如何移动。",
    res:[{n:"课堂笔记：Differential Equations & ABM", u:"differential_equation_classroom.html"},{n:"课堂笔记：Logistic Growth", u:"logistic_growth_classroom.html"}]},
   {w:10, phase:"B", pc:"sky", t:"随机仿真：Monte Carlo 与简单 ABM", goal:"在不确定性下用“重复模拟”得到结果分布。",
    learn:"用随机数模拟不确定输入；重复上万次取分布/分位数/失败概率；简单 agent 循环（个体按规则互动）；结果直方图。",
    task:"用 Monte Carlo 估算一个风险指标（如缺口概率）；再写一个最小 ABM（如随机游走的粒子）。",
    deliver:"Monte Carlo 分布图 + ABM 结果图（如落点鸟瞰图）。",
+   spec:["Monte Carlo 抽样循环（上万次）","结果分布直方图 + 分位数/失败概率","风险指标数值","最小 ABM 结果图"],
    check:"能解释“跑 1 万次”和“跑 100 次”的结果稳定性差异。",
    res:[{n:"课堂笔记：Simulation Models", u:"simulation_models_classroom.html"}]},
   {w:11, phase:"B", pc:"sky", t:"灵敏度分析与参数扫描", goal:"把“改参数看变化”做成自动化对比。",
    learn:"用循环遍历参数取值；把结果存进数组/表；画参数-结果曲线；二维参数用热力图 imshow/pcolormesh。",
    task:"选前面任一模型，对一个关键参数做扫描，画出“参数 vs 输出”曲线；再做两参数热力图。",
    deliver:"一维扫描曲线 + 二维热力图 + 一句结论。",
+   spec:["一维参数扫描曲线（参数 vs 输出）","二维参数热力图","扫描参数取值范围说明","一句话灵敏度结论"],
    check:"建模手指定任一参数，我能快速产出它的灵敏度图。",
    res:[]},
 
@@ -143,18 +174,21 @@ const weeks = [
    learn:"把重复代码封装成函数；固定 random seed；清晰的文件/文件夹组织；requirements 记录用了哪些库；关键步骤写注释。",
    task:"把前面某个模型重构成“数据→模型→图”三个函数，任何人 clone 下来一键跑通。",
    deliver:"重构后的规范 Notebook/脚本 + 简短运行说明。",
+   spec:["数据→模型→图 三个封装函数","固定 random seed","requirements 库清单","一键重跑说明文档"],
    check:"关掉内核重跑，从头到尾无报错、结果一致。",
    res:[]},
   {w:13, phase:"C", pc:"violet", t:"结果交付：把成果变成写作手能用的素材", goal:"打通“代码结果 → 论文素材”的最后一公里。",
    learn:"结果表导出为 CSV/Markdown 表；图统一风格与命名；给每张图写一句“这张图说明了什么”；建一个 results 文件夹。",
    task:"整理某个模型的全部产出：编号的图 + 结果表 + 每张图的一句话解读。",
    deliver:"一个 results 文件夹，写作手能直接取用。",
+   spec:["编号的图（fig1、fig2…）","结果表导出 CSV/Markdown","每张图配一句话解读","清晰的 results 文件夹结构"],
    check:"写作手拿到后，不用再问你“这张图是什么意思”。",
    res:[{n:"配套：写作手计划（了解对方要什么）", u:"himcm_writer_training.html"}]},
   {w:14, phase:"C", pc:"violet", t:"赛前实战：48 小时全流程演练", goal:"用一道真题，完整走一遍编程手的比赛节奏。",
    learn:"拿到题→和建模手确认模型→找/造数据→写代码→出图→做灵敏度→交付素材，全流程限时完成。",
    task:"选一道往年 HiMCM 真题，48 小时内产出全套可运行代码 + 出版级图表 + 结果表。",
    deliver:"一套完整的“参赛级”代码与图表包。",
+   spec:["全套可运行代码（一键跑通）","出版级图表包","结果数据表","复盘笔记：耗时瓶颈与提速模板"],
    check:"复盘：哪一步最慢？下次比赛如何提前准备模板来提速。",
    res:[{n:"素材：往年赛题（本地文件夹 往年赛题）", u:""},{n:"配套：Research 知识库（赛题分类与数据源）", u:"himcm_research_training.html"}]},
 ];
@@ -168,6 +202,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     return r.u ? '<a href="'+r.u+'" class="text-xs bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔗 '+r.n+'</a>'
                : '<span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg">📎 '+r.n+'</span>';
   }).join('') + '</div>' : '';
+  var spec = x.spec && x.spec.length ? '<div class="mt-2 pt-2 border-t border-teal-200/70"><div class="text-xs font-semibold text-teal-700 mb-1">交付物应包含：</div><ul class="text-xs text-slate-600 space-y-0.5">' + x.spec.map(function(s){ return '<li>✅ '+s+'</li>'; }).join('') + '</ul></div>' : '';
   return '<section class="card bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 '+border[x.pc]+' p-6">'
     + '<div class="flex flex-wrap items-center gap-3 mb-3">'
     +   '<span class="'+badge[x.pc]+' border font-bold px-3 py-1 rounded-lg text-sm">第 '+x.w+' 周</span>'
@@ -177,7 +212,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     + '<div class="grid sm:grid-cols-2 gap-3 text-sm">'
     +   '<div class="bg-sky-50 border border-sky-100 rounded-lg p-3"><div class="font-semibold text-sky-800 mb-1">学什么</div><p class="text-slate-600">'+x.learn+'</p></div>'
     +   '<div class="bg-cyan-50 border border-cyan-100 rounded-lg p-3"><div class="font-semibold text-cyan-800 mb-1">动手任务</div><p class="text-slate-600">'+x.task+'</p></div>'
-    +   '<div class="bg-teal-50 border border-teal-100 rounded-lg p-3"><div class="font-semibold text-teal-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p></div>'
+    +   '<div class="bg-teal-50 border border-teal-100 rounded-lg p-3"><div class="font-semibold text-teal-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p>'+spec+'</div>'
     +   '<div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3"><div class="font-semibold text-emerald-800 mb-1">达标标准</div><p class="text-slate-600">'+x.check+'</p></div>'
     + '</div>' + res
     + '</section>';
