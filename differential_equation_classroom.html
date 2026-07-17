@@ -426,6 +426,110 @@ plt.title(&quot;Phase Portrait: Rabbits vs Foxes&quot;)
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
       </div>
+    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-sm">Sensitivity</span>
+        <h2 class="text-xl font-bold">Sensitivity Analysis on the Predator-Prey Model</h2>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why It Matters</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Small changes in birth, death, or predation rates can alter cycle amplitude, average population levels, and even whether both species persist. Varying each parameter by ±20% reveals which rates most strongly control the ecosystem.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters to Vary</h3>
+      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
+        <li>Base: a = 1.0, b = 0.1, c = 1.5, d = 0.075</li>
+        <li>Variation range: -20% and +20%</li>
+        <li>Output metrics: peak rabbits, peak foxes, average rabbits, average foxes</li>
+      </ul>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def predator_prey(t, y, a, b, c, d):
+    R, F = y
+    dRdt = a*R - b*R*F
+    dFdt = -c*F + d*R*F
+    return [dRdt, dFdt]
+
+def simulate(a=1.0, b=0.1, c=1.5, d=0.075, y0=(40, 9)):
+    t_eval = np.linspace(0, 30, 1000)
+    sol = solve_ivp(predator_prey, (0, 30), y0, args=(a, b, c, d), t_eval=t_eval)
+    return sol
+
+def metrics(sol):
+    R, F = sol.y
+    return {
+        &quot;R_peak&quot;: R.max(),
+        &quot;F_peak&quot;: F.max(),
+        &quot;R_mean&quot;: R.mean(),
+        &quot;F_mean&quot;: F.mean()
+    }
+
+base = simulate()
+base_m = metrics(base)
+print(&quot;Base: a=1.0, b=0.1, c=1.5, d=0.075&quot;)
+print(&quot;R_peak={:.1f}, F_peak={:.1f}, R_mean={:.1f}, F_mean={:.1f}&quot;.format(
+    base_m[&quot;R_peak&quot;], base_m[&quot;F_peak&quot;], base_m[&quot;R_mean&quot;], base_m[&quot;F_mean&quot;]))
+
+params = {
+    &quot;Rabbit birth a&quot;: (&quot;a&quot;, 1.0),
+    &quot;Predation b&quot;: (&quot;b&quot;, 0.1),
+    &quot;Fox death c&quot;: (&quot;c&quot;, 1.5),
+    &quot;Fox repro d&quot;: (&quot;d&quot;, 0.075)
+}
+
+print(&quot;{:<18} {:<10} {:<10} {:<10} {:<10}&quot;.format(
+    &quot;Parameter&quot;, &quot;R_peak&quot;, &quot;F_peak&quot;, &quot;R_mean&quot;, &quot;F_mean&quot;))
+for name, (key, val) in params.items():
+    for pct in [-0.2, 0.2]:
+        kwargs = {&quot;a&quot;: 1.0, &quot;b&quot;: 0.1, &quot;c&quot;: 1.5, &quot;d&quot;: 0.075}
+        kwargs[key] = val * (1 + pct)
+        sol = simulate(**kwargs)
+        m = metrics(sol)
+        label = &quot;{} {}&quot;.format(name, &quot;+20%&quot; if pct &gt; 0 else &quot;-20%&quot;)
+        print(&quot;{:<18} {:<10.1f} {:<10.1f} {:<10.1f} {:<10.1f}&quot;.format(
+            label, m[&quot;R_peak&quot;], m[&quot;F_peak&quot;], m[&quot;R_mean&quot;], m[&quot;F_mean&quot;]))</code></pre>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Trajectory Comparison</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Overlay rabbit and fox trajectories for three values of the rabbit birth rate a. Higher prey birth rate produces larger oscillations and higher average rabbit numbers.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def predator_prey(t, y, a, b, c, d):
+    R, F = y
+    dRdt = a*R - b*R*F
+    dFdt = -c*F + d*R*F
+    return [dRdt, dFdt]
+
+plt.figure(figsize=(10, 5))
+for pct, color in [(-0.2, &quot;blue&quot;), (0.0, &quot;black&quot;), (0.2, &quot;red&quot;)]:
+    a_val = 1.0 * (1 + pct)
+    sol = solve_ivp(predator_prey, (0, 30), [40, 9],
+                    args=(a_val, 0.1, 1.5, 0.075),
+                    t_eval=np.linspace(0, 30, 1000))
+    plt.plot(sol.t, sol.y[0], color=color, linestyle=&quot;-&quot;,
+             label=&quot;Rabbits a={:.2f}&quot;.format(a_val))
+    plt.plot(sol.t, sol.y[1], color=color, linestyle=&quot;--&quot;,
+             label=&quot;Foxes a={:.2f}&quot;.format(a_val))
+
+plt.xlabel(&quot;Time&quot;)
+plt.ylabel(&quot;Population&quot;)
+plt.title(&quot;Sensitivity to Rabbit Birth Rate&quot;)
+plt.legend(bbox_to_anchor=(1.05, 1), loc=&quot;upper left&quot;)
+plt.tight_layout()
+plt.show()</code></pre>
+      </div>
+    </section>
+
     </section>
 
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
@@ -501,13 +605,10 @@ print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))</code>
         <h2 class="text-xl font-bold">Sensitivity Analysis on the SIR Model</h2>
       </div>
       <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why It Matters</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Small changes in infection rate β or recovery rate γ can flip whether an outbreak grows (R0 &gt; 1) or dies out (R0 &lt; 1). Varying each parameter by ±20% shows how peak infections and final outbreak size respond.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters to Vary</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Base β = 0.3, base γ = 0.1</li>
-        <li>Variation range: -20% and +20%</li>
-        <li>Output metrics: peak infectious count and total recovered by day 160</li>
-      </ul>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">The basic reproduction number R0 = β/γ determines almost everything: whether an outbreak grows, how high the peak is, when it occurs, and how many people are ultimately infected. Changing β and γ by ±20% can flip R0 across the critical threshold of 1.</p>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 1: ±20% Parameter Sweep</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Vary β and γ individually by ±20% while holding the other fixed. Report peak infections, peak day, final recovered count, and R0.</p>
       <div class="relative mt-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
@@ -527,33 +628,41 @@ def sir_model(t, y, beta, gamma, N):
 N = 10000
 I0 = 10
 S0 = N - I0
-t_span = (0, 160)
-t_eval = np.linspace(0, 160, 500)
+t_span = (0, 200)
+t_eval = np.linspace(0, 200, 500)
 
 def simulate(beta, gamma):
     sol = solve_ivp(sir_model, t_span, [S0, I0, 0], args=(beta, gamma, N), t_eval=t_eval)
-    return sol.y[1].max(), sol.y[2][-1], sol.y[1]
+    I = sol.y[1]
+    peak_idx = I.argmax()
+    return {
+        &quot;peak_I&quot;: I.max(),
+        &quot;peak_day&quot;: sol.t[peak_idx],
+        &quot;final_R&quot;: sol.y[2][-1],
+        &quot;R0&quot;: beta / gamma
+    }
 
 base_beta, base_gamma = 0.3, 0.1
-base_peak, base_total, base_I = simulate(base_beta, base_gamma)
-
-print(&quot;Base: peak infected = {:.0f}, total recovered = {:.0f}, R0 = {:.2f}&quot;.format(base_peak, base_total, base_beta/base_gamma))
-print(&quot;{:<18} {:<12} {:<18} {:<18} {:<10}&quot;.format(&quot;Parameter&quot;, &quot;Change&quot;, &quot;Peak infected&quot;, &quot;Total recovered&quot;, &quot;R0&quot;))
+base = simulate(base_beta, base_gamma)
+print(&quot;Base: R0={:.2f}, peak={:.0f} on day {:.1f}, final recovered={:.0f}&quot;.format(
+    base[&quot;R0&quot;], base[&quot;peak_I&quot;], base[&quot;peak_day&quot;], base[&quot;final_R&quot;]))
+print(&quot;{:<18} {:<10} {:<12} {:<18} {:<18} {:<10}&quot;.format(
+    &quot;Parameter&quot;, &quot;Change&quot;, &quot;R0&quot;, &quot;Peak infected&quot;, &quot;Peak day&quot;, &quot;Final R&quot;))
 
 for param_name, base_val in [(&quot;beta&quot;, base_beta), (&quot;gamma&quot;, base_gamma)]:
     for pct in [-0.2, 0.0, 0.2]:
         val = base_val * (1 + pct)
         if param_name == &quot;beta&quot;:
-            peak, total, _ = simulate(val, base_gamma)
-            R0 = val / base_gamma
+            r = simulate(val, base_gamma)
         else:
-            peak, total, _ = simulate(base_beta, val)
-            R0 = base_beta / val
+            r = simulate(base_beta, val)
         label = &quot;{}%&quot;.format(int(pct*100)) if pct != 0 else &quot;base&quot;
-        print(&quot;{:<18} {:<12} {:<18} {:<18} {:<10.2f}&quot;.format(param_name, label, &quot;{:.0f}&quot;.format(peak), &quot;{:.0f}&quot;.format(total), R0))</code></pre>
+        print(&quot;{:<18} {:<10} {:<12.2f} {:<18.0f} {:<18.1f} {:<10.0f}&quot;.format(
+            param_name, label, r[&quot;R0&quot;], r[&quot;peak_I&quot;], r[&quot;peak_day&quot;], r[&quot;final_R&quot;]))</code></pre>
       </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Comparing Curves</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Overlay infectious curves for the base case and the ±20% parameter changes to see how timing and height of the peak shift.</p>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 2: R0 Scenarios</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Fix γ = 0.1 and choose β to obtain R0 values spanning below, near, and above 1. This directly shows the threshold behavior and how small changes in R0 translate into large differences in outbreak size.</p>
       <div class="relative mt-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
@@ -573,32 +682,79 @@ def sir_model(t, y, beta, gamma, N):
 N = 10000
 I0 = 10
 S0 = N - I0
-t_span = (0, 160)
-t_eval = np.linspace(0, 160, 500)
-base_beta, base_gamma = 0.3, 0.1
+gamma = 0.1
+t_span = (0, 200)
+t_eval = np.linspace(0, 200, 500)
+R0_values = [0.8, 1.2, 1.8, 2.5, 4.0]
 
-def simulate(beta, gamma):
+plt.figure(figsize=(10, 5))
+for R0 in R0_values:
+    beta = R0 * gamma
     sol = solve_ivp(sir_model, t_span, [S0, I0, 0], args=(beta, gamma, N), t_eval=t_eval)
-    return sol.y[1].max(), sol.y[2][-1], sol.y[1]
+    I = sol.y[1]
+    final_size = sol.y[2][-1]
+    label = &quot;R0={:.1f}, peak={:.0f}, final={:.0f}&quot;.format(R0, I.max(), final_size)
+    plt.plot(sol.t, I, label=label)
 
-_, _, base_I = simulate(base_beta, base_gamma)
-
-plt.figure(figsize=(8, 4))
-plt.plot(t_eval, base_I, &quot;k-&quot;, linewidth=2, label=&quot;Base beta=0.3&quot;)
-
-for pct, color in [(-0.2, &quot;blue&quot;), (0.2, &quot;red&quot;)]:
-    beta_val = base_beta * (1 + pct)
-    _, _, I_curve = simulate(beta_val, base_gamma)
-    label = &quot;beta {}{}%&quot;.format(&quot;+&quot; if pct&gt;0 else &quot;&quot;, int(pct*100))
-    plt.plot(t_eval, I_curve, color=color, label=label)
-
+plt.axhline(0, color=&quot;gray&quot;, linestyle=&quot;--&quot;, alpha=0.5)
 plt.xlabel(&quot;Time (days)&quot;)
 plt.ylabel(&quot;Infectious individuals&quot;)
-plt.title(&quot;Sensitivity of Infectious Curve to beta&quot;)
-plt.legend()
+plt.title(&quot;SIR Infectious Curves for Different R0 Values&quot;)
+plt.legend(loc=&quot;upper right&quot;)
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
       </div>
+
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 3: Herd Immunity Threshold</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">For R0 = 3.0, the herd immunity threshold is 1 - 1/R0 ≈ 66.7%. Simulate what happens if 70% of the population is initially immune (e.g., vaccinated) compared with a fully susceptible population.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def sir_model(t, y, beta, gamma, N):
+    S, I, R = y
+    dSdt = -beta * S * I / N
+    dIdt = beta * S * I / N - gamma * I
+    dRdt = gamma * I
+    return [dSdt, dIdt, dRdt]
+
+N = 10000
+I0 = 10
+gamma = 0.1
+beta = 0.3
+R0 = beta / gamma
+herd_threshold = 1 - 1 / R0
+vaccinated = 0.70
+
+t_span = (0, 200)
+t_eval = np.linspace(0, 200, 500)
+
+sol_no_vacc = solve_ivp(sir_model, t_span, [N - I0, I0, 0],
+                        args=(beta, gamma, N), t_eval=t_eval)
+R0_immune = int(N * vaccinated)
+sol_vacc = solve_ivp(sir_model, t_span, [N - R0_immune - I0, I0, R0_immune],
+                     args=(beta, gamma, N), t_eval=t_eval)
+
+plt.figure(figsize=(10, 5))
+plt.plot(sol_no_vacc.t, sol_no_vacc.y[1], label=&quot;No immunity&quot;)
+plt.plot(sol_vacc.t, sol_vacc.y[1], label=&quot;70% initially immune&quot;)
+plt.xlabel(&quot;Time (days)&quot;)
+plt.ylabel(&quot;Infectious individuals&quot;)
+plt.title(&quot;Effect of Herd Immunity (R0={:.1f}, threshold={:.1%})&quot;.format(R0, herd_threshold))
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print(&quot;Herd immunity threshold: {:.1%}&quot;.format(herd_threshold))
+print(&quot;No immunity: peak = {:.0f}&quot;.format(sol_no_vacc.y[1].max()))
+print(&quot;70% immune: peak = {:.0f}&quot;.format(sol_vacc.y[1].max()))</code></pre>
+      </div>
+    </section>
     </section>
 
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
