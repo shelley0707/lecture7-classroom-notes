@@ -212,6 +212,63 @@ plt.show()
 </code></pre>
         </div>
       </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mt-8 pt-8 border-t border-slate-200">
+        <div class="prose prose-slate">
+          <h3 class="text-lg font-bold text-slate-900 mb-2">The math inside <code>seasonal_decompose</code></h3>
+          <p class="text-slate-700 mb-3">The function is not magic — it is three moving-average steps. For a yearly period <em>m</em> = 52:</p>
+          <ol class="space-y-2 text-slate-700 list-decimal pl-5">
+            <li><strong>Estimate the trend</strong> with a centered one-year moving average. Because the window spans exactly one season, the ups and downs cancel and only the trend survives:<br>
+              <span class="block text-center my-2">T&#770;(t) = (1/m) &Sigma;<sub>j</sub> y(t + j)</span>
+              (For even <em>m</em> a 2&times;<em>m</em> average is used, which is why the trend has 26 blank weeks at each end.)</li>
+            <li><strong>Detrend:</strong> d(t) = y(t) &minus; T&#770;(t).</li>
+            <li><strong>Seasonal index</strong> for week <em>k</em> = the average of every detrended value that falls in week <em>k</em>, then shifted so the whole pattern sums to zero: &Sigma; S&#770; = 0. This forces the season to repeat <em>identically</em> every year.</li>
+            <li><strong>Residual:</strong> r(t) = y(t) &minus; T&#770;(t) &minus; S&#770;(t).</li>
+          </ol>
+          <p class="text-slate-700 mt-3"><strong>Additive vs multiplicative.</strong> Additive assumes the seasonal swing is a fixed number of visitors, the same in a low year or a high year. If instead the swing grows with the level (say &plusmn;10% of visitors), use multiplicative y = T &times; S &times; R — or equivalently take logs, since log(T&times;S&times;R) = log T + log S + log R turns it back into an additive model.</p>
+          <div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong>Gaining insight by changing parameters:</strong> the period <em>m</em> is the key knob. Pick it wrong and real seasonality leaks into the residual, inflating its standard deviation. The demo sweeps <em>m</em> = 13, 26, 52 and the true period (52) leaves the smallest residual — a simple, quantitative way to confirm the seasonal length.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.tsa.seasonal import seasonal_decompose
+
+# ------------------------------------------------------------------
+# Insight 1: the "trend" is literally a 1-year centered moving average.
+# A 52-week window averages one full year, so the season cancels out.
+# ------------------------------------------------------------------
+ma_52 = train['visitors'].rolling(window=52, center=True).mean()
+
+plt.figure(figsize=(12, 4))
+plt.plot(train.index, train['visitors'], color='lightgray', label='Observed')
+plt.plot(ma_52.index, ma_52, color='darkgreen', lw=2,
+         label='Centered 52-week moving average = trend')
+plt.title('Trend estimate = one-year centered moving average')
+plt.legend(); plt.grid(True, alpha=0.3); plt.tight_layout(); plt.show()
+
+# ------------------------------------------------------------------
+# Insight 2: change the PERIOD and watch the residual.
+# The true season is 52 weeks, so period=52 should absorb the most
+# structure and leave the SMALLEST residual std.
+# ------------------------------------------------------------------
+print("Effect of the seasonal period m on the leftover residual:")
+for m in [13, 26, 52]:
+    dec = seasonal_decompose(train['visitors'], model='additive', period=m)
+    print(f"  period = {m:3d}  ->  residual std = {dec.resid.std():,.0f}")
+
+# ------------------------------------------------------------------
+# Insight 3: additive vs multiplicative seasonality.
+#   additive       -> season is a fixed number of visitors (constant)
+#   multiplicative -> season is a percentage of the level (a ratio)
+# ------------------------------------------------------------------
+dec_add = seasonal_decompose(train['visitors'], model='additive', period=52)
+dec_mul = seasonal_decompose(train['visitors'], model='multiplicative', period=52)
+print(f"\nAdditive season swing:       {dec_add.seasonal.max() - dec_add.seasonal.min():,.0f} visitors (constant)")
+print(f"Multiplicative season swing: x{dec_mul.seasonal.min():.2f} to x{dec_mul.seasonal.max():.2f} (relative)")
+</code></pre>
+        </div>
+      </div>
     </section>
 
     <!-- Module 3: Stationarity -->
@@ -381,6 +438,76 @@ print(sarima_result.summary())
 </code></pre>
         </div>
       </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mt-8 pt-8 border-t border-slate-200">
+        <div class="prose prose-slate">
+          <h3 class="text-lg font-bold text-slate-900 mb-2">The math behind SARIMA — the backshift operator</h3>
+          <p class="text-slate-700 mb-3">Define the backshift operator <em>B</em> by <em>B</em>&#8202;y<sub>t</sub> = y<sub>t&minus;1</sub>, so <em>B</em><sup>k</sup>y<sub>t</sub> = y<sub>t&minus;k</sub>. Then every SARIMA term is just a short polynomial in <em>B</em>:</p>
+          <ul class="space-y-1 text-slate-700 list-disc pl-5">
+            <li>AR(<em>p</em>): &phi;(<em>B</em>) = 1 &minus; &phi;<sub>1</sub><em>B</em> &minus; &hellip; &minus; &phi;<sub>p</sub><em>B</em><sup>p</sup></li>
+            <li>MA(<em>q</em>): &theta;(<em>B</em>) = 1 + &theta;<sub>1</sub><em>B</em> + &hellip; + &theta;<sub>q</sub><em>B</em><sup>q</sup></li>
+            <li>seasonal AR/MA: &Phi;(<em>B</em><sup>m</sup>), &Theta;(<em>B</em><sup>m</sup>) — the same idea but at lag <em>m</em></li>
+            <li>differencing: (1&minus;<em>B</em>)<sup>d</sup> for trend, (1&minus;<em>B</em><sup>m</sup>)<sup>D</sup> for season</li>
+          </ul>
+          <p class="text-slate-700 mt-3">The whole model SARIMA(p,d,q)(P,D,Q)<sub>m</sub> is one equation:</p>
+          <p class="block text-center text-sm my-3 p-2 bg-slate-100 rounded">&phi;(<em>B</em>)&#8202;&Phi;(<em>B</em><sup>m</sup>)&#8202;(1&minus;<em>B</em>)<sup>d</sup>(1&minus;<em>B</em><sup>m</sup>)<sup>D</sup>&#8202;y<sub>t</sub> = &theta;(<em>B</em>)&#8202;&Theta;(<em>B</em><sup>m</sup>)&#8202;&epsilon;<sub>t</sub></p>
+          <p class="text-slate-700">What each knob means physically:</p>
+          <ul class="space-y-1 text-slate-700 list-disc pl-5">
+            <li><strong>d, D</strong> subtract the value one step (or one season) ago to strip out trend and seasonality: (1&minus;<em>B</em>)y<sub>t</sub> = y<sub>t</sub> &minus; y<sub>t&minus;1</sub>.</li>
+            <li><strong>p</strong> (AR): today leans on its own recent past — momentum and inertia.</li>
+            <li><strong>q</strong> (MA): today leans on recent random shocks — how long a surprise echoes.</li>
+            <li><strong>P, Q</strong>: the same two ideas, but comparing this week to the <em>same week last year</em>.</li>
+          </ul>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong>Gaining insight by changing parameters:</strong> add just enough differencing to reach stationarity — the smallest <em>d</em>, <em>D</em> that push the ADF p-value below 0.05 <em>without</em> inflating the variance (rising std = over-differencing). Then let ACF/PACF suggest <em>p</em>, <em>q</em>, and let <strong>AIC = 2k &minus; 2&#8202;ln&#8202;L</strong> arbitrate: it rewards fit (L) but penalizes each extra parameter (k), so the lowest-AIC model is the best fit-vs-simplicity trade-off.
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.arima_process import ArmaProcess
+
+# ------------------------------------------------------------------
+# Insight 1: what d and D actually DO (the differencing operators)
+#   (1-B)   y_t = y_t - y_(t-1)     removes a trend    -> order d
+#   (1-B^52) y_t = y_t - y_(t-52)   removes the season -> order D
+# Aim: reach stationarity (ADF p below 0.05) with the SMALLEST std.
+# A std that RISES after more differencing signals OVER-differencing.
+# ------------------------------------------------------------------
+y = train['visitors']
+transforms = {
+    'y (raw)':            y,
+    '(1-B) y   [d=1]':    y.diff(),
+    '(1-B^52) y [D=1]':   y.diff(52),
+    '(1-B)(1-B^52) y':    y.diff().diff(52),
+}
+print(f"{'transform':22s} {'ADF p':>8s} {'std':>12s}")
+for name, s in transforms.items():
+    s = s.dropna()
+    print(f"{name:22s} {adfuller(s)[1]:8.3f} {s.std():12,.0f}")
+
+# ------------------------------------------------------------------
+# Insight 2: what p (AR) and q (MA) control -> the model's "memory".
+#   AR(1): y_t = phi*y_(t-1) + e_t     larger phi   = longer memory
+#   MA(1): y_t = e_t + theta*e_(t-1)   larger theta = louder one-step echo
+# ------------------------------------------------------------------
+np.random.seed(0)
+fig, axes = plt.subplots(1, 2, figsize=(14, 4))
+for phi in [0.3, 0.6, 0.9]:
+    sample = ArmaProcess(ar=np.r_[1, -phi], ma=[1]).generate_sample(200)
+    axes[0].plot(sample, label=f'phi = {phi}')
+axes[0].set_title('AR(1): larger phi -> smoother, more persistent')
+axes[0].legend(); axes[0].grid(True, alpha=0.3)
+
+for theta in [0.3, 0.6, 0.9]:
+    sample = ArmaProcess(ar=[1], ma=np.r_[1, theta]).generate_sample(200)
+    axes[1].plot(sample, label=f'theta = {theta}')
+axes[1].set_title('MA(1): larger theta -> louder one-step echo')
+axes[1].legend(); axes[1].grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+</code></pre>
+        </div>
+      </div>
     </section>
 
     <!-- Module 6: Forecast & Compare -->
@@ -533,6 +660,9 @@ else:
           </ul>
           <div class="mt-4 p-3 bg-slate-100 rounded-lg text-sm text-slate-800">
             <strong>Takeaway:</strong> Start with decomposition to understand the data; use SARIMA when you need a more accurate, self-correcting forecast.
+          </div>
+          <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-900">
+            <strong>Expert's synthesis:</strong> the two models are two philosophies. Decomposition is <em>deterministic and structural</em> — it writes the future as an explicit trend line plus a fixed repeating season, so it is transparent but assumes the pattern never changes. SARIMA is <em>stochastic</em> — it makes the series stationary by differencing, then models the leftover <em>correlations</em> between neighboring points and shocks, so it adapts and self-corrects but is harder to read. A good modeler uses decomposition to <em>see</em> the structure and SARIMA to <em>forecast</em> it, and always confirms with residual diagnostics that nothing systematic was left behind.
           </div>
         </div>
         <div class="relative">
