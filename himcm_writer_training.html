@@ -50,6 +50,26 @@
 
     <div id="weeks" class="space-y-5"></div>
 
+    <!-- 赛前准备包 -->
+    <section class="bg-gradient-to-br from-amber-50 to-rose-50 rounded-xl shadow-sm border-2 border-rose-300 p-6 mt-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-2xl">🎒</span>
+        <h2 class="text-xl font-bold text-rose-900">写作手赛前准备包（开赛前必须备好）</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-5">论文是团队 36 小时的最终交付物，临场排版和查语法会吃掉宝贵时间。下面这 6 样赛前做成模板与素材库，开赛后专注填内容、打磨摘要。</p>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">① 论文模板</div><p class="text-slate-600">LaTeX 或 Word 现成模板：标题页、Summary Sheet、目录、章节骨架、图表与公式样式，套进去即成型。</p></div>
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">② 摘要写作框架</div><p class="text-slate-600">“问题-方法-结果-建议”四要素模板 + 高分摘要句式，赛时照框架填，避免摘要写崩。</p></div>
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">③ 假设与符号表模板</div><p class="text-slate-600">假设+justification 的现成句式、符号表的标准格式（符号/定义/单位），赛时直接套用。</p></div>
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">④ 学术短语库</div><p class="text-slate-600">按用途分类的英文表达：引出假设、解释方法、呈现结果、给建议、写优缺点，避免临场卡壳与中式英语。</p></div>
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">⑤ 参考文献来源清单</div><p class="text-slate-600">按类型（官方数据 / 方法出处 / 行业政府资料）整理常用引用源与规范格式，赛时快速补齐引用。</p></div>
+        <div class="bg-white border border-rose-200 rounded-lg p-4"><div class="font-bold text-rose-800 mb-1">⑥ 终稿检查清单</div><p class="text-slate-600">图表编号连续、符号一致、时态统一、页数达标、Summary Sheet 完整、命名规范——交卷前逐条核对。</p></div>
+      </div>
+      <div class="mt-5 bg-white/70 border border-amber-200 rounded-lg p-3 text-sm text-slate-600">
+        📌 配套：结果图表来自 <a href="himcm_programmer_training.html" class="text-rose-700 underline font-medium">编程手</a>，模型表述来自 <a href="himcm_modeler_training.html" class="text-rose-700 underline font-medium">建模手</a>，数据源与背景见 <a href="himcm_research_training.html" class="text-rose-700 underline font-medium">Research 计划</a>。
+      </div>
+    </section>
+
     <section class="bg-white rounded-xl shadow-sm border-2 border-amber-300 p-6 mt-10">
       <h2 class="text-xl font-bold mb-4">写作手成熟度自检（每写一块问自己）</h2>
       <div class="grid sm:grid-cols-2 gap-4 text-sm">
@@ -74,12 +94,14 @@ const weeks = [
    learn:"论文标准主线：摘要/总结、问题重述、假设、变量符号、模型构建与求解、结果、优缺点、结论、参考文献、附录。评委看重：模型是否匹配问题、假设是否合理、有没有验证、结论能否落地。",
    task:"精读 1–2 篇 O 奖范文，画出它的“章节结构树”，标出每部分大概占多少篇幅。",
    deliver:"一张论文结构树 + 三条你观察到的共性。",
+   spec:["完整章节结构树","各部分篇幅占比标注","3 条观察到的共性","对应的评分要点"],
    check:"能凭记忆说出一篇 HiMCM 论文从头到尾有哪几大块。",
    res:[{n:"必读：获奖范文 sample paper（本地）", u:""},{n:"必读：HiMCM O奖范文全局共性总结报告（本地）", u:""}]},
   {w:2, phase:"A", pc:"emerald", t:"Summary（摘要）：评委的第一眼", goal:"理解为什么摘要最重要，学会拆解优秀摘要。",
    learn:"一页摘要要独立讲清：问题是什么、用了什么方法、得到什么关键结果、给出什么建议。高分摘要节奏=“短句交代动作，中句解释原因”；开门见山，不玩口号。",
    task:"找 3 篇范文的摘要，各用一句话总结它的“问题-方法-结果-建议”四要素。",
    deliver:"3 份摘要拆解表。",
+   spec:["每篇摘要的“问题”要素","“方法”要素","“关键结果”要素","“建议”要素"],
    check:"能指出一段摘要缺了四要素里的哪一项。",
    res:[{n:"参考：O奖范文摘要写法（共性报告）", u:""}]},
 
@@ -87,48 +109,56 @@ const weeks = [
    learn:"Restatement 不是抄题，而是提炼核心决策问题；Introduction 常含背景、问题重述、“Our Work”路线图。让评委快速进入状态。",
    task:"选一道真题，写一段问题重述 + 一段 Our Work（我们分几步解决）。",
    deliver:"问题重述 + 工作路线各一段。",
+   spec:["用自己话写的问题重述","核心决策问题提炼","Our Work 分步路线","必要的研究背景"],
    check:"没读过原题的人，读你的重述也能懂题目在问什么。",
    res:[{n:"配套：建模手拆题结果（要来用）", u:"himcm_modeler_training.html"}]},
   {w:4, phase:"B", pc:"amber", t:"假设与变量符号：把模型的地基写清楚", goal:"学会写“合理且有理由”的假设，以及规范的符号说明。",
    learn:"每条假设都要配一句 justification（为什么这样简化是合理的）；符号表统一、每个变量给定义和单位；这是评委高频检查项，也是 O 奖论文标配。",
    task:"为一个模型写 4–6 条假设（每条带理由）+ 一张符号说明表。",
    deliver:"假设清单 + 符号表。",
+   spec:["4–6 条假设","每条假设的 justification（理由）","符号定义表","每个符号的单位"],
    check:"每条假设都能回答“如果不这么假设会怎样”。",
    res:[]},
   {w:5, phase:"B", pc:"amber", t:"清晰呈现变量/目标/约束（像 LP/IP 那样）", goal:"学会把一个模型的核心要素写到“一目了然”。",
    learn:"优化类要清楚写决策变量、目标函数、约束条件；动态类要写状态变量与变化率；评价类要写指标与权重。用文字定义 + 公式 + 符号三位一体，评委扫读就能抓住。",
    task:"挑建模手的一个模型，把它的“变量/目标/约束（或状态/方程）”写成规范的论文段落。",
    deliver:"一段结构清晰的模型要素呈现。",
+   spec:["文字定义","公式表达","符号对照","本题映射说明"],
    check:"编程手读你这段，能直接对上他的代码。",
    res:[{n:"参考：LP/IP/NLP 课堂笔记（呈现范式）", u:"regression_model_classroom.html"},{n:"配套：建模手计划", u:"himcm_modeler_training.html"}]},
   {w:6, phase:"B", pc:"amber", t:"模型建立段落：把模型讲成人话", goal:"用文字+公式介绍一个模型，让不懂它的人也能看懂。",
    learn:"套路：先说这个模型解决什么问题→为什么选它（选择理由）→核心公式与每一项含义→怎么把本题映射进去。避免直接甩公式不解释。",
    task:"为团队用到的某个模型写完整的“模型建立”小节（选择理由+公式+映射）。",
    deliver:"一节完整的模型构建文字。",
+   spec:["模型解决什么问题","为什么选它（选择理由）","核心公式及各项含义","本题如何映射进去"],
    check:"一个没学过该模型的同学，读完能复述它大概在干什么。",
    res:[{n:"参考：各模型课堂笔记（了解模型本质）", u:"differential_equation_classroom.html"}]},
   {w:7, phase:"B", pc:"amber", t:"结果呈现：让图表自己说话", goal:"学会规范地放图放表，并在正文引用解读。",
    learn:"每张图要有编号、标题、坐标轴标签、图注；表格要有表头和单位；正文要“引用图号+说明这张图告诉我们什么”；不要放没解释的图。",
    task:"拿编程手给的 2–3 张图，为每张写编号+图注+一段正文解读。",
    deliver:"图文结合的结果小节。",
+   spec:["每图编号 + 标题 + 图注","正文引用图号","一段对图的解读","表格含表头与单位"],
    check:"删掉图，只读文字也知道结果是什么；删掉文字，看图也懂大意。",
    res:[{n:"参考：图表类型库 chart_type_gallery（本地）", u:""},{n:"参考：制图软件与AI工具清单（本地）", u:""}]},
   {w:8, phase:"B", pc:"amber", t:"从结果到现实建议", goal:"把数学输出翻译成给决策者的行动建议——高分论文的灵魂。",
    learn:"O 奖套路：把技术结论翻译成管理语言（如给 city officials 的建议信/路线图）；在成本、效率、公平、环境之间讲权衡（trade-off），而不是只报一个最优数字。",
    task:"基于一个模型结果，写一段“给决策者的建议”，包含至少一个 trade-off。",
    deliver:"一段现实建议（含权衡分析）。",
+   spec:["面向决策者的语言","具体的行动建议","至少一个 trade-off 权衡","结论落到“该做什么”"],
    check:"建议具体到“该做什么”，而不是“结果是 X”。",
    res:[{n:"参考：O奖范文利益相关方写作共性", u:""}]},
   {w:9, phase:"B", pc:"amber", t:"灵敏度分析与模型评价段落", goal:"学会写模型的“可信度”和 strengths / weaknesses。",
    learn:"灵敏度段落：说明改关键参数后结论是否稳健；优缺点段落：诚实列 strengths 和 weaknesses（评委反而更信任）；这是 O 奖论文高频模块。",
    task:"根据编程手的灵敏度结果，写一段灵敏度分析 + 一段模型优缺点。",
    deliver:"灵敏度 + 优缺点两段。",
+   spec:["关键参数的稳健性说明","诚实列出的 strengths","诚实列出的 weaknesses","改进方向"],
    check:"优点不吹、缺点不回避，并给出改进方向。",
    res:[{n:"配套：编程手灵敏度分析（要数据）", u:"himcm_programmer_training.html"}]},
   {w:10, phase:"B", pc:"amber", t:"结论、参考文献与附录", goal:"收尾三件事：呼应问题的结论、够用的引用、规范的附录。",
    learn:"结论要回扣问题、总结关键发现与建议；参考文献“够支撑模型即可”（官方数据+方法来源+行业/政府资料三类），和正文形成闭环；附录放代码和额外图表。",
    task:"为一篇练习论文写结论段 + 整理一份 6–10 条的参考文献 + 规划附录内容。",
    deliver:"结论 + 参考文献 + 附录清单。",
+   spec:["回扣问题的结论","6–10 条参考文献","三类来源（官方/方法/行业）","附录内容规划"],
    check:"参考文献每一条都在正文真正用到，不是凑数。",
    res:[]},
 
@@ -136,24 +166,28 @@ const weeks = [
    learn:"句子节奏：短句交代动作、中句解释原因、长句承载限定条件；只加粗真正承担结构功能的词（assumptions、objective、constraints、sensitivity、recommendation）；时态一致；避免口语与空话。",
    task:"拿自己前几周写的一段，做一次“精简改写”，删掉冗词、拆开过长句子。",
    deliver:"改写前后对照。",
+   spec:["改写前原段","改写后精简段","删掉的冗词标注","过长句子的拆分说明"],
    check:"同一段话更短、更清楚，信息没丢。",
    res:[{n:"参考：数模竞赛核心软技能专项训练集（本地）", u:""}]},
   {w:12, phase:"C", pc:"rose", t:"逻辑连贯与故事线", goal:"让整篇论文读起来是“一条线”，段落之间自然衔接。",
    learn:"用过渡句连接章节；每段一个主旨句；让“问题→方法→结果→建议”形成叙事线；站在评委视角检查“读到这里他会不会困惑”。",
    task:"给一篇练习论文加上章节之间的过渡句，并为每段补主旨句。",
    deliver:"加了衔接的改进版。",
+   spec:["章节间过渡句","每段的主旨句","问题→方法→结果→建议 叙事线","评委视角的检查笔记"],
    check:"从头顺读一遍，不会在任何地方“卡住/跳跃”。",
    res:[]},
   {w:13, phase:"C", pc:"rose", t:"排版、模板与提交规范", goal:"用模板把论文排得专业，控制页数与图文布局。",
    learn:"LaTeX 或 Word 模板；标题页与目录；页数控制与篇幅分配；图表居中与编号；提交格式检查清单（Summary Sheet、页码、命名）。",
    task:"把一篇练习论文套进模板，做完整排版，导出 PDF 自查格式。",
    deliver:"一份排版完成的 PDF。",
+   spec:["套用模板的完整排版","标题页与目录","连续的图表编号","提交格式自查清单"],
    check:"格式统一、图表编号连续、无排版报错。",
    res:[{n:"素材：report template.tex（本地课件）", u:""}]},
   {w:14, phase:"C", pc:"rose", t:"赛前实战：36 小时成稿演练", goal:"基于团队真实模型，限时完成一篇完整论文。",
    learn:"和建模手/编程手并行推进：边建模边起草，先搭结构再填内容，最后统一语言与排版；预留时间打磨摘要。",
    task:"选一道往年真题，联合队友在 36 小时内产出一篇结构完整的参赛级论文。",
    deliver:"一篇完整论文（含摘要、主线、图表、结论、参考文献）。",
+   spec:["独立成立的摘要","完整主线（假设→模型→结果→建议）","规范的图表","结论 + 参考文献 + 附录"],
    check:"复盘：哪一块最费时？摘要是不是最后才写好？下次如何用模板与分工提速。",
    res:[{n:"素材：往年赛题 / 获奖范文（本地）", u:""},{n:"配套：编程手 & 建模手计划", u:"himcm_modeler_training.html"}]},
 ];
@@ -166,6 +200,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     return r.u ? '<a href="'+r.u+'" class="text-xs bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔗 '+r.n+'</a>'
                : '<span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg">📎 '+r.n+'</span>';
   }).join('') + '</div>' : '';
+  var spec = x.spec && x.spec.length ? '<div class="mt-2 pt-2 border-t border-rose-200/70"><div class="text-xs font-semibold text-rose-700 mb-1">交付物应包含：</div><ul class="text-xs text-slate-600 space-y-0.5">' + x.spec.map(function(s){ return '<li>✅ '+s+'</li>'; }).join('') + '</ul></div>' : '';
   return '<section class="card bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 '+border[x.pc]+' p-6">'
     + '<div class="flex flex-wrap items-center gap-3 mb-3">'
     +   '<span class="'+badge[x.pc]+' border font-bold px-3 py-1 rounded-lg text-sm">第 '+x.w+' 周</span>'
@@ -175,7 +210,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     + '<div class="grid sm:grid-cols-2 gap-3 text-sm">'
     +   '<div class="bg-amber-50 border border-amber-100 rounded-lg p-3"><div class="font-semibold text-amber-800 mb-1">学什么</div><p class="text-slate-600">'+x.learn+'</p></div>'
     +   '<div class="bg-orange-50 border border-orange-100 rounded-lg p-3"><div class="font-semibold text-orange-800 mb-1">动手任务</div><p class="text-slate-600">'+x.task+'</p></div>'
-    +   '<div class="bg-rose-50 border border-rose-100 rounded-lg p-3"><div class="font-semibold text-rose-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p></div>'
+    +   '<div class="bg-rose-50 border border-rose-100 rounded-lg p-3"><div class="font-semibold text-rose-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p>'+spec+'</div>'
     +   '<div class="bg-pink-50 border border-pink-100 rounded-lg p-3"><div class="font-semibold text-pink-800 mb-1">达标标准</div><p class="text-slate-600">'+x.check+'</p></div>'
     + '</div>' + res
     + '</section>';
