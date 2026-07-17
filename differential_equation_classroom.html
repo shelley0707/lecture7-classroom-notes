@@ -475,6 +475,62 @@ print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.
       <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
         <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The classic model assumes rabbits could multiply without bound if foxes vanished — an environment with infinite production. That is why its orbits never settle: nothing damps the swings. Adding K says the land can only feed so many rabbits. Now the arrows pull every path toward one coexistence point, and the boom-and-bust cycles fade into a steady balance. Try shrinking K toward R* = c/d = 20: what happens to the foxes when the environment can barely support the prey they depend on? Which is more realistic for a real ecosystem — endless cycles, or a resource-limited balance that absorbs shocks?</p>
       </div>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Invasion of a Foreign Species</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">Now let the rabbit-fox system settle near its equilibrium, then release an <strong>alien predator A</strong> that hunts the very same rabbits. The community now has two predators feeding on one prey. To model it we keep the native equations and add a third: the alien grows only when it catches enough rabbits, dA/dt = -g*A + h*R*A, while its hunting adds a new drain -e*R*A to the rabbits.</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Extended Equations</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">dR/dt = a*R*(1 - R/K) - b*R*F - e*R*A<br>dF/dt = -c*F + d*R*F<br>dA/dt = -g*A + h*R*A</p>
+      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Analysing the Alien</h3>
+      <p class="text-slate-600 text-sm leading-relaxed mb-4">A predator can only survive if the prey stays above its personal break-even level: foxes need R &gt;= c/d, the alien needs R &gt;= g/h. Whichever predator can persist on <strong>less</strong> prey wins — it grazes the rabbits down past its rival's survival line, starving it out. This is the ecological &quot;R* rule&quot; of competition. We deliberately give the alien a lower threshold (g/h = 15 &lt; c/d = 20), so watch the clash unfold.</p>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
+          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+        </div>
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+a, K = 1.0, 200            # rabbit growth, carrying capacity
+b, c, d = 0.1, 1.5, 0.075  # native fox: predation, death, reproduction
+e, g, h = 0.08, 1.2, 0.08  # alien:      predation, death, reproduction
+
+def system(t, y):
+    R, F, A = y
+    dR = a*R*(1 - R/K) - b*R*F - e*R*A
+    dF = -c*F + d*R*F
+    dA = -g*A + h*R*A
+    return [dR, dF, dA]
+
+# Phase 1: rabbits + foxes only, allowed to reach equilibrium
+s1 = solve_ivp(system, (0, 40), [40, 9, 0], t_eval=np.linspace(0, 40, 800))
+
+# Phase 2: drop in 2 alien predators and continue
+y_intro = [s1.y[0][-1], s1.y[1][-1], 2.0]
+s2 = solve_ivp(system, (40, 200), y_intro, t_eval=np.linspace(40, 200, 3200))
+
+t = np.concatenate([s1.t, s2.t])
+R, F, A = (np.concatenate([s1.y[i], s2.y[i]]) for i in range(3))
+
+plt.figure(figsize=(10, 5))
+plt.plot(t, R, label=&quot;Rabbits (prey)&quot;)
+plt.plot(t, F, label=&quot;Native foxes&quot;)
+plt.plot(t, A, label=&quot;Alien predator&quot;)
+plt.axvline(40, color=&quot;gray&quot;, ls=&quot;--&quot;, alpha=0.7)
+plt.text(42, plt.ylim()[1]*0.9, &quot;aliens introduced&quot;, color=&quot;gray&quot;)
+plt.xlabel(&quot;Time&quot;)
+plt.ylabel(&quot;Population&quot;)
+plt.title(&quot;Invasion of a Foreign Predator Sharing the Same Prey&quot;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print(&quot;Fox   survives only if rabbits &gt;= c/d = {:.1f}&quot;.format(c/d))
+print(&quot;Alien survives only if rabbits &gt;= g/h = {:.1f}&quot;.format(g/h))
+print(&quot;Final: rabbits={:.1f}, foxes={:.3f}, aliens={:.1f}&quot;.format(R[-1], F[-1], A[-1]))</code></pre>
+      </div>
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The foxes did nothing wrong — their birth, death, and hunting rates never changed. Yet a single introduction wiped them out, because the alien could survive on fewer rabbits and pulled the prey below the foxes' survival line. Extinction here is <strong>competitive</strong>, not a direct attack. Ask yourself: the alien never touches a fox, so why does the fox vanish? What single number decided the winner, and what would you have to change about the fox (c, d) or the environment (K) to let both predators coexist? And if you were managing this ecosystem, would you regulate the invader's hunting efficiency (h), boost the prey's carrying capacity (K), or act before the equilibrium ever clashed?</p>
+      </div>
     <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-sm">Sensitivity</span>
