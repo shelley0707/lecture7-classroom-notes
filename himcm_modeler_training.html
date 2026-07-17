@@ -50,6 +50,26 @@
 
     <div id="weeks" class="space-y-5"></div>
 
+    <!-- 赛前准备包 -->
+    <section class="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl shadow-sm border-2 border-violet-300 p-6 mt-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-2xl">🎒</span>
+        <h2 class="text-xl font-bold text-violet-900">建模手赛前准备包（开赛前必须备好）</h2>
+      </div>
+      <p class="text-slate-600 text-sm mb-5">建模手是团队的“大脑”，开赛后要在几小时内锁定模型。下面这 6 样在赛前做成速查手册，能让你从“想半天”变成“看一眼就定方向”。</p>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">① 模型速查卡</div><p class="text-slate-600">八大类模型每类一张卡：本质一句话、适用信号（关键词/数据结构）、三件套骨架、最小可用版本。</p></div>
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">② 问题→模型映射表</div><p class="text-slate-600">“预测/最优/比较/演化/不确定/结构/证据”各对应哪些模型，看到题目类型即定候选。</p></div>
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">③ 常用假设库</div><p class="text-slate-600">整理各类模型的常见合理假设（忽略什么、简化什么），赛时直接选取改写，避免漏写假设。</p></div>
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">④ 往年真题分类表</div><p class="text-slate-600">把历年赛题按“主模型类型”归档，遇到相似题快速借鉴思路与建模套路。</p></div>
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">⑤ 高分组合清单</div><p class="text-slate-600">预测+评价、优化+仿真、ODE+参数拟合等常见模型链，以及自建模型四步法，随取随用。</p></div>
+        <div class="bg-white border border-violet-200 rounded-lg p-4"><div class="font-bold text-violet-800 mb-1">⑥ 验证清单模板</div><p class="text-slate-600">灵敏度、误差、基准对比、极端情形的通用检验清单，保证每个模型都能证明“可信”。</p></div>
+      </div>
+      <div class="mt-5 bg-white/70 border border-indigo-200 rounded-lg p-3 text-sm text-slate-600">
+        📌 配套：赛题分类与数据源见 <a href="himcm_research_training.html" class="text-violet-700 underline font-medium">Research 计划</a>；把模型交给 <a href="himcm_programmer_training.html" class="text-violet-700 underline font-medium">编程手</a> 求解、给 <a href="himcm_writer_training.html" class="text-violet-700 underline font-medium">写作手</a> 表述。
+      </div>
+    </section>
+
     <section class="bg-white rounded-xl shadow-sm border-2 border-violet-300 p-6 mt-10">
       <h2 class="text-xl font-bold mb-4">建模手成熟度自检（每个模型学完问自己）</h2>
       <div class="grid sm:grid-cols-2 gap-4 text-sm">
@@ -74,12 +94,14 @@ const weeks = [
    learn:"模型不是按难度分类，而是按“问题本质”分类：预测未来 / 求最优 / 做比较 / 看演化 / 看不确定 / 看结构 / 看数据证据。记住八大类模型地图和它们各自回答什么问题。",
    task:"读模型库总览，做一张自己的“八大类速记卡”：每类一句话本质 + 一个例子。",
    deliver:"一页手绘/打字的模型地图卡。",
+   spec:["八大类各一句话本质","每类配一个生活/赛题例子","标出各类回答的问题类型","自己的速记标注"],
    check:"随便说一个生活问题，你能立刻判断它大概属于哪一类。",
    res:[{n:"必读：HiMCM 模型库整体科普导读（本地 模型库文件夹）", u:""}]},
   {w:2, phase:"A", pc:"emerald", t:"拆题法：把大问题变成小问题", goal:"学会把一句话的大题，拆成 3–5 个能建模的子问题。",
    learn:"六步拆题法；识别题目要的“输出类型”；列出关键变量、已知条件、假设；判断“要不要多个模型串起来”。这是建模手最核心的日常动作。",
    task:"拿一道往年真题，只做拆解：写出子问题、每个子问题的变量与数据需求、初步模型猜想（先不求解）。",
    deliver:"一份拆题工作单（问题→子问题→变量→候选模型）。",
+   spec:["3–5 个可建模子问题","每个子问题的关键变量","每个子问题的数据需求","初步候选模型猜想"],
    check:"拆完后，编程手和写作手都能看懂“这题要分几步做”。",
    res:[{n:"素材：六步拆题法教学PPT / 拆题工作簿（本地）", u:""},{n:"配套：Research 计划（练拆解）", u:"himcm_research_training.html"}]},
 
@@ -87,54 +109,63 @@ const weeks = [
    learn:"输入=多个解释变量，输出=目标变量；线性=加法型规则关系，非线性=弯曲/饱和/加速；何时用回归；correlation≠causation。",
    task:"为一道“某变量受哪些因素影响”的题，写出回归模型：因变量、自变量、假设、为什么选回归。",
    deliver:"一段“模型选择理由 + 变量定义”。",
+   spec:["因变量与自变量清单","选用回归的理由","线性 vs 非线性的判断","系数含义与因果边界说明"],
    check:"能解释系数含义，也能说清回归不能证明因果。",
    res:[{n:"课堂笔记：Regression Model", u:"regression_model_classroom.html"}]},
   {w:4, phase:"B", pc:"indigo", t:"预测类②：时间序列 / 指数平滑 / Logistic 增长", goal:"理解“用历史规律预测未来”和“增长会饱和”。",
    learn:"时间序列靠趋势+季节+滞后规律（ARIMA/SARIMA）；指数平滑重视近期数据做短期预测；GM(1,1) 小样本；Logistic 增长=先快后慢的 S 曲线（有容量上限）。",
    task:"判断给定数据该用哪种预测模型，并写出理由；为 Logistic 写出“初值/增长率/容量”三要素。",
    deliver:"预测模型选择说明 + Logistic 参数定义。",
+   spec:["预测模型选择及理由","时间序列/回归/Logistic 的判据","Logistic 三要素：初值/增长率/容量","数据特征（趋势/季节/饱和）说明"],
    check:"给一份数据，能说出“该用时间序列还是回归还是 Logistic”及理由。",
    res:[{n:"课堂笔记：Time Series", u:"timeseries_hawaii_visitors_classroom.html"},{n:"课堂笔记：Logistic Growth", u:"logistic_growth_classroom.html"}]},
   {w:5, phase:"B", pc:"indigo", t:"优化类①：线性规划 LP（三件套）", goal:"掌握优化的通用骨架：决策变量 / 目标函数 / 约束条件。",
    learn:"决策变量=我要决定什么；目标函数=我想最大化/最小化什么；约束=现实里不能违反的限制（预算/容量/时间）。LP=目标和约束都是线性。",
    task:"为一道资源分配题写出完整 LP：定义变量、写目标函数、列全部约束。",
    deliver:"一份标准 LP 表述（变量+目标+约束，像教材那样清晰）。",
+   spec:["决策变量定义","目标函数（max/min）","全部约束条件","每个变量的现实含义"],
    check:"三件套写得让编程手能直接照着建模求解。",
    res:[{n:"课件：lecture 7 - LP/IP/NLP（本地）", u:""}]},
   {w:6, phase:"B", pc:"indigo", t:"优化类②：整数规划 IP 与非线性规划 NLP", goal:"知道何时“必须离散”、何时“关系是曲线”。",
    learn:"IP：决策是“选/不选、做/不做”的 0-1 或整数（选址、指派）；NLP：目标或约束是非线性（边际递减、风险惩罚、物理规律）。何时从 LP 升级到 IP/NLP。",
    task:"把第 5 周的 LP 改造：加一个“是否建站”的 0-1 决策变成 IP；再设想一个非线性成本变成 NLP。",
    deliver:"IP 与 NLP 各一份模型表述 + 选择理由。",
+   spec:["IP 的 0-1/整数决策定义","NLP 的非线性项说明","LP→IP/NLP 的升级理由","求解难度代价说明"],
    check:"能判断一道题该用 LP、IP 还是 NLP，并说清代价（越真实越难解）。",
    res:[{n:"课件：lecture 7 - LP/IP/NLP（本地）", u:""}]},
   {w:7, phase:"B", pc:"indigo", t:"评价决策类：AHP / TOPSIS / 熵权 / CRITIC", goal:"当多个方案都有道理时，建立一套标准来比较。",
    learn:"评价四要素：对象/指标/权重/聚合方式。AHP=层次+专家两两比较（主观权重）；TOPSIS=离理想解的远近；熵权/CRITIC=用数据客观赋权；PCA 降维；DEA 看投入产出效率。",
    task:"为一道“多方案排序”题设计评价体系：选指标、定权重方法、说明聚合方式。",
    deliver:"一份评价模型设计（指标表 + 权重方法 + 排序逻辑）。",
+   spec:["评价对象与指标表","权重方法（AHP/熵权/CRITIC）及理由","聚合/排序方式","理想解或参照基准说明"],
    check:"能解释“为什么用 AHP 而不是熵权”这类权重方法的取舍。",
    res:[{n:"课件：AHP Model / 综合评价模型（本地）", u:""}]},
   {w:8, phase:"B", pc:"indigo", t:"动态类①：ODE 与 SIR 家族", goal:"理解“系统随时间连续演化”的机制建模。",
    learn:"状态变量+变化率=轨迹；ODE 只看时间维度；SIR/SEIR/SIRS 把人群分成状态群体研究相互转化；关注峰值、平衡、长期状态。",
    task:"为一道“传播/演化”题写出 SIR 式模型：定义状态变量、写出每个状态的变化率、说明参数含义。",
    deliver:"一份动态模型方程组 + 变量与参数说明。",
+   spec:["状态变量定义","每个状态的变化率方程","参数含义与取值来源","关注的峰值/平衡点"],
    check:"能向编程手讲清“每个方程在描述什么转化”。",
    res:[{n:"课堂笔记：Differential Equations & ABM", u:"differential_equation_classroom.html"}]},
   {w:9, phase:"B", pc:"indigo", t:"动态类②：Lotka-Volterra 与耦合系统", goal:"理解“两个群体相互作用”和平衡点分析。",
    learn:"捕食-被捕食耦合方程；相互作用项怎么写；平衡点是什么、怎么找；参数如何改变系统是否稳定/周期/崩溃。为后续“自建耦合模型”打底。",
    task:"写出 Lotka-Volterra 模型，标出平衡点，并预测改变某参数后系统行为怎么变（交给编程手验证）。",
    deliver:"耦合模型表述 + 平衡点分析 + 参数猜想。",
+   spec:["耦合方程组","相互作用项写法","平衡点求解","参数变化下的行为猜想"],
    check:"能提出一个“值得让编程手画图验证”的假设。",
    res:[{n:"课堂笔记：Differential Equations & ABM", u:"differential_equation_classroom.html"}]},
   {w:10, phase:"B", pc:"indigo", t:"随机仿真类：Monte Carlo / ABM / Markov / 排队", goal:"当“未来不唯一”时，研究可能结果的分布与风险。",
    learn:"Monte Carlo=大量随机抽样看分布；ABM=个体局部规则产生整体涌现；元胞自动机=空间格子传播；Markov=状态间概率转移；排队论=到达-等待-服务系统。",
    task:"为一道含不确定性/风险的题，选一个仿真模型，定义随机来源、规则、要统计的输出指标。",
    deliver:"仿真模型设计（随机变量+规则+输出指标）。",
+   spec:["随机来源/分布定义","个体或状态转移规则","要统计的输出指标","为何用仿真而非确定解"],
    check:"能说清“为什么这题要仿真而不是求一个确定最优解”。",
    res:[{n:"课堂笔记：Simulation Models", u:"simulation_models_classroom.html"}]},
   {w:11, phase:"B", pc:"indigo", t:"网络图论 & 统计分析类", goal:"处理“结构关系”和“数据证据”两类任务。",
    learn:"图论：点+边，看路径/连通性/中心性/社群/网络传播；统计：概率分布、假设检验（差异是否显著）、相关性、聚类分组。这两类常作为主模型的“前置”或“配角”。",
    task:"判断一道题是否含网络结构或需要统计检验，写出对应的建模/分析计划。",
    deliver:"网络或统计分析方案一份。",
+   spec:["网络结构（点/边）或检验对象","分析指标（中心性/显著性等）","方法选择理由","在主模型中的角色定位"],
    check:"能识别“这题核心是连接关系”或“这题要先做数据检验”。",
    res:[{n:"课件：graph theory / lecture 3 回归 / 数据处理（本地）", u:""}]},
 
@@ -142,18 +173,21 @@ const weeks = [
    learn:"灵敏度分析（关键参数变一点结果变多少）；误差与拟合优度；与简单基准模型对比；边界/极端情形检验；合理性 sanity check。",
    task:"为已建的某个模型设计一套验证方案：列出要测的参数、对比基准、预期结论，交编程手执行。",
    deliver:"一份模型验证清单。",
+   spec:["要测的关键参数","对比基准模型","边界/极端情形检验","预期结论与合理性判断"],
    check:"能回答评委式提问：如果这个假设错了，你的结论还成立吗？",
    res:[]},
   {w:13, phase:"C", pc:"violet", t:"模型组合与自建模型", goal:"当一个模型不够时，把多个模型拼成工作流。",
    learn:"常见高分组合：预测+评价、优化+仿真、微分方程+参数拟合、时间序列+灵敏度；自建模型四步：拆模块→每块写简单方程→加耦合项→合并；耦合方式：叠加/惩罚/比例/衰减。",
    task:"为一道复杂真题设计模型链：画出“哪个模型负责哪一步、结果如何传递”的流程图。",
    deliver:"一张模型链/自建框架流程图。",
+   spec:["各模型负责的步骤","结果如何在模型间传递","耦合方式（叠加/惩罚/比例等）","为何单一模型不够"],
    check:"能说清每个模型的角色，以及为什么单模型不够。",
    res:[{n:"参考：模型库“高分组合/自建模型”章节（本地）", u:""}]},
   {w:14, phase:"C", pc:"violet", t:"赛前实战：一道真题走完整流程", goal:"识别→选模型→建模→验证→给建议，独立走一遍。",
    learn:"限时完成建模手的完整链路，并现场把模型讲给编程手和写作手，检验“讲得清不清楚”。",
    task:"选一道往年真题，产出：拆题单 + 完整模型表述 + 假设 + 验证方案 + 一段现实建议。",
    deliver:"一份“参赛级”建模方案文档。",
+   spec:["拆题单","完整模型表述 + 假设","验证方案","一段可落地的现实建议"],
    check:"复盘：选模型时卡在哪？哪些假设最容易被质疑？下次如何更快锁定模型。",
    res:[{n:"素材：往年赛题 / 获奖范文（本地）", u:""},{n:"配套：Research 知识库", u:"himcm_research_training.html"}]},
 ];
@@ -166,6 +200,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     return r.u ? '<a href="'+r.u+'" class="text-xs bg-slate-800 text-white hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔗 '+r.n+'</a>'
                : '<span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1.5 rounded-lg">📎 '+r.n+'</span>';
   }).join('') + '</div>' : '';
+  var spec = x.spec && x.spec.length ? '<div class="mt-2 pt-2 border-t border-fuchsia-200/70"><div class="text-xs font-semibold text-fuchsia-700 mb-1">交付物应包含：</div><ul class="text-xs text-slate-600 space-y-0.5">' + x.spec.map(function(s){ return '<li>✅ '+s+'</li>'; }).join('') + '</ul></div>' : '';
   return '<section class="card bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 '+border[x.pc]+' p-6">'
     + '<div class="flex flex-wrap items-center gap-3 mb-3">'
     +   '<span class="'+badge[x.pc]+' border font-bold px-3 py-1 rounded-lg text-sm">第 '+x.w+' 周</span>'
@@ -175,7 +210,7 @@ document.getElementById("weeks").innerHTML = weeks.map(function(x){
     + '<div class="grid sm:grid-cols-2 gap-3 text-sm">'
     +   '<div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3"><div class="font-semibold text-indigo-800 mb-1">学什么</div><p class="text-slate-600">'+x.learn+'</p></div>'
     +   '<div class="bg-violet-50 border border-violet-100 rounded-lg p-3"><div class="font-semibold text-violet-800 mb-1">动手任务</div><p class="text-slate-600">'+x.task+'</p></div>'
-    +   '<div class="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3"><div class="font-semibold text-fuchsia-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p></div>'
+    +   '<div class="bg-fuchsia-50 border border-fuchsia-100 rounded-lg p-3"><div class="font-semibold text-fuchsia-800 mb-1">交付物</div><p class="text-slate-600">'+x.deliver+'</p>'+spec+'</div>'
     +   '<div class="bg-purple-50 border border-purple-100 rounded-lg p-3"><div class="font-semibold text-purple-800 mb-1">达标标准</div><p class="text-slate-600">'+x.check+'</p></div>'
     + '</div>' + res
     + '</section>';
