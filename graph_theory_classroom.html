@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph Theory — Classroom Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.formula { border-left-color: #10b981; }
+    .module-card.method { border-left-color: #8b5cf6; }
+    .module-card.example { border-left-color: #f59e0b; }
+    pre { max-height: 520px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Graph Theory for HiMCM</h1>
+      <p class="text-lg text-slate-600">把“点、边、权重、约束”翻译成可运行的模型：从 Königsberg 到 TSP / MST / 图着色</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 概念与数学表达，右侧 = 可运行的 Python Demo</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. Basics</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Dijkstra</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">3. MST</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. Hamiltonian / TSP</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">5. Graph Coloring</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">6. Assignment</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">7. Practice</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. Summary</a>
+      </div>
+    </nav>
+
+    <!-- Module 1: Basics -->
+    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. 什么是图？G = (V, E)</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4">图论把现实问题抽象成<strong>点</strong>（Vertices/Nodes）和<strong>边</strong>（Edges）。点代表对象，边代表对象之间的关系。</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>V（顶点集）：</strong>图中所有节点的集合，例如建筑物、城市、课程、人群。</li>
+            <li><strong>E（边集）：</strong>连接两个节点的边，可以是有向或无向，可以带权重。</li>
+            <li><strong>权重：</strong>边或点上的“代价/距离/时间/容量”。</li>
+          </ul>
+          <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-blue-900 mb-2">基本定义</div>
+            <p class="math text-center text-lg my-2">G = (V, E)</p>
+            <p>其中 V = {v₁, v₂, ..., vₙ}，E ⊆ V × V。</p>
+            <p class="mt-2">如果边带权重：G = (V, E, w)，w: E → ℝ。</p>
+          </div>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong> takeaway：</strong>拿到题先问：谁是点？谁是边？边有没有方向？有没有权重？
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+
+# 创建一个无向图
+G = nx.Graph()
+G.add_nodes_from(['A', 'B', 'C', 'D'])
+G.add_weighted_edges_from([
+    ('A', 'B', 4),
+    ('A', 'C', 2),
+    ('B', 'C', 1),
+    ('B', 'D', 5),
+    ('C', 'D', 8)
+])
+
+pos = nx.spring_layout(G, seed=42)
+plt.figure(figsize=(6, 4))
+nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=1200, font_size=12, font_weight='bold')
+edge_labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+plt.title('Weighted Undirected Graph G = (V, E, w)')
+plt.axis('off')
+plt.show()
+
+print('Vertices:', list(G.nodes))
+print('Edges:', list(G.edges(data=True)))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 1b: Types of Graphs -->
+    <section class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1b. 常见图类型速查</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">无向图 Undirected</div>
+          <p class="text-slate-600 mt-1">边没有方向，A–B 与 B–A 是同一条边。适合“连接关系”。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">有向图 Directed</div>
+          <p class="text-slate-600 mt-1">边有方向，A→B ≠ B→A。适合“单向流动/依赖”。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">加权图 Weighted</div>
+          <p class="text-slate-600 mt-1">每条边有权重（距离/时间/成本）。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">完全图 Complete</div>
+          <p class="text-slate-600 mt-1">任意两点之间都有边。n 个节点的完全图有 n(n−1)/2 条边。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">树 Tree / 生成树 Spanning Tree</div>
+          <p class="text-slate-600 mt-1">无环连通图。生成树包含原图所有顶点且边数 = n−1。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">二分图 Bipartite</div>
+          <p class="text-slate-600 mt-1">顶点可分为两组，边只跨组不连组内。适合“任务分配”。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Dijkstra -->
+    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. 最短路径：Dijkstra</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>问题：</strong>给定加权图和起点 s，求 s 到所有其他顶点的最短距离。</p>
+          <div class="p-4 bg-green-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-green-900 mb-2">数学表达</div>
+            <p><strong>决策变量：</strong>设 d[v] 为从 s 到 v 的最短距离。</p>
+            <p class="mt-2"><strong>目标：</strong>最小化 d[t]（若只关心终点 t），或求出所有 d[v]。</p>
+            <p class="mt-2"><strong>递推关系（三角不等式）：</strong></p>
+            <p class="math text-center my-2">d[v] ≤ d[u] + w(u, v) &nbsp; ∀(u, v) ∈ E</p>
+            <p class="mt-2"><strong>初始化：</strong>d[s] = 0，d[v] = +∞（v ≠ s）。</p>
+          </div>
+          <div class="p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong> takeaway：</strong>Dijkstra 要求边权非负。时间复杂度 O((V+E) log V)。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+
+# 使用 NetworkX 内置 Dijkstra
+G = nx.Graph()
+G.add_weighted_edges_from([
+    ('A', 'B', 4),
+    ('A', 'C', 2),
+    ('B', 'C', 1),
+    ('B', 'D', 5),
+    ('C', 'D', 8),
+    ('C', 'E', 10),
+    ('D', 'E', 2),
+    ('D', 'F', 6),
+    ('E', 'F', 3)
+])
+
+start, end = 'A', 'F'
+length, path = nx.single_source_dijkstra(G, start, end)
+print(f'Shortest path from {start} to {end}: {path}')
+print(f'Total distance: {length}')
+
+# 到所有点的距离
+print('\nAll shortest distances from A:')
+print(nx.single_source_dijkstra_path_length(G, start))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 3: MST -->
+    <section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. 最小生成树：Minimum Spanning Tree</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>问题：</strong>选择一组边，连接图中所有顶点，且总权重最小。典型场景：布线、道路、管道。</p>
+          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-purple-900 mb-2">数学表达</div>
+            <p><strong>决策变量：</strong>x<sub>e</sub> ∈ {0, 1}，边 e 是否被选中。</p>
+            <p class="mt-2"><strong>目标函数：</strong></p>
+            <p class="math text-center my-2">min Σ<sub>e∈E</sub> w<sub>e</sub> · x<sub>e</sub></p>
+            <p class="mt-2"><strong>约束：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>选中 n−1 条边：Σ x<sub>e</sub> = n − 1</li>
+              <li>无环（对于任意非空子集 S ⊂ V，S 内部的边数 ≤ |S| − 1）</li>
+              <li>连通性：选中边构成的子图连接所有顶点</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong> takeaway：</strong>经典算法 Kruskal（按权重贪心加边）和 Prim（从一点逐步扩展）。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+
+G = nx.Graph()
+G.add_weighted_edges_from([
+    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
+    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
+    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
+])
+
+mst = nx.minimum_spanning_tree(G, weight='weight')
+print('MST edges:', list(mst.edges(data=True)))
+print('Total MST weight:', mst.size(weight='weight'))
+
+# 可视化
+pos = nx.spring_layout(G, seed=42)
+plt.figure(figsize=(8, 5))
+nx.draw_networkx_nodes(G, pos, node_color='lightblue', node_size=1000)
+nx.draw_networkx_labels(G, pos)
+# 非 MST 边灰色
+nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
+# MST 边红色
+nx.draw_networkx_edges(mst, pos, edge_color='red', width=2.5)
+edge_labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+plt.title('Minimum Spanning Tree (red edges)')
+plt.axis('off')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Hamiltonian / TSP -->
+    <section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Hamiltonian 路径 / 圈 与 TSP</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>Hamiltonian 路径：</strong>经过图中每个顶点恰好一次的路径。<strong>Hamiltonian 圈：</strong>回到起点的闭合路径。<strong>TSP（旅行商问题）：</strong>在完全图中找最短的 Hamiltonian 圈。</p>
+          <div class="p-4 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-amber-900 mb-2">TSP 数学表达</div>
+            <p><strong>决策变量：</strong>x<sub>ij</sub> ∈ {0, 1}，是否从 i 直接走到 j。</p>
+            <p class="mt-2"><strong>目标函数：</strong></p>
+            <p class="math text-center my-2">min Σ<sub>i,j</sub> c<sub>ij</sub> · x<sub>ij</sub></p>
+            <p class="mt-2"><strong>约束：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>每个点恰好进入一次：Σ<sub>i</sub> x<sub>ij</sub> = 1，∀j</li>
+              <li>每个点恰好离开一次：Σ<sub>j</sub> x<sub>ij</sub> = 1，∀i</li>
+              <li>消除子回路（subtour elimination），常用 MTZ 约束或 Miller-Tucker-Zemlin</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
+            <strong> takeaway：</strong>TSP 是 NP-hard。小规模可用整数规划精确求解；大规模用启发式（最近邻、2-opt、模拟退火）。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import itertools
+import numpy as np
+
+# 小规模 TSP：暴力枚举
+nodes = ['A', 'B', 'C', 'D']
+# 对称距离矩阵
+np.random.seed(42)
+dist = np.array([
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+])
+
+best = None
+best_cost = float('inf')
+for perm in itertools.permutations(range(1, len(nodes))):
+    route = (0,) + perm + (0,)
+    cost = sum(dist[route[i]][route[i+1]] for i in range(len(route)-1))
+    if cost < best_cost:
+        best_cost = cost
+        best = route
+
+print('Best route:', [nodes[i] for i in best])
+print('Minimum distance:', best_cost)
+
+# 用 NetworkX 的 TSP 近似（Christofides）
+import networkx as nx
+G = nx.complete_graph(len(nodes))
+for i, j in itertools.combinations(range(len(nodes)), 2):
+    G[i][j]['weight'] = dist[i][j]
+
+approx = nx.approximation.traveling_salesman_problem(G, weight='weight', cycle=True)
+print('Approx route:', [nodes[i] for i in approx])
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 5: Graph Coloring -->
+    <section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. 图着色 Graph Coloring</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>问题：</strong>给每个顶点分配一种“颜色”，使得相邻顶点颜色不同，且使用的颜色总数最少。应用：考试排期、化学品隔离、频率分配。</p>
+          <div class="p-4 bg-pink-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-pink-900 mb-2">数学表达</div>
+            <p><strong>决策变量：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>c<sub>v</sub> ∈ {1, 2, ..., K}：顶点 v 的颜色编号</li>
+              <li>y<sub>k</sub> ∈ {0, 1}：颜色 k 是否被使用</li>
+            </ul>
+            <p class="mt-2"><strong>目标函数：</strong></p>
+            <p class="math text-center my-2">min Σ<sub>k=1</sub><sup>K</sup> y<sub>k</sub></p>
+            <p class="mt-2"><strong>约束：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>相邻顶点颜色不同：c<sub>u</sub> ≠ c<sub>v</sub>，∀(u, v) ∈ E</li>
+              <li>若颜色 k 被使用，则 y<sub>k</sub> = 1</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-pink-50 rounded-lg text-sm text-pink-800">
+            <strong> takeaway：</strong>最小着色数是 NP-hard。常用贪心算法或整数规划；实际问题常转化为“最少需要几个时间段”。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+
+# 考试排期：课程为节点，有共同学生的课程连边
+G = nx.Graph()
+G.add_nodes_from(['Math', 'Physics', 'CS', 'English', 'History'])
+G.add_edges_from([
+    ('Math', 'Physics'), ('Math', 'CS'),
+    ('Physics', 'English'), ('CS', 'History'),
+    ('English', 'History')
+])
+
+# 贪心着色
+coloring = nx.coloring.greedy_color(G, strategy='largest_first')
+num_colors = max(coloring.values()) + 1
+print('Color assignment:', coloring)
+print('Minimum time slots needed (greedy):', num_colors)
+
+# 可视化
+colors = ['#fca5a5', '#93c5fd', '#86efac', '#fde047', '#d8b4fe']
+node_colors = [colors[coloring[n] % len(colors)] for n in G.nodes]
+pos = nx.spring_layout(G, seed=42)
+plt.figure(figsize=(7, 5))
+nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=1500, font_size=11)
+plt.title('Exam Scheduling as Graph Coloring')
+plt.axis('off')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 6: Assignment Problem -->
+    <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. 指派问题：Assignment / Bipartite Matching</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>问题：</strong>n 个工人完成 n 项任务，每人一项，每项一人，最小化总成本。这是二分图上的最小权完美匹配。</p>
+          <div class="p-4 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-indigo-900 mb-2">数学表达</div>
+            <p><strong>决策变量：</strong>x<sub>ij</sub> ∈ {0, 1}，工人 i 是否做任务 j。</p>
+            <p class="mt-2"><strong>目标函数：</strong></p>
+            <p class="math text-center my-2">min Σ<sub>i=1</sub><sup>n</sup> Σ<sub>j=1</sub><sup>n</sup> c<sub>ij</sub> · x<sub>ij</sub></p>
+            <p class="mt-2"><strong>约束：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>每个工人一项任务：Σ<sub>j</sub> x<sub>ij</sub> = 1，∀i</li>
+              <li>每项任务一个工人：Σ<sub>i</sub> x<sub>ij</sub> = 1，∀j</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800">
+            <strong> takeaway：</strong>指派问题是 LP 松弛后自动得到整数解的特殊情况，可用匈牙利算法或 scipy.optimize.linear_sum_assignment。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+from scipy.optimize import linear_sum_assignment
+
+# 成本矩阵：行 = 志愿者队伍，列 = 污染河段
+cost = np.array([
+    [9, 2, 7, 8],
+    [6, 4, 3, 7],
+    [5, 8, 1, 4],
+    [7, 6, 9, 5]
+])
+
+row_ind, col_ind = linear_sum_assignment(cost)
+print('Optimal assignment:')
+for r, c in zip(row_ind, col_ind):
+    print(f'  Team {r} → Section {c}, cost = {cost[r, c]}')
+print('Total minimum cost:', cost[row_ind, col_ind].sum())
+
+# 用 PuLP 也能写（适合更复杂约束）
+# import pulp
+# prob = pulp.LpProblem('Assignment', pulp.LpMinimize)
+# x = pulp.LpVariable.dicts('x', ((i,j) for i in range(4) for j in range(4)), cat='Binary')
+# prob += pulp.lpSum(cost[i][j] * x[i,j] for i in range(4) for j in range(4))
+# ...
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 7: Practice -->
+    <section id="m7" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. 实战建模：把题目翻译成图</h2>
+      <div class="space-y-6">
+        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
+          <h3 class="font-bold text-amber-900 mb-2">例题 1：跨境物流最短时间路径</h3>
+          <p class="text-slate-700 text-sm mb-3">9 个货运港口，双向道路运输，各有固定卡车通行时间。货物从起点 S1 到终点 T9，必须依次经过保税中转港 K3 和海关查验港 K6。求总通行时间最短的路线。</p>
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <div class="font-semibold text-slate-900">建模要点</div>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><strong>节点：</strong>9 个港口</li>
+                <li><strong>边：</strong>双向道路，权重 = 通行时间</li>
+                <li><strong>约束：</strong>路径必须 S1 → K3 → K6 → T9</li>
+                <li><strong>模型：</strong>分段 Dijkstra：S1→K3、K3→K6、K6→T9</li>
+              </ul>
+            </div>
+            <div>
+              <div class="font-semibold text-slate-900">Python 思路</div>
+              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code>path1 = nx.shortest_path(G, 'S1', 'K3', weight='weight')
+path2 = nx.shortest_path(G, 'K3', 'K6', weight='weight')
+path3 = nx.shortest_path(G, 'K6', 'T9', weight='weight')
+total = (nx.shortest_path_length(G, 'S1', 'K3', weight='weight') +
+         nx.shortest_path_length(G, 'K3', 'K6', weight='weight') +
+         nx.shortest_path_length(G, 'K6', 'T9', weight='weight'))</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
+          <h3 class="font-bold text-amber-900 mb-2">例题 2：5G 光纤网络最小成本</h3>
+          <p class="text-slate-700 text-sm mb-3">9 个点，其中 5 个是核心 5G 基站，其余是中继塔。点间有双向光纤链接及安装成本。要求 5 个核心基站必须互相连通，中继塔可自由选择。求最小总安装成本。</p>
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <div class="font-semibold text-slate-900">建模要点</div>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><strong>节点：</strong>9 个点（5 核心 + 4 中继）</li>
+                <li><strong>边：</strong>双向光纤，权重 = 安装成本</li>
+                <li><strong>约束：</strong>5 个核心节点必须连通</li>
+                <li><strong>模型：</strong>Steiner Tree；可近似为 MST 后只保留连接核心的树</li>
+              </ul>
+            </div>
+            <div>
+              <div class="font-semibold text-slate-900">Python 思路</div>
+              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code># 近似：对全图求 MST，然后取连接 5 个核心节点的子树
+mst = nx.minimum_spanning_tree(G, weight='weight')
+# 保留 MST 中连接核心节点的最小子图
+terminals = {'A','B','C','D','E'}
+sub = nx.minimum_spanning_tree(mst.subgraph(...))  # 需按终端扩展</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
+          <h3 class="font-bold text-amber-900 mb-2">例题 3：化学品隔离（图着色）</h3>
+          <p class="text-slate-700 text-sm mb-3">若干化学品，某些 pairs 不能放在同一区块。求最少需要多少个区块。</p>
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <div class="font-semibold text-slate-900">建模要点</div>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><strong>节点：</strong>化学品</li>
+                <li><strong>边：</strong>不能同区的化学品对</li>
+                <li><strong>权重：</strong>无</li>
+                <li><strong>目标：</strong>最少颜色数 = 最少区块数</li>
+              </ul>
+            </div>
+            <div>
+              <div class="font-semibold text-slate-900">Python 思路</div>
+              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code>G = nx.Graph()
+G.add_edges_from(conflict_pairs)
+num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 8: Summary -->
+    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 建模起手式：拿到题先填这 6 项</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-4 py-2 text-left border">问题</th>
+              <th class="px-4 py-2 text-left border">示例</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700">
+            <tr><td class="px-4 py-2 border font-semibold">1. 节点 V 是什么？</td><td class="px-4 py-2 border">城市、建筑物、课程、人群、化学品</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">2. 边 E 是什么？</td><td class="px-4 py-2 border">道路、连接、冲突关系、依赖关系</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">3. 有向还是无向？</td><td class="px-4 py-2 border">道路双向用无向；物流/依赖用有向</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">4. 权重是什么？</td><td class="px-4 py-2 border">距离、时间、成本、交互次数</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">5. 约束是什么？</td><td class="px-4 py-2 border">必须经过某点、容量限制、不能同色</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">6. 优化目标是什么？</td><td class="px-4 py-2 border">最短、最小成本、最少颜色、最大覆盖</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+        <strong>推荐库：</strong>
+        <code>networkx</code>（图构建与经典算法）、
+        <code>scipy.optimize.linear_sum_assignment</code>（指派问题）、
+        <code>pulp</code>（整数规划，适合 TSP / 着色 / 复杂约束）。
+      </div>
+    </section>
+
+    <footer class="text-center text-sm text-slate-500 mt-10">
+      Graph Theory Classroom Demo · Based on HiMCM teaching slides · Use with programmer/modeler training plans
+    </footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const code = pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const old = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = old, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
