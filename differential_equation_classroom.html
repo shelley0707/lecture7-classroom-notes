@@ -1,73 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lecture 11 — Differential Equation Models</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Differential Equation Models — Classroom Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    code, pre { font-family: 'Fira Code', monospace; }
-    .example-card { break-inside: avoid; }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; }
-      .example-card { box-shadow: none; border: 1px solid #e5e7eb; }
-    }
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.formula { border-left-color: #10b981; }
+    .module-card.method { border-left-color: #8b5cf6; }
+    .module-card.example { border-left-color: #f59e0b; }
+    pre { max-height: 600px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Differential Equation Models for HiMCM</h1>
+      <p class="text-lg text-slate-600">从“变化率”到“完整故事”：人口、冷却、传染病与生态系统的可运行模型</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 概念与数学表达，右侧 = Python Demo + 可视化</p>
+    </header>
 
-  <header class="bg-slate-900 text-white py-10 px-6">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-3xl md:text-4xl font-bold">Lecture 11 — Differential Equation Models</h1>
-      <p class="mt-3 text-slate-300 text-lg">Classroom Notes: From Rates of Change to Full Stories</p>
-      <div class="mt-4 flex flex-wrap gap-2 text-sm">
-        <span class="bg-teal-600 px-3 py-1 rounded-full">ODEs</span>
-        <span class="bg-emerald-600 px-3 py-1 rounded-full">Population Dynamics</span>
-        <span class="bg-rose-600 px-3 py-1 rounded-full">Epidemics</span>
-        <span class="bg-indigo-600 px-3 py-1 rounded-full">Sensitivity</span>
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+<a href="#m0" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">0. 什么是 ODE</a>
+        <a href="#m1" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">1. 人口增长</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">2. 冷却</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">3. 融化雪球</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. 银行账户</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">5. 谣言传播</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">6. 捕食者-猎物</a>
+        <a href="#m6b" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">6b. 方向场与入侵</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7. SIR 模型</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">8. 敏感性</a>
+        <a href="#m9" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">9. 合成数据</a>
+        <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. 总结</a>
       </div>
-    </div>
-  </header>
+    </nav>
 
-  <main class="max-w-5xl mx-auto px-6 py-8">
-
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-      <p class="text-slate-600 leading-relaxed">
-        A differential equation model does not describe a state directly; it describes the <strong>rate of change</strong> of that state. Our job is to take the information about &quot;how things are changing&quot; and piece together the full story of &quot;what happened.&quot; Each example below is copy-paste-ready and uses <strong>scipy.integrate.solve_ivp</strong> to numerically integrate the equations. Click the <strong>Copy</strong> button to grab any block.
-      </p>
-    </div>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">ODE</span>
-        <h2 class="text-xl font-bold">Example 1 — Exponential Population Growth</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A small population has unlimited resources. In a short time interval, every individual is expected to produce the same number of offspring. The growth rate is therefore proportional to the current population.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (years)</li>
-        <li>P(t) = population at time t</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equation</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dP/dt = r * P, where r is the per-capita growth rate.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Initial population: P(0) = 1000</li>
-        <li>Growth rate: r = 0.03 per year (3%)</li>
-        <li>Time horizon: 0 to 100 years</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+<section id="m0" class="module-card  bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">0. 微分方程是什么？从“变化率”讲“完整故事”</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4">微分方程不直接描述“状态是什么”，而是描述<strong>状态如何变化</strong>。我们的任务是从“变化率”反推出“完整故事”。</p>
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>自变量 t：</strong>通常是时间（年、天、分钟）。</li>
+            <li><strong>因变量 y(t)：</strong>我们关心的状态（人口、温度、账户余额、感染人数）。</li>
+            <li><strong>右端项 f(t, y, ...)：</strong>变化的规律，由物理、生物或经济假设给出。</li>
+          </ul>
+          <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-blue-900 mb-2">一般形式</div>
+            <p class="math text-center text-lg my-2">dy/dt = f(t, y, parameters)</p>
+            <p class="mt-2">给定初值 y(t₀) 后，数值求解（如 <code>scipy.integrate.solve_ivp</code>）即可得到整条轨迹。</p>
+          </div>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong> takeaway：</strong>拿到题先写“谁在变？以什么速率变？受哪些因素影响？”
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+# The simplest ODE: dy/dt = 2*y
+# Its solution is y(t) = y0 * exp(2*t).
+def dydt(t, y):
+    return 2 * y
+
+y0 = [1.0]
+t_eval = np.linspace(0, 3, 300)
+
+# Numerical solution via solve_ivp.
+sol = solve_ivp(dydt, (0, 3), y0, t_eval=t_eval)
+
+# Compare numerical curve with the exact exponential solution.
+plt.figure(figsize=(8, 4))
+plt.plot(sol.t, sol.y[0], label=&#x27;Numerical y(t)&#x27;, linewidth=2)
+plt.plot(sol.t, np.exp(2 * sol.t), &#x27;--&#x27;, label=&#x27;Exact e^(2t)&#x27;)
+plt.xlabel(&#x27;Time t&#x27;)
+plt.ylabel(&#x27;y(t)&#x27;)
+plt.title(&#x27;An ODE describes a rate of change; solving it gives the state&#x27;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+[]
+    </section>
+<section id="m1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. 人口增长：指数 vs. Logistic</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>小种群在资源无限时，每个个体平均产生相同数量的后代，增长率与当前人口成正比。</p>
+          <div class="p-4 bg-teal-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-teal-900 mb-2">指数增长模型</div>
+            <p><strong>变量：</strong>t = 时间（年），P(t) = t 时刻人口。</p>
+            <p class="mt-2"><strong>ODE：</strong></p>
+            <p class="math text-center my-2">dP/dt = r · P</p>
+            <p class="mt-2"><strong>解析解：</strong>P(t) = P₀ · e^(rt)</p>
+            <p class="mt-2"><strong>参数：</strong>P₀ = 1000，r = 0.03 /年。</p>
+          </div>
+          <div class="p-3 bg-teal-50 rounded-lg text-sm text-teal-800">
+            <strong> takeaway：</strong>指数增长适合短期、资源极充裕的场景；长期必然遇到环境限制。
+          </div>
+          <div class="mt-4 p-4 bg-green-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-green-900 mb-2">Logistic 扩展</div>
+            <p>加入环境容纳量 K 后，增长项乘以抑制因子 (1 − P/K)：</p>
+            <p class="math text-center my-2">dP/dt = r·P·(1 − P/K)</p>
+            <p class="mt-2">当 P 接近 K 时，增长率趋于 0。</p>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -93,16 +144,9 @@ plt.ylabel(&quot;Population&quot;)
 plt.title(&quot;Exponential Population Growth&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.show()</code></pre>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Logistic Growth with Carrying Capacity</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Real populations hit resource limits. Add a carrying capacity K so growth slows as P approaches K: dP/dt = r*P*(1 - P/K).</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+plt.show()
+
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -130,35 +174,32 @@ plt.title(&quot;Logistic Population Growth&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">ODE</span>
-        <h2 class="text-xl font-bold">Example 2 — Newton's Law of Cooling</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A hot cup of coffee cools down in a room. The rate at which its temperature drops is proportional to the difference between the coffee temperature and the room temperature.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (minutes)</li>
-        <li>T(t) = temperature of the coffee at time t</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equation</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dT/dt = -k * (T - T_env), where k &gt; 0 controls cooling speed and T_env is the environment temperature.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Initial temperature: T(0) = 90°C</li>
-        <li>Room temperature: T_env = 20°C</li>
-        <li>Cooling constant: k = 0.05 per minute</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m2" class="module-card  bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Newton 冷却定律：一杯咖啡的温度</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>一杯热咖啡在房间里冷却，降温速度与咖啡和环境温度的差成正比。</p>
+          <div class="p-4 bg-cyan-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-cyan-900 mb-2">Newton 冷却定律</div>
+            <p><strong>变量：</strong>t = 时间（分钟），T(t) = 咖啡温度。</p>
+            <p class="mt-2"><strong>ODE：</strong></p>
+            <p class="math text-center my-2">dT/dt = −k·(T − T_env)</p>
+            <p class="mt-2"><strong>参数：</strong>T(0)=90°C，T_env=20°C，k=0.05 /分钟。</p>
+          </div>
+          <div class="p-3 bg-cyan-50 rounded-lg text-sm text-cyan-800">
+            <strong> takeaway：</strong>负号表示温度差越大、降温越快；最终 T 会趋向 T_env。
+          </div>
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果咖啡杯加了保温盖（k 变小），曲线会变陡还是变缓？如果室温也在上升，T_env 不再恒定，ODE 要怎么改？</p>
+      </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -182,40 +223,36 @@ plt.plot(sol.t, sol.y[0], label=&quot;Coffee temperature&quot;)
 plt.axhline(T_env, color=&quot;red&quot;, linestyle=&quot;--&quot;, label=&quot;Room temperature&quot;)
 plt.xlabel(&quot;Time (minutes)&quot;)
 plt.ylabel(&quot;Temperature (C)&quot;)
-plt.title(&quot;Newton's Law of Cooling&quot;)
+plt.title(&quot;Newton&#x27;s Law of Cooling&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">ODE</span>
-        <h2 class="text-xl font-bold">Example 3 — Melting Snowball</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A spherical snowball melts at a rate proportional to its surface area. This sounds like a volume problem, but the geometry produces a surprising simplification.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (minutes)</li>
-        <li>r(t) = radius of the snowball at time t</li>
-        <li>V(t) = (4/3) * π * r(t)^3</li>
-        <li>A(t) = 4 * π * r(t)^2</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equation</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dV/dt = -k * A. Substituting V and A gives dr/dt = -k. The radius shrinks at a constant rate.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Initial radius: r(0) = 10 cm</li>
-        <li>Melting constant: k = 0.05 cm per minute</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m3" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. 融化的雪球：几何如何简化方程</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>球形雪球以与表面积成正比的速率融化。几何关系让这个体积问题产生出人意料的简化。</p>
+          <div class="p-4 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-indigo-900 mb-2">几何推导</div>
+            <p>V = (4/3)πr³，A = 4πr²，设 dV/dt = −k·A。</p>
+            <p class="mt-2">代入后得到：</p>
+            <p class="math text-center my-2">dr/dt = −k</p>
+            <p class="mt-2"><strong>结论：</strong>半径以恒定速率减小，但体积按立方关系非线性下降。</p>
+          </div>
+          <div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800">
+            <strong> takeaway：</strong>同一个物理过程，用不同变量描述会得到不同的“简单性”。
+          </div>
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果雪球不是球形而是立方体，融化规律还会是 dr/dt = 常数吗？你会选择哪个变量让方程最简洁？</p>
+      </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -250,35 +287,32 @@ axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()</code></pre>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">ODE</span>
-        <h2 class="text-xl font-bold">Example 4 — Bank Account with Continuous Deposits</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Money in a savings account grows continuously due to interest, and you add money at a constant rate. The balance changes according to both effects.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (years)</li>
-        <li>B(t) = account balance at time t</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equation</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dB/dt = r * B + D, where r is the interest rate and D is the continuous deposit rate.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Initial balance: B(0) = $1000</li>
-        <li>Interest rate: r = 0.05 per year</li>
-        <li>Deposit rate: D = $100 per year</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. 银行账户：利息 + 连续存款</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>银行账户余额同时受连续复利和连续存款影响。</p>
+          <div class="p-4 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-amber-900 mb-2">带存款的账户模型</div>
+            <p><strong>变量：</strong>t = 时间（年），B(t) = 余额。</p>
+            <p class="mt-2"><strong>ODE：</strong></p>
+            <p class="math text-center my-2">dB/dt = r·B + D</p>
+            <p class="mt-2"><strong>参数：</strong>B₀=1000，r=0.05，D=100（美元/年）。</p>
+          </div>
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
+            <strong> takeaway：</strong>非齐次项 D 表示外部输入；即使 r=0，余额也会线性增长。
+          </div>
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果每年还要扣管理费 M，方程怎么改？画出 r·B 项和 D 项分别对曲线形状的贡献。</p>
+      </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -305,36 +339,32 @@ plt.title(&quot;Bank Account Growth&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">ODE</span>
-        <h2 class="text-xl font-bold">Example 5 — Spread of Rumors</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A rumor spreads through a fixed population. The rate at which new people hear it depends on encounters between those who already know and those who do not.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (days)</li>
-        <li>R(t) = number of people who have heard the rumor</li>
-        <li>N = total population (constant)</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equation</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dR/dt = k * R * (N - R) / N. This is a logistic equation with carrying capacity N.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Total population: N = 1000</li>
-        <li>Initial rumour carriers: R(0) = 10</li>
-        <li>Spread rate: k = 0.4 per day</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m5" class="module-card  bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. 谣言传播：社交网络的 Logistic</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>谣言在固定人群中传播，新听到谣言的人数取决于“已知道者”与“未知道者”的接触。</p>
+          <div class="p-4 bg-pink-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-pink-900 mb-2">谣言传播模型</div>
+            <p><strong>变量：</strong>R(t) = 已知道谣言的人数，N = 总人口。</p>
+            <p class="mt-2"><strong>ODE：</strong></p>
+            <p class="math text-center my-2">dR/dt = k · R · (N − R) / N</p>
+            <p class="mt-2"><strong>本质：</strong>与 Logistic 方程同构，承载容量就是总人口 N。</p>
+          </div>
+          <div class="p-3 bg-pink-50 rounded-lg text-sm text-pink-800">
+            <strong> takeaway：</strong>“信息传播”和“种群增长”共享同一种数学结构。
+          </div>
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果谣言会被人遗忘，已知道者会重新变成易感者，模型要向哪个方向扩展？</p>
+      </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -362,38 +392,28 @@ plt.title(&quot;Spread of Rumors&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">System</span>
-        <h2 class="text-xl font-bold">Example 6 — Lotka-Volterra Predator-Prey</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A population of rabbits (prey) grows on its own but is reduced by encounters with foxes (predators). Foxes grow by eating rabbits but also die naturally. This classic coupled system produces oscillating populations.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time</li>
-        <li>R(t) = rabbit population</li>
-        <li>F(t) = fox population</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equations</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dR/dt = a*R - b*R*F<br>dF/dt = -c*F + d*R*F</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Rabbit birth rate: a = 1.0</li>
-        <li>Predation rate: b = 0.1</li>
-        <li>Fox death rate: c = 1.5</li>
-        <li>Fox reproduction rate: d = 0.075</li>
-        <li>Initial rabbits: R(0) = 40; initial foxes: F(0) = 9</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. 捕食者-猎物：Lotka-Volterra 系统</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>兔子（猎物）自然增长，但被狐狸（捕食者）捕食；狐狸靠吃兔子繁殖，也会自然死亡。这个经典耦合系统产生周期性振荡。</p>
+          <div class="p-4 bg-emerald-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-emerald-900 mb-2">Lotka-Volterra 方程</div>
+            <p class="math text-center my-2">dR/dt = a·R − b·R·F</p>
+            <p class="math text-center my-2">dF/dt = −c·F + d·R·F</p>
+            <p class="mt-2"><strong>参数：</strong>a=1.0, b=0.1, c=1.5, d=0.075；初值 R(0)=40, F(0)=9。</p>
+          </div>
+          <div class="p-3 bg-emerald-50 rounded-lg text-sm text-emerald-800">
+            <strong> takeaway：</strong>两个方程互相耦合，无法单独求解；数值积分是标准做法。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -424,16 +444,9 @@ plt.ylabel(&quot;Population&quot;)
 plt.title(&quot;Lotka-Volterra Predator-Prey Model&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.show()</code></pre>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Phase Portrait</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Plotting rabbits against foxes reveals a closed orbit, a signature of the oscillatory predator-prey dynamics.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+plt.show()
+
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -461,15 +474,29 @@ plt.ylabel(&quot;Foxes&quot;)
 plt.title(&quot;Phase Portrait: Rabbits vs Foxes&quot;)
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Direction Field &amp; Environmental Limits</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A direction field draws the arrow (dR/dt, dF/dt) at each point, so any trajectory simply follows the arrows. The classic model has no resource limit on rabbits, so every orbit is a <strong>closed cycle</strong> circling the equilibrium forever. But if the environment can only sustain so many rabbits, we add a carrying capacity K to the prey equation: dR/dt = a*R*(1 - R/K) - b*R*F. Watch how the same arrows now <strong>spiral inward</strong> to a single stable point instead of looping.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+['<div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">\n        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>经典模型假设兔子可以无限繁殖。如果给兔子加上环境容纳量 K，相平面中的闭合轨道会变成什么？为什么？</p>\n      </div>']
+    </section>
+<section id="m6b" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6b. 方向场、环境容纳量与物种入侵</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>把人群分成易感者 S、感染者 I、康复者 R，预测疫情走势、峰值和最终规模。</p>
+          <div class="p-4 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-rose-900 mb-2">SIR 模型</div>
+            <p class="math text-center my-2">dS/dt = −β·S·I/N</p>
+            <p class="math text-center my-2">dI/dt = β·S·I/N − γ·I</p>
+            <p class="math text-center my-2">dR/dt = γ·I</p>
+            <p class="mt-2"><strong>基本再生数：</strong>R₀ = β/γ。</p>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
+            <strong> takeaway：</strong>R₀ > 1 时疫情会增长；疫情结束不是因为所有人感染，而是因为易感者低于阈值 S* = N/R₀。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -516,23 +543,9 @@ plt.show()
 # Print the equilibria for comparison.
 print(&quot;Equilibrium rabbits R* = c/d = {:.0f} (same in both models)&quot;.format(c/d))
 print(&quot;Classic foxes  F* = a/b = {:.0f}  -&gt; orbits circle this point forever&quot;.format(a/b))
-print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.format(a/b * (1 - (c/d)/K)))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The classic model assumes rabbits could multiply without bound if foxes vanished — an environment with infinite production. That is why its orbits never settle: nothing damps the swings. Adding K says the land can only feed so many rabbits. Now the arrows pull every path toward one coexistence point, and the boom-and-bust cycles fade into a steady balance. Try shrinking K toward R* = c/d = 20: what happens to the foxes when the environment can barely support the prey they depend on? Which is more realistic for a real ecosystem — endless cycles, or a resource-limited balance that absorbs shocks?</p>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Invasion of a Foreign Species</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Now let the rabbit-fox system settle near its equilibrium, then release an <strong>alien predator A</strong> that hunts the very same rabbits. The community now has two predators feeding on one prey. To model it we keep the native equations and add a third: the alien grows only when it catches enough rabbits, dA/dt = -g*A + h*R*A, while its hunting adds a new drain -e*R*A to the rabbits.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Extended Equations</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dR/dt = a*R*(1 - R/K) - b*R*F - e*R*A<br>dF/dt = -c*F + d*R*F<br>dA/dt = -g*A + h*R*A</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Analysing the Alien</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A predator can only survive if the prey stays above its personal break-even level: foxes need R &gt;= c/d, the alien needs R &gt;= g/h. Whichever predator can persist on <strong>less</strong> prey wins — it grazes the rabbits down past its rival's survival line, starving it out. This is the ecological &quot;R* rule&quot; of competition. We deliberately give the alien a lower threshold (g/h = 15 &lt; c/d = 20), so watch the clash unfold.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.format(a/b * (1 - (c/d)/K)))
+
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -558,7 +571,7 @@ s1 = solve_ivp(system, (0, 40), [40, 9, 0], t_eval=np.linspace(0, 40, 800))
 y_intro = [s1.y[0][-1], s1.y[1][-1], 2.0]
 s2 = solve_ivp(system, (40, 200), y_intro, t_eval=np.linspace(40, 200, 3200))
 
-# Concatenate the two phases for plotting.
+# Stitch the two phases together for plotting.
 t = np.concatenate([s1.t, s2.t])
 R, F, A = (np.concatenate([s1.y[i], s2.y[i]]) for i in range(3))
 
@@ -579,154 +592,32 @@ plt.show()
 print(&quot;Fox   survives only if rabbits &gt;= c/d = {:.1f}&quot;.format(c/d))
 print(&quot;Alien survives only if rabbits &gt;= g/h = {:.1f}&quot;.format(g/h))
 print(&quot;Final: rabbits={:.1f}, foxes={:.3f}, aliens={:.1f}&quot;.format(R[-1], F[-1], A[-1]))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The foxes did nothing wrong — their birth, death, and hunting rates never changed. Yet a single introduction wiped them out, because the alien could survive on fewer rabbits and pulled the prey below the foxes' survival line. Extinction here is <strong>competitive</strong>, not a direct attack. Ask yourself: the alien never touches a fox, so why does the fox vanish? What single number decided the winner, and what would you have to change about the fox (c, d) or the environment (K) to let both predators coexist? And if you were managing this ecosystem, would you regulate the invader's hunting efficiency (h), boost the prey's carrying capacity (K), or act before the equilibrium ever clashed?</p>
-      </div>
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-sm">Sensitivity</span>
-        <h2 class="text-xl font-bold">Sensitivity Analysis on the Predator-Prey Model</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why It Matters</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Small changes in birth, death, or predation rates can alter cycle amplitude, average population levels, and even whether both species persist. Varying each parameter by ±20% reveals which rates most strongly control the ecosystem.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters to Vary</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Base: a = 1.0, b = 0.1, c = 1.5, d = 0.075</li>
-        <li>Variation range: -20% and +20%</li>
-        <li>Output metrics: peak rabbits, peak foxes, average rabbits, average foxes</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
-
-# Predator-prey model used throughout this section.
-def predator_prey(t, y, a, b, c, d):
-    R, F = y
-    dRdt = a*R - b*R*F
-    dFdt = -c*F + d*R*F
-    return [dRdt, dFdt]
-
-def simulate(a=1.0, b=0.1, c=1.5, d=0.075, y0=(40, 9)):
-    # Run one simulation with the chosen parameters.
-    t_eval = np.linspace(0, 30, 1000)
-    sol = solve_ivp(predator_prey, (0, 30), y0, args=(a, b, c, d), t_eval=t_eval)
-    return sol
-
-def metrics(sol):
-    # Extract summary statistics from a trajectory.
-    R, F = sol.y
-    return {
-        &quot;R_peak&quot;: R.max(),
-        &quot;F_peak&quot;: F.max(),
-        &quot;R_mean&quot;: R.mean(),
-        &quot;F_mean&quot;: F.mean()
-    }
-
-# Baseline simulation and metrics.
-base = simulate()
-base_m = metrics(base)
-print(&quot;Base: a=1.0, b=0.1, c=1.5, d=0.075&quot;)
-print(&quot;R_peak={:.1f}, F_peak={:.1f}, R_mean={:.1f}, F_mean={:.1f}&quot;.format(
-    base_m[&quot;R_peak&quot;], base_m[&quot;F_peak&quot;], base_m[&quot;R_mean&quot;], base_m[&quot;F_mean&quot;]))
-
-# Vary each parameter by +/-20% and report the resulting metrics.
-params = {
-    &quot;Rabbit birth a&quot;: (&quot;a&quot;, 1.0),
-    &quot;Predation b&quot;: (&quot;b&quot;, 0.1),
-    &quot;Fox death c&quot;: (&quot;c&quot;, 1.5),
-    &quot;Fox repro d&quot;: (&quot;d&quot;, 0.075)
-}
-
-print(&quot;{:<18} {:<10} {:<10} {:<10} {:<10}&quot;.format(
-    &quot;Parameter&quot;, &quot;R_peak&quot;, &quot;F_peak&quot;, &quot;R_mean&quot;, &quot;F_mean&quot;))
-for name, (key, val) in params.items():
-    for pct in [-0.2, 0.2]:
-        kwargs = {&quot;a&quot;: 1.0, &quot;b&quot;: 0.1, &quot;c&quot;: 1.5, &quot;d&quot;: 0.075}
-        kwargs[key] = val * (1 + pct)
-        sol = simulate(**kwargs)
-        m = metrics(sol)
-        label = &quot;{} {}&quot;.format(name, &quot;+20%&quot; if pct &gt; 0 else &quot;-20%&quot;)
-        print(&quot;{:<18} {:<10.1f} {:<10.1f} {:<10.1f} {:<10.1f}&quot;.format(
-            label, m[&quot;R_peak&quot;], m[&quot;F_peak&quot;], m[&quot;R_mean&quot;], m[&quot;F_mean&quot;]))</code></pre>
       </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Visualization: Trajectory Comparison</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Overlay rabbit and fox trajectories for three values of the rabbit birth rate a. Higher prey birth rate produces larger oscillations and higher average rabbit numbers.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
-
-# Predator-prey model.
-def predator_prey(t, y, a, b, c, d):
-    R, F = y
-    dRdt = a*R - b*R*F
-    dFdt = -c*F + d*R*F
-    return [dRdt, dFdt]
-
-# Compare trajectories for three values of the rabbit birth rate a.
-plt.figure(figsize=(10, 5))
-for pct, color in [(-0.2, &quot;blue&quot;), (0.0, &quot;black&quot;), (0.2, &quot;red&quot;)]:
-    a_val = 1.0 * (1 + pct)
-    sol = solve_ivp(predator_prey, (0, 30), [40, 9],
-                    args=(a_val, 0.1, 1.5, 0.075),
-                    t_eval=np.linspace(0, 30, 1000))
-    # Solid line = rabbits, dashed line = foxes; same color for the same a.
-    plt.plot(sol.t, sol.y[0], color=color, linestyle=&quot;-&quot;,
-             label=&quot;Rabbits a={:.2f}&quot;.format(a_val))
-    plt.plot(sol.t, sol.y[1], color=color, linestyle=&quot;--&quot;,
-             label=&quot;Foxes a={:.2f}&quot;.format(a_val))
-
-plt.xlabel(&quot;Time&quot;)
-plt.ylabel(&quot;Population&quot;)
-plt.title(&quot;Sensitivity to Rabbit Birth Rate&quot;)
-plt.legend(bbox_to_anchor=(1.05, 1), loc=&quot;upper left&quot;)
-plt.tight_layout()
-plt.show()</code></pre>
-      </div>
+[]
     </section>
-
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">Epidemic</span>
-        <h2 class="text-xl font-bold">Example 7 — SIR Epidemic Model</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Background</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">The SIR model divides a closed population into three compartments: Susceptible, Infectious, and Recovered. It answers questions such as how many people will get sick, when the peak occurs, and whether healthcare capacity will be exceeded.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Variables</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>t = time (days)</li>
-        <li>S(t) = susceptible individuals</li>
-        <li>I(t) = infectious individuals</li>
-        <li>R(t) = recovered/removed individuals</li>
-        <li>N = S + I + R (constant closed population)</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Differential Equations</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">dS/dt = -β * S * I / N<br>dI/dt = β * S * I / N - γ * I<br>dR/dt = γ * I</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Parameters (assumed)</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li>Total population: N = 10,000</li>
-        <li>Initial infected: I(0) = 10</li>
-        <li>Infection rate: β = 0.3 per day</li>
-        <li>Recovery rate: γ = 0.1 per day</li>
-      </ul>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+<section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. SIR 传染病模型与扩展</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>参数的小小变化可能显著改变疫情规模、峰值时间和最终感染人数。敏感性分析帮我们识别最关键的参数。</p>
+          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-purple-900 mb-2">分析思路</div>
+            <p>固定其他参数，把 β 和 γ 分别变化 ±20%，观察：</p>
+            <ul class="list-disc pl-5 space-y-1 mt-2">
+              <li>峰值感染人数 peak_I</li>
+              <li>峰值时间 peak_day</li>
+              <li>最终康复人数 final_R</li>
+              <li>基本再生数 R₀</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong> takeaway：</strong>R₀ = β/γ 是决定疫情走势的核心复合参数；公共卫生干预本质上是同时降低 β 或提高 γ。
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -766,17 +657,9 @@ plt.show()
 
 # Basic reproduction number: average secondary infections per case.
 R_naught = beta / gamma
-print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))</code></pre>
-      </div>
+print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))
 
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Phase Plane &amp; the Epidemic Threshold</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Instead of watching curves over time, plot infectious I against susceptible S. Infections can only grow while dI/dt &gt; 0, which means S &gt; N/R0. That vertical line is the <strong>epidemic threshold</strong>: the trajectory rises until it hits S = N/R0, peaks there, then falls. Notice every curve stops with susceptibles still left over — an outbreak ends not when everyone is infected, but when too few remain to sustain it.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -805,20 +688,9 @@ plt.grid(True, alpha=0.3)
 plt.show()
 
 for R0 in [0.8, 2.5]:
-    print(&quot;R0={:.1f}: infections grow only while S &gt; N/R0 = {:.0f}&quot;.format(R0, N / R0))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> For R0 = 0.8 the threshold N/R0 sits beyond the whole population, so the trajectory can never rise — the disease dies out immediately. Why does raising R0 pull the threshold line to the left, and why does that alone guarantee a bigger peak? If an outbreak always leaves susceptibles behind, what does that tell you about the true meaning of &quot;herd immunity&quot; — is it a target you vaccinate toward, or something the epidemic imposes on its own?</p>
-      </div>
+    print(&quot;R0={:.1f}: infections grow only while S &gt; N/R0 = {:.0f}&quot;.format(R0, N / R0))
 
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Waning Immunity — One Wave or Endless Waves?</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">The basic SIR assumes recovery grants permanent immunity, so R only grows. But for many diseases immunity fades. Add a return flow at rate ω from R back to S — this is the <strong>SIRS model</strong>: dS/dt = -β*S*I/N + ω*R and dR/dt = γ*I - ω*R. This one extra arrow decides whether the disease is a single historical event or a permanent endemic presence, mirroring how a carrying capacity turned the predator-prey cycle into a stable spiral.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -834,7 +706,7 @@ N, I0 = 10000, 10
 beta, gamma = 0.3, 0.1
 t_eval = np.linspace(0, 600, 2000)
 
-# Compare lifelong immunity (omega=0) with fading immunity (omega>0).
+# Compare lifelong immunity (omega=0) with fading immunity (omega&gt;0).
 plt.figure(figsize=(10, 5))
 for omega, label in [(0.0, &quot;omega = 0  (lifelong immunity)&quot;),
                      (0.02, &quot;omega = 0.02  (immunity fades)&quot;)]:
@@ -850,20 +722,9 @@ plt.show()
 
 # Long-run endemic level of susceptibles equals the epidemic threshold S* = N/R0.
 print(&quot;Endemic susceptible level S* = N/R0 = {:.0f}&quot;.format(N * gamma / beta))
-print(&quot;omega=0: disease dies out.  omega&gt;0: it settles to a steady endemic level.&quot;)</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> With ω = 0 the outbreak burns through once and vanishes; with ω &gt; 0 the same infection returns in damped waves and never truly leaves. Yet the long-run susceptible level lands right back at S* = N/R0 — the very threshold from the phase plane. Why does the system keep returning to that magic number? If you were a public-health planner, would you rather face a disease with lifelong immunity or one with fast-waning immunity, and how would that change your vaccination schedule?</p>
-      </div>
+print(&quot;omega=0: disease dies out.  omega&gt;0: it settles to a steady endemic level.&quot;)
 
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: Invasion of a New Variant</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Just as a foreign predator invaded the rabbit-fox world, a more transmissible <strong>variant</strong> can invade an ongoing epidemic. Two strains draw from the same pool of susceptibles: dI1/dt = β1*S*I1/N - γ*I1 and dI2/dt = β2*S*I2/N - γ*I2. Each strain survives only while S stays above its own threshold N/R0. The higher-R0 variant has the <strong>lower</strong> threshold, so it keeps growing after susceptibles fall below the resident strain's line — starving the old strain out. This is the epidemic twin of the predator &quot;R* rule&quot;: here it is the &quot;R0 rule.&quot;</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -908,28 +769,32 @@ plt.show()
 # The strain with the higher R0 has the lower susceptible threshold and wins.
 print(&quot;Susceptible threshold N/R0: resident = {:.0f}, variant = {:.0f}&quot;.format(N/1.5, N/3.0))
 print(&quot;Peak infections: resident = {:.0f}, variant = {:.0f}&quot;.format(I1.max(), I2.max()))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Think about it:</strong> The variant never fights the old strain directly — it simply consumes susceptibles faster and pushes S below the level the resident strain needs, exactly like the alien predator that never touched a fox. What single number decides which strain wins, and how is it the mirror image of the prey break-even level in Example 6? This is why real-world variants (think successive COVID waves) tend to be ever more transmissible: selection rewards the lowest susceptible threshold. If you could intervene, would you lower β for everyone (masks, distancing) or target the variant specifically — and would either change who ultimately wins?</p>
-      </div>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-sm">Sensitivity</span>
-        <h2 class="text-xl font-bold">Sensitivity Analysis on the SIR Model</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why It Matters</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">The basic reproduction number R0 = β/γ determines almost everything: whether an outbreak grows, how high the peak is, when it occurs, and how many people are ultimately infected. Changing β and γ by ±20% can flip R0 across the critical threshold of 1.</p>
-
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 1: ±20% Parameter Sweep</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Vary β and γ individually by ±20% while holding the other fixed. Report peak infections, peak day, final recovered count, and R0.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+['<div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">\n        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果康复者会再次变回易感者（免疫消退），模型需要增加哪一项？这对疫情的长期行为有什么影响？</p>\n      </div><div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">\n        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>如果出现传播力更强的新变种，两个毒株共享同一群易感者，谁会最终占据主导？由哪个数字决定？</p>\n      </div>']
+    </section>
+<section id="m8" class="module-card  bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 敏感性分析：谁最能左右疫情？</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>问题：</strong>参数的小小变化可能显著改变疫情规模、峰值时间和最终感染人数。敏感性分析帮我们识别最关键的参数。</p>
+          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-purple-900 mb-2">分析思路</div>
+            <p>固定其他参数，把 β 和 γ 分别变化 ±20%，观察：</p>
+            <ul class="list-disc pl-5 space-y-1 mt-2">
+              <li>峰值感染人数 peak_I</li>
+              <li>峰值时间 peak_day</li>
+              <li>最终康复人数 final_R</li>
+              <li>基本再生数 R₀</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong> takeaway：</strong>R₀ = β/γ 是决定疫情走势的核心复合参数；公共卫生干预本质上是同时降低 β 或提高 γ。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -965,7 +830,7 @@ base_beta, base_gamma = 0.3, 0.1
 base = simulate(base_beta, base_gamma)
 print(&quot;Base: R0={:.2f}, peak={:.0f} on day {:.1f}, final recovered={:.0f}&quot;.format(
     base[&quot;R0&quot;], base[&quot;peak_I&quot;], base[&quot;peak_day&quot;], base[&quot;final_R&quot;]))
-print(&quot;{:<18} {:<10} {:<12} {:<18} {:<18} {:<10}&quot;.format(
+print(&quot;{:&lt;18} {:&lt;10} {:&lt;12} {:&lt;18} {:&lt;18} {:&lt;10}&quot;.format(
     &quot;Parameter&quot;, &quot;Change&quot;, &quot;R0&quot;, &quot;Peak infected&quot;, &quot;Peak day&quot;, &quot;Final R&quot;))
 
 # Vary beta and gamma individually by +/-20%.
@@ -977,18 +842,10 @@ for param_name, base_val in [(&quot;beta&quot;, base_beta), (&quot;gamma&quot;, 
         else:
             r = simulate(base_beta, val)
         label = &quot;{}%&quot;.format(int(pct*100)) if pct != 0 else &quot;base&quot;
-        print(&quot;{:<18} {:<10} {:<12.2f} {:<18.0f} {:<18.1f} {:<10.0f}&quot;.format(
-            param_name, label, r[&quot;R0&quot;], r[&quot;peak_I&quot;], r[&quot;peak_day&quot;], r[&quot;final_R&quot;]))</code></pre>
-      </div>
+        print(&quot;{:&lt;18} {:&lt;10} {:&lt;12.2f} {:&lt;18.0f} {:&lt;18.1f} {:&lt;10.0f}&quot;.format(
+            param_name, label, r[&quot;R0&quot;], r[&quot;peak_I&quot;], r[&quot;peak_day&quot;], r[&quot;final_R&quot;]))
 
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 2: R0 Scenarios</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Fix γ = 0.1 and choose β to obtain R0 values spanning below, near, and above 1. This directly shows the threshold behavior and how small changes in R0 translate into large differences in outbreak size.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -1025,17 +882,9 @@ plt.ylabel(&quot;Infectious individuals&quot;)
 plt.title(&quot;SIR Infectious Curves for Different R0 Values&quot;)
 plt.legend(loc=&quot;upper right&quot;)
 plt.grid(True, alpha=0.3)
-plt.show()</code></pre>
-      </div>
+plt.show()
 
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Part 3: Herd Immunity Threshold</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">For R0 = 3.0, the herd immunity threshold is 1 - 1/R0 ≈ 66.7%. Simulate what happens if 70% of the population is initially immune (e.g., vaccinated) compared with a fully susceptible population.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
@@ -1082,31 +931,30 @@ plt.show()
 print(&quot;Herd immunity threshold: {:.1%}&quot;.format(herd_threshold))
 print(&quot;No immunity: peak = {:.0f}&quot;.format(sol_no_vacc.y[1].max()))
 print(&quot;70% immune: peak = {:.0f}&quot;.format(sol_vacc.y[1].max()))</code></pre>
-      </div>
-    </section>
-    </section>
-
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-lg text-sm">Simulation</span>
-        <h2 class="text-xl font-bold">When Real Data Is Missing: Data Simulation</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Why Simulate?</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Real data may be unavailable, too complex, or sensitive. Synthetic data lets us test model robustness and explore &quot;what-if&quot; scenarios under extreme or varying conditions.</p>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Common Approaches</h3>
-      <ul class="text-slate-600 text-sm list-disc pl-5 mb-4 space-y-1">
-        <li><strong>Random sampling:</strong> Pull values from distributions (Normal, Uniform, Poisson).</li>
-        <li><strong>Model-based:</strong> Use equations (regression, differential equations) to generate data that follow observed patterns.</li>
-        <li><strong>Agent-based:</strong> Define rules for individual agents and let system behavior emerge.</li>
-      </ul>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Example: Simulate Daily Energy Consumption</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Suppose a bus fleet has a baseline consumption with daily random variation. We can simulate one month of readings and add a weekly pattern.</p>
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
+      </div>
+[]
+    </section>
+<section id="m9" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 数据缺失时：用模型生成合成数据</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+<p class="text-slate-700 mb-4">真实数据可能不可得、太复杂或敏感。用已知规律生成合成数据，可以测试模型稳健性、探索极端情景。</p>
+          <div class="p-4 bg-slate-100 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-slate-900 mb-2">常用方法</div>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><strong>随机抽样：</strong>从分布（正态、均匀、泊松）中抽取。</li>
+              <li><strong>模型驱动：</strong>用回归或微分方程生成符合规律的数据。</li>
+              <li><strong>基于智能体：</strong>定义个体规则，让系统行为涌现。</li>
+            </ul>
+          </div>
+          <div class="p-3 bg-slate-100 rounded-lg text-sm text-slate-800">
+            <strong> takeaway：</strong>合成数据不是“假数据”，而是“受控实验”。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
 # Set a random seed so the synthetic dataset is reproducible.
@@ -1130,25 +978,52 @@ plt.title(&quot;Simulated Daily Energy Consumption&quot;)
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()</code></pre>
+        </div>
+      </div>
+[]
+    </section>
+
+<section id="m10" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">10. 建模起手式：拿到 ODE 题先填这 6 项</h2>
+<div class="overflow-x-auto">
+        <table class="min-w-full text-sm border">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-4 py-2 text-left border">问题</th>
+              <th class="px-4 py-2 text-left border">示例</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700">
+            <tr><td class="px-4 py-2 border font-semibold">1. 自变量是什么？</td><td class="px-4 py-2 border">时间 t（年 / 天 / 分钟）</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">2. 因变量是什么？</td><td class="px-4 py-2 border">人口 P、温度 T、余额 B、感染人数 I</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">3. 变化率由什么驱动？</td><td class="px-4 py-2 border">自身大小、与环境差距、两变量相互作用</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">4. 有哪些参数？</td><td class="px-4 py-2 border">增长率 r、冷却系数 k、传播率 β、恢复率 γ</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">5. 是否耦合？</td><td class="px-4 py-2 border">单一方程 vs. SIR / Lotka-Volterra 方程组</td></tr>
+            <tr><td class="px-4 py-2 border font-semibold">6. 初值条件是什么？</td><td class="px-4 py-2 border">y(0) = ?，S(0), I(0), R(0) = ?</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+        <strong>推荐库：</strong>
+        <code>scipy.integrate.solve_ivp</code>（数值积分）、
+        <code>numpy</code>（数组与计算）、
+        <code>matplotlib</code>（可视化）。
       </div>
     </section>
 
-  </main>
-
-  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
-    <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
-      Generated for classroom use. ODE demos use scipy.integrate.solve_ivp and matplotlib.
-    </div>
-  </footer>
+    <footer class="text-center text-sm text-slate-500 mt-10">
+      Differential Equation Classroom Demo · Based on HiMCM Lecture 11 · Every demo includes visualization
+    </footer>
+  </div>
 
   <script>
     function copyCode(btn) {
-      const pre = btn.parentElement.nextElementSibling;
-      const code = pre.querySelector('code').innerText;
+      const pre = btn.parentElement.querySelector('pre');
+      const code = pre.innerText;
       navigator.clipboard.writeText(code).then(() => {
-        const original = btn.innerText;
+        const old = btn.innerText;
         btn.innerText = 'Copied!';
-        setTimeout(() => btn.innerText = original, 1500);
+        setTimeout(() => btn.innerText = old, 1500);
       });
     }
   </script>
