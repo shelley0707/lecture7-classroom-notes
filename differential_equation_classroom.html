@@ -67,20 +67,25 @@
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# ODE: dP/dt = r * P
+# The rate of change is proportional to the current population.
 def exp_growth(t, P, r):
     return r * P
 
-P0 = 1000
-r = 0.03
-t_span = (0, 100)
-t_eval = np.linspace(0, 100, 500)
+# Set model parameters and initial condition.
+P0 = 1000          # initial population
+r = 0.03           # per-capita growth rate (3% per year)
+t_span = (0, 100)  # simulate from year 0 to year 100
+t_eval = np.linspace(0, 100, 500)  # output time grid
 
+# Solve the ODE numerically. args passes the extra parameter r into exp_growth.
 sol = solve_ivp(exp_growth, t_span, [P0], args=(r,), t_eval=t_eval)
 
+# Plot population versus time.
 plt.figure(figsize=(8, 4))
 plt.plot(sol.t, sol.y[0], label=&quot;r = {}&quot;.format(r))
 plt.xlabel(&quot;Time (years)&quot;)
@@ -97,20 +102,25 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# ODE: dP/dt = r*P*(1 - P/K)
+# Growth slows as P approaches the carrying capacity K.
 def logistic_growth(t, P, r, K):
     return r * P * (1 - P / K)
 
-P0 = 1000
-r = 0.03
-K = 10000
-t_eval = np.linspace(0, 200, 500)
+# Parameters
+P0 = 1000            # initial population
+r = 0.03             # intrinsic growth rate
+K = 10000            # environmental carrying capacity
+t_eval = np.linspace(0, 200, 500)  # time grid for output
 
+# Integrate the logistic equation.
 sol = solve_ivp(logistic_growth, (0, 200), [P0], args=(r, K), t_eval=t_eval)
 
+# Plot the population curve and the carrying-capacity line.
 plt.figure(figsize=(8, 4))
 plt.plot(sol.t, sol.y[0], label=&quot;Logistic growth&quot;)
 plt.axhline(K, color=&quot;red&quot;, linestyle=&quot;--&quot;, label=&quot;Carrying capacity K&quot;)
@@ -148,19 +158,23 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# ODE: dT/dt = -k * (T - T_env)
+# Cooling rate is proportional to the temperature gap with the room.
 def cooling(t, T, k, T_env):
     return -k * (T - T_env)
 
-T0 = 90
-T_env = 20
-k = 0.05
-t_span = (0, 120)
+# Initial and environmental temperatures, plus cooling constant.
+T0 = 90            # initial coffee temperature (C)
+T_env = 20         # room temperature (C)
+k = 0.05           # cooling rate constant (1/min)
+t_span = (0, 120)  # 0 to 120 minutes
 t_eval = np.linspace(0, 120, 500)
 
+# Solve and plot temperature versus time.
 sol = solve_ivp(cooling, t_span, [T0], args=(k, T_env), t_eval=t_eval)
 
 plt.figure(figsize=(8, 4))
@@ -201,18 +215,22 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# If dV/dt = -k * A and V = (4/3)*pi*r^3, A = 4*pi*r^2,
+# the geometry collapses to dr/dt = -k: radius shrinks at a constant rate.
 def melting(t, r, k):
     return -k
 
-r0 = 10
-k = 0.05
+# Parameters
+r0 = 10            # initial radius (cm)
+k = 0.05           # melting speed (cm/min)
 t_span = (0, 200)
 t_eval = np.linspace(0, 200, 500)
 
+# Solve for radius, then convert to volume for the second subplot.
 sol = solve_ivp(melting, t_span, [r0], args=(k,), t_eval=t_eval)
 r = sol.y[0]
 V = (4 / 3) * np.pi * r**3
@@ -260,19 +278,23 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# ODE: dB/dt = r*B + D
+# Balance grows from continuous interest plus a constant deposit rate.
 def bank_account(t, B, r, D):
     return r * B + D
 
-B0 = 1000
-r = 0.05
-D = 100
-t_span = (0, 30)
+# Parameters
+B0 = 1000          # initial balance ($)
+r = 0.05           # annual interest rate
+D = 100            # continuous deposit rate ($/year)
+t_span = (0, 30)   # 30-year horizon
 t_eval = np.linspace(0, 30, 500)
 
+# Integrate and plot the balance over time.
 sol = solve_ivp(bank_account, t_span, [B0], args=(r, D), t_eval=t_eval)
 
 plt.figure(figsize=(8, 4))
@@ -312,19 +334,23 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# ODE: dR/dt = k * R * (N - R) / N
+# New people hear the rumor through encounters between knowers (R) and non-knowers (N-R).
 def rumor_spread(t, R, k, N):
     return k * R * (N - R) / N
 
-N = 1000
-R0 = 10
-k = 0.4
+# Parameters
+N = 1000           # total population
+R0 = 10            # initial number of people who know the rumor
+k = 0.4            # spread rate (1/day)
 t_span = (0, 30)
 t_eval = np.linspace(0, 30, 500)
 
+# Solve and compare against total population.
 sol = solve_ivp(rumor_spread, t_span, [R0], args=(k, N), t_eval=t_eval)
 
 plt.figure(figsize=(8, 4))
@@ -367,23 +393,29 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Coupled ODEs for predator-prey dynamics:
+# dR/dt = a*R - b*R*F   (rabbits grow, killed by foxes)
+# dF/dt = -c*F + d*R*F  (foxes die, reproduce by eating rabbits)
 def predator_prey(t, y, a, b, c, d):
     R, F = y
     dRdt = a*R - b*R*F
     dFdt = -c*F + d*R*F
     return [dRdt, dFdt]
 
+# Model parameters and initial populations.
 a, b, c, d = 1.0, 0.1, 1.5, 0.075
-y0 = [40, 9]
+y0 = [40, 9]       # [rabbits, foxes]
 t_span = (0, 15)
 t_eval = np.linspace(0, 15, 1000)
 
+# Integrate the coupled system.
 sol = solve_ivp(predator_prey, t_span, y0, args=(a, b, c, d), t_eval=t_eval)
 
+# Plot both populations versus time.
 plt.figure(figsize=(8, 4))
 plt.plot(sol.t, sol.y[0], label=&quot;Rabbits&quot;)
 plt.plot(sol.t, sol.y[1], label=&quot;Foxes&quot;)
@@ -401,10 +433,11 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Same predator-prey model as above.
 def predator_prey(t, y, a, b, c, d):
     R, F = y
     dRdt = a*R - b*R*F
@@ -416,8 +449,11 @@ y0 = [40, 9]
 t_span = (0, 15)
 t_eval = np.linspace(0, 15, 1000)
 
+# Solve the system.
 sol = solve_ivp(predator_prey, t_span, y0, args=(a, b, c, d), t_eval=t_eval)
 
+# Phase portrait: plot fox population against rabbit population.
+# A closed orbit signals endless oscillations in the classic model.
 plt.figure(figsize=(6, 6))
 plt.plot(sol.y[0], sol.y[1], color=&quot;purple&quot;)
 plt.xlabel(&quot;Rabbits&quot;)
@@ -433,30 +469,39 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Shared predator-prey parameters.
 a, b, c, d = 1.0, 0.1, 1.5, 0.075
 K = 50  # environmental carrying capacity for rabbits
 
 def draw_field(ax, deriv, starts, title, eq=None):
+    # Build a grid in the (R, F) phase plane.
     R, F = np.meshgrid(np.linspace(0.1, 60, 20), np.linspace(0.1, 25, 20))
+    # Compute the direction vector at each grid point.
     dR, dF = deriv(R, F)
+    # Normalize arrows so they all have the same length; color by speed.
     speed = np.hypot(dR, dF)
     speed[speed == 0] = 1
     ax.quiver(R, F, dR / speed, dF / speed, speed, cmap=&quot;viridis&quot;, alpha=0.6)
+    # Draw trajectories from several starting points.
     for s in starts:
         sol = solve_ivp(lambda t, y: deriv(*y), (0, 60), s,
                         t_eval=np.linspace(0, 60, 4000))
         ax.plot(sol.y[0], sol.y[1], lw=1.5)
+    # Mark the equilibrium if one is supplied.
     if eq:
         ax.plot(*eq, &quot;ro&quot;, markersize=9)
     ax.set_xlabel(&quot;Rabbits R&quot;)
     ax.set_ylabel(&quot;Foxes F&quot;)
     ax.set_title(title)
 
+# Classic model: rabbits grow without bound when foxes are scarce.
 classic = lambda R, F: (a*R - b*R*F, -c*F + d*R*F)
+
+# Resource-limited model: rabbit growth is capped by carrying capacity K.
 limited = lambda R, F: (a*R*(1 - R/K) - b*R*F, -c*F + d*R*F)
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))
@@ -468,6 +513,7 @@ draw_field(ax2, limited, [[10, 3], [40, 9], [55, 15]],
 plt.tight_layout()
 plt.show()
 
+# Print the equilibria for comparison.
 print(&quot;Equilibrium rabbits R* = c/d = {:.0f} (same in both models)&quot;.format(c/d))
 print(&quot;Classic foxes  F* = a/b = {:.0f}  -&gt; orbits circle this point forever&quot;.format(a/b))
 print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.format(a/b * (1 - (c/d)/K)))</code></pre>
@@ -486,28 +532,33 @@ print(&quot;Limited foxes  F* = {:.1f}     -&gt; trajectories settle here&quot;.
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Parameters for a three-species model: rabbits, native foxes, alien predators.
 a, K = 1.0, 200            # rabbit growth, carrying capacity
 b, c, d = 0.1, 1.5, 0.075  # native fox: predation, death, reproduction
 e, g, h = 0.08, 1.2, 0.08  # alien:      predation, death, reproduction
 
 def system(t, y):
     R, F, A = y
+    # Rabbits are hunted by both predators and limited by K.
     dR = a*R*(1 - R/K) - b*R*F - e*R*A
+    # Native fox dynamics.
     dF = -c*F + d*R*F
+    # Alien predator dynamics.
     dA = -g*A + h*R*A
     return [dR, dF, dA]
 
-# Phase 1: rabbits + foxes only, allowed to reach equilibrium
+# Phase 1: let rabbits and native foxes settle near equilibrium (no aliens yet).
 s1 = solve_ivp(system, (0, 40), [40, 9, 0], t_eval=np.linspace(0, 40, 800))
 
-# Phase 2: drop in 2 alien predators and continue
+# Phase 2: introduce 2 alien predators and continue the simulation.
 y_intro = [s1.y[0][-1], s1.y[1][-1], 2.0]
 s2 = solve_ivp(system, (40, 200), y_intro, t_eval=np.linspace(40, 200, 3200))
 
+# Concatenate the two phases for plotting.
 t = np.concatenate([s1.t, s2.t])
 R, F, A = (np.concatenate([s1.y[i], s2.y[i]]) for i in range(3))
 
@@ -524,6 +575,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()
 
+# Each predator has a minimum prey level needed for survival.
 print(&quot;Fox   survives only if rabbits &gt;= c/d = {:.1f}&quot;.format(c/d))
 print(&quot;Alien survives only if rabbits &gt;= g/h = {:.1f}&quot;.format(g/h))
 print(&quot;Final: rabbits={:.1f}, foxes={:.3f}, aliens={:.1f}&quot;.format(R[-1], F[-1], A[-1]))</code></pre>
@@ -549,10 +601,11 @@ print(&quot;Final: rabbits={:.1f}, foxes={:.3f}, aliens={:.1f}&quot;.format(R[-1
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Predator-prey model used throughout this section.
 def predator_prey(t, y, a, b, c, d):
     R, F = y
     dRdt = a*R - b*R*F
@@ -560,11 +613,13 @@ def predator_prey(t, y, a, b, c, d):
     return [dRdt, dFdt]
 
 def simulate(a=1.0, b=0.1, c=1.5, d=0.075, y0=(40, 9)):
+    # Run one simulation with the chosen parameters.
     t_eval = np.linspace(0, 30, 1000)
     sol = solve_ivp(predator_prey, (0, 30), y0, args=(a, b, c, d), t_eval=t_eval)
     return sol
 
 def metrics(sol):
+    # Extract summary statistics from a trajectory.
     R, F = sol.y
     return {
         &quot;R_peak&quot;: R.max(),
@@ -573,12 +628,14 @@ def metrics(sol):
         &quot;F_mean&quot;: F.mean()
     }
 
+# Baseline simulation and metrics.
 base = simulate()
 base_m = metrics(base)
 print(&quot;Base: a=1.0, b=0.1, c=1.5, d=0.075&quot;)
 print(&quot;R_peak={:.1f}, F_peak={:.1f}, R_mean={:.1f}, F_mean={:.1f}&quot;.format(
     base_m[&quot;R_peak&quot;], base_m[&quot;F_peak&quot;], base_m[&quot;R_mean&quot;], base_m[&quot;F_mean&quot;]))
 
+# Vary each parameter by +/-20% and report the resulting metrics.
 params = {
     &quot;Rabbit birth a&quot;: (&quot;a&quot;, 1.0),
     &quot;Predation b&quot;: (&quot;b&quot;, 0.1),
@@ -605,22 +662,25 @@ for name, (key, val) in params.items():
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Predator-prey model.
 def predator_prey(t, y, a, b, c, d):
     R, F = y
     dRdt = a*R - b*R*F
     dFdt = -c*F + d*R*F
     return [dRdt, dFdt]
 
+# Compare trajectories for three values of the rabbit birth rate a.
 plt.figure(figsize=(10, 5))
 for pct, color in [(-0.2, &quot;blue&quot;), (0.0, &quot;black&quot;), (0.2, &quot;red&quot;)]:
     a_val = 1.0 * (1 + pct)
     sol = solve_ivp(predator_prey, (0, 30), [40, 9],
                     args=(a_val, 0.1, 1.5, 0.075),
                     t_eval=np.linspace(0, 30, 1000))
+    # Solid line = rabbits, dashed line = foxes; same color for the same a.
     plt.plot(sol.t, sol.y[0], color=color, linestyle=&quot;-&quot;,
              label=&quot;Rabbits a={:.2f}&quot;.format(a_val))
     plt.plot(sol.t, sol.y[1], color=color, linestyle=&quot;--&quot;,
@@ -666,10 +726,12 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# SIR compartment model:
+# S = susceptible, I = infectious, R = recovered/removed.
 def sir_model(t, y, beta, gamma, N):
     S, I, R = y
     dSdt = -beta * S * I / N
@@ -677,17 +739,20 @@ def sir_model(t, y, beta, gamma, N):
     dRdt = gamma * I
     return [dSdt, dIdt, dRdt]
 
-N = 10000
-I0 = 10
-S0 = N - I0
-R0 = 0
-beta = 0.3
-gamma = 0.1
+# Population and disease parameters.
+N = 10000          # total population (closed)
+I0 = 10            # initial infected
+S0 = N - I0        # initial susceptible
+R0 = 0             # initial recovered
+beta = 0.3         # infection transmission rate (1/day)
+gamma = 0.1        # recovery rate (1/day)
 t_span = (0, 160)
 t_eval = np.linspace(0, 160, 500)
 
+# Integrate the SIR equations.
 sol = solve_ivp(sir_model, t_span, [S0, I0, R0], args=(beta, gamma, N), t_eval=t_eval)
 
+# Plot the three compartments over time.
 plt.figure(figsize=(8, 4))
 plt.plot(sol.t, sol.y[0], label=&quot;Susceptible&quot;)
 plt.plot(sol.t, sol.y[1], label=&quot;Infectious&quot;)
@@ -699,6 +764,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()
 
+# Basic reproduction number: average secondary infections per case.
 R_naught = beta / gamma
 print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))</code></pre>
       </div>
@@ -710,10 +776,11 @@ print(&quot;Basic reproduction number R0 = {:.2f}&quot;.format(R_naught))</code>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Compact SIR right-hand side.
 def sir(t, y, beta, gamma, N):
     S, I, R = y
     return [-beta*S*I/N, beta*S*I/N - gamma*I, gamma*I]
@@ -721,11 +788,13 @@ def sir(t, y, beta, gamma, N):
 N, I0, gamma = 10000, 10, 0.1
 t_eval = np.linspace(0, 200, 1000)
 
+# Phase-plane plot: infectious I versus susceptible S for several R0 values.
 plt.figure(figsize=(8, 6))
 for R0 in [0.8, 1.5, 2.5, 4.0]:
     beta = R0 * gamma
     sol = solve_ivp(sir, (0, 200), [N - I0, I0, 0], args=(beta, gamma, N), t_eval=t_eval)
     line, = plt.plot(sol.y[0], sol.y[1], label=&quot;R0 = {:.1f}&quot;.format(R0))
+    # Vertical threshold line S = N / R0; infections peak when S crosses it.
     plt.axvline(N / R0, color=line.get_color(), ls=&quot;:&quot;, alpha=0.6)
 
 plt.xlabel(&quot;Susceptible S&quot;)
@@ -749,10 +818,11 @@ for R0 in [0.8, 2.5]:
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# SIRS model: recovered individuals lose immunity and return to S at rate omega.
 def sirs(t, y, beta, gamma, omega, N):
     S, I, R = y
     dS = -beta*S*I/N + omega*R
@@ -764,6 +834,7 @@ N, I0 = 10000, 10
 beta, gamma = 0.3, 0.1
 t_eval = np.linspace(0, 600, 2000)
 
+# Compare lifelong immunity (omega=0) with fading immunity (omega>0).
 plt.figure(figsize=(10, 5))
 for omega, label in [(0.0, &quot;omega = 0  (lifelong immunity)&quot;),
                      (0.02, &quot;omega = 0.02  (immunity fades)&quot;)]:
@@ -777,6 +848,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()
 
+# Long-run endemic level of susceptibles equals the epidemic threshold S* = N/R0.
 print(&quot;Endemic susceptible level S* = N/R0 = {:.0f}&quot;.format(N * gamma / beta))
 print(&quot;omega=0: disease dies out.  omega&gt;0: it settles to a steady endemic level.&quot;)</code></pre>
       </div>
@@ -791,10 +863,11 @@ print(&quot;omega=0: disease dies out.  omega&gt;0: it settles to a steady endem
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Two-strain SIR: both strains compete for the same susceptible pool.
 def two_strain(t, y, b1, b2, gamma, N):
     S, I1, I2, R = y
     dS = -b1*S*I1/N - b2*S*I2/N
@@ -806,15 +879,16 @@ def two_strain(t, y, b1, b2, gamma, N):
 N, gamma = 10000, 0.1
 b1, b2 = 0.15, 0.30    # R0_1 = 1.5 (resident), R0_2 = 3.0 (variant)
 
-# Phase 1: resident strain spreading alone
+# Phase 1: resident strain spreads alone.
 s1 = solve_ivp(two_strain, (0, 25), [N - 10, 10, 0, 0],
                args=(b1, b2, gamma, N), t_eval=np.linspace(0, 25, 500))
 
-# Phase 2: introduce 5 cases of the new variant
+# Phase 2: introduce 5 cases of the new variant.
 y_intro = [s1.y[0][-1], s1.y[1][-1], 5.0, s1.y[3][-1]]
 s2 = solve_ivp(two_strain, (25, 150), y_intro,
                args=(b1, b2, gamma, N), t_eval=np.linspace(25, 150, 2500))
 
+# Stitch the two phases together for plotting.
 t = np.concatenate([s1.t, s2.t])
 I1 = np.concatenate([s1.y[1], s2.y[1]])
 I2 = np.concatenate([s1.y[2], s2.y[2]])
@@ -831,6 +905,7 @@ plt.legend()
 plt.grid(True, alpha=0.3)
 plt.show()
 
+# The strain with the higher R0 has the lower susceptible threshold and wins.
 print(&quot;Susceptible threshold N/R0: resident = {:.0f}, variant = {:.0f}&quot;.format(N/1.5, N/3.0))
 print(&quot;Peak infections: resident = {:.0f}, variant = {:.0f}&quot;.format(I1.max(), I2.max()))</code></pre>
       </div>
@@ -854,10 +929,11 @@ print(&quot;Peak infections: resident = {:.0f}, variant = {:.0f}&quot;.format(I1
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Standard SIR model.
 def sir_model(t, y, beta, gamma, N):
     S, I, R = y
     dSdt = -beta * S * I / N
@@ -865,6 +941,7 @@ def sir_model(t, y, beta, gamma, N):
     dRdt = gamma * I
     return [dSdt, dIdt, dRdt]
 
+# Fixed population and initial conditions.
 N = 10000
 I0 = 10
 S0 = N - I0
@@ -872,6 +949,7 @@ t_span = (0, 200)
 t_eval = np.linspace(0, 200, 500)
 
 def simulate(beta, gamma):
+    # Run SIR and compute key outbreak metrics.
     sol = solve_ivp(sir_model, t_span, [S0, I0, 0], args=(beta, gamma, N), t_eval=t_eval)
     I = sol.y[1]
     peak_idx = I.argmax()
@@ -882,6 +960,7 @@ def simulate(beta, gamma):
         &quot;R0&quot;: beta / gamma
     }
 
+# Baseline run and printed table header.
 base_beta, base_gamma = 0.3, 0.1
 base = simulate(base_beta, base_gamma)
 print(&quot;Base: R0={:.2f}, peak={:.0f} on day {:.1f}, final recovered={:.0f}&quot;.format(
@@ -889,6 +968,7 @@ print(&quot;Base: R0={:.2f}, peak={:.0f} on day {:.1f}, final recovered={:.0f}&q
 print(&quot;{:<18} {:<10} {:<12} {:<18} {:<18} {:<10}&quot;.format(
     &quot;Parameter&quot;, &quot;Change&quot;, &quot;R0&quot;, &quot;Peak infected&quot;, &quot;Peak day&quot;, &quot;Final R&quot;))
 
+# Vary beta and gamma individually by +/-20%.
 for param_name, base_val in [(&quot;beta&quot;, base_beta), (&quot;gamma&quot;, base_gamma)]:
     for pct in [-0.2, 0.0, 0.2]:
         val = base_val * (1 + pct)
@@ -908,10 +988,11 @@ for param_name, base_val in [(&quot;beta&quot;, base_beta), (&quot;gamma&quot;, 
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Standard SIR model.
 def sir_model(t, y, beta, gamma, N):
     S, I, R = y
     dSdt = -beta * S * I / N
@@ -919,6 +1000,7 @@ def sir_model(t, y, beta, gamma, N):
     dRdt = gamma * I
     return [dSdt, dIdt, dRdt]
 
+# Fixed population and recovery rate; vary R0 by adjusting beta.
 N = 10000
 I0 = 10
 S0 = N - I0
@@ -927,6 +1009,7 @@ t_span = (0, 200)
 t_eval = np.linspace(0, 200, 500)
 R0_values = [0.8, 1.2, 1.8, 2.5, 4.0]
 
+# Plot infectious curves for a range of R0 values.
 plt.figure(figsize=(10, 5))
 for R0 in R0_values:
     beta = R0 * gamma
@@ -952,10 +1035,11 @@ plt.show()</code></pre>
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+# Standard SIR model.
 def sir_model(t, y, beta, gamma, N):
     S, I, R = y
     dSdt = -beta * S * I / N
@@ -963,23 +1047,28 @@ def sir_model(t, y, beta, gamma, N):
     dRdt = gamma * I
     return [dSdt, dIdt, dRdt]
 
+# Disease parameters and herd-immunity threshold.
 N = 10000
 I0 = 10
 gamma = 0.1
 beta = 0.3
 R0 = beta / gamma
-herd_threshold = 1 - 1 / R0
-vaccinated = 0.70
+herd_threshold = 1 - 1 / R0       # fraction that must be immune to stop growth
+vaccinated = 0.70                 # fraction initially immune
 
 t_span = (0, 200)
 t_eval = np.linspace(0, 200, 500)
 
+# Scenario 1: fully susceptible population.
 sol_no_vacc = solve_ivp(sir_model, t_span, [N - I0, I0, 0],
                         args=(beta, gamma, N), t_eval=t_eval)
+
+# Scenario 2: 70% initially immune (vaccinated), rest susceptible.
 R0_immune = int(N * vaccinated)
 sol_vacc = solve_ivp(sir_model, t_span, [N - R0_immune - I0, I0, R0_immune],
                      args=(beta, gamma, N), t_eval=t_eval)
 
+# Compare infectious curves.
 plt.figure(figsize=(10, 5))
 plt.plot(sol_no_vacc.t, sol_no_vacc.y[1], label=&quot;No immunity&quot;)
 plt.plot(sol_vacc.t, sol_vacc.y[1], label=&quot;70% initially immune&quot;)
@@ -1017,16 +1106,21 @@ print(&quot;70% immune: peak = {:.0f}&quot;.format(sol_vacc.y[1].max()))</code><
           <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
           <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Set a random seed so the synthetic dataset is reproducible.
 np.random.seed(42)
+
+# Build 30 days of energy consumption:
+# baseline + weekly sinusoidal pattern + random noise.
 days = np.arange(1, 31)
 baseline = 500
 weekly = 50 * np.sin(2 * np.pi * days / 7)
 noise = np.random.normal(0, 30, size=len(days))
 consumption = baseline + weekly + noise
 
+# Plot the synthetic time series.
 plt.figure(figsize=(8, 4))
 plt.plot(days, consumption, marker=&quot;o&quot;, label=&quot;Simulated consumption&quot;)
 plt.axhline(baseline, color=&quot;red&quot;, linestyle=&quot;--&quot;, label=&quot;Baseline&quot;)
