@@ -517,6 +517,86 @@ plt.show()</code></pre>
       </div>
 
     </section>
+<section id="m6e" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6e. 拓展：给兔子加上环境容纳量 K</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>展示如何把经典 Lotka-Volterra 模型中的“兔子无限增长”假设，改成受环境容纳量 K 限制的 Logistic 增长。</p>
+          <div class="p-4 bg-violet-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-violet-900 mb-2">模型修改</div>
+            <p><strong>经典模型：</strong></p>
+            <p class="math text-center my-2">dR/dt = a·R − b·R·F</p>
+            <p class="mt-2"><strong>引入 K 后：</strong>把兔子的自然增长项从 a·R 替换为 a·R·(1 − R/K)</p>
+            <p class="math text-center my-2">dR/dt = a·R·(1 − R/K) − b·R·F</p>
+            <p class="math text-center my-2">dF/dt = −c·F + d·R·F</p>
+            <p class="mt-2"><strong>影响：</strong>当 R 接近 K 时，兔子增长被抑制；原本闭合的相轨道变成向内螺旋，最终趋于稳定共存点。</p>
+          </div>
+          <div class="p-3 bg-violet-50 rounded-lg text-sm text-violet-800">
+            <strong> takeaway：</strong>只需要改动兔子方程的一项，就能把“中性振荡”变成“稳定平衡”。
+          </div>
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
+        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>K 越大，带 K 的模型越接近经典模型；如果 K 小于兔子的自然平衡值 c/d，狐狸还能存活吗？</p>
+      </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+# Classic Lotka-Volterra: rabbits grow without bound.
+def classic_lv(t, y, a, b, c, d):
+    R, F = y
+    dR = a*R - b*R*F
+    dF = -c*F + d*R*F
+    return [dR, dF]
+
+# Modified model: rabbit growth is capped by carrying capacity K.
+def logistic_lv(t, y, a, b, c, d, K):
+    R, F = y
+    dR = a*R*(1 - R/K) - b*R*F
+    dF = -c*F + d*R*F
+    return [dR, dF]
+
+# Parameters.
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+K = 50
+y0 = [40, 9]
+t_eval = np.linspace(0, 30, 1000)
+
+# Solve both versions.
+sol_classic = solve_ivp(classic_lv, (0, 30), y0, args=(a, b, c, d), t_eval=t_eval)
+sol_limited = solve_ivp(logistic_lv, (0, 30), y0, args=(a, b, c, d, K), t_eval=t_eval)
+
+# Side-by-side comparison.
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Time series.
+axes[0].plot(sol_classic.t, sol_classic.y[0], label="Rabbits (classic)")
+axes[0].plot(sol_classic.t, sol_classic.y[1], label="Foxes (classic)")
+axes[0].plot(sol_limited.t, sol_limited.y[0], "--", label="Rabbits (K=50)")
+axes[0].plot(sol_limited.t, sol_limited.y[1], "--", label="Foxes (K=50)")
+axes[0].set_xlabel("Time")
+axes[0].set_ylabel("Population")
+axes[0].set_title("Classic vs. Logistic-LV Time Series")
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# Phase portrait.
+axes[1].plot(sol_classic.y[0], sol_classic.y[1], label="Classic (closed orbit)")
+axes[1].plot(sol_limited.y[0], sol_limited.y[1], "--", label="K=50 (spiral inward)")
+axes[1].set_xlabel("Rabbits")
+axes[1].set_ylabel("Foxes")
+axes[1].set_title("Phase Portrait Comparison")
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()</code></pre>
+        </div>
+      </div>
+
+    </section>
 <section id="m6c" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">6c. 方向场与环境容纳量</h2>
       <div class="grid lg:grid-cols-2 gap-8">
@@ -630,86 +710,7 @@ print("Alien survives if rabbits &gt;= g/h = {:.1f}".format(g/h))</code></pre>
       </div>
 
     </section>
-<section id="m6e" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">6e. 拓展：给兔子加上环境容纳量 K</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>展示如何把经典 Lotka-Volterra 模型中的“兔子无限增长”假设，改成受环境容纳量 K 限制的 Logistic 增长。</p>
-          <div class="p-4 bg-violet-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-violet-900 mb-2">模型修改</div>
-            <p><strong>经典模型：</strong></p>
-            <p class="math text-center my-2">dR/dt = a·R − b·R·F</p>
-            <p class="mt-2"><strong>引入 K 后：</strong>把兔子的自然增长项从 a·R 替换为 a·R·(1 − R/K)</p>
-            <p class="math text-center my-2">dR/dt = a·R·(1 − R/K) − b·R·F</p>
-            <p class="math text-center my-2">dF/dt = −c·F + d·R·F</p>
-            <p class="mt-2"><strong>影响：</strong>当 R 接近 K 时，兔子增长被抑制；原本闭合的相轨道变成向内螺旋，最终趋于稳定共存点。</p>
-          </div>
-          <div class="p-3 bg-violet-50 rounded-lg text-sm text-violet-800">
-            <strong> takeaway：</strong>只需要改动兔子方程的一项，就能把“中性振荡”变成“稳定平衡”。
-          </div>
-          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>启发思考：</strong>K 越大，带 K 的模型越接近经典模型；如果 K 小于兔子的自然平衡值 c/d，狐狸还能存活吗？</p>
-      </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
 
-# Classic Lotka-Volterra: rabbits grow without bound.
-def classic_lv(t, y, a, b, c, d):
-    R, F = y
-    dR = a*R - b*R*F
-    dF = -c*F + d*R*F
-    return [dR, dF]
-
-# Modified model: rabbit growth is capped by carrying capacity K.
-def logistic_lv(t, y, a, b, c, d, K):
-    R, F = y
-    dR = a*R*(1 - R/K) - b*R*F
-    dF = -c*F + d*R*F
-    return [dR, dF]
-
-# Parameters.
-a, b, c, d = 1.0, 0.1, 1.5, 0.075
-K = 50
-y0 = [40, 9]
-t_eval = np.linspace(0, 30, 1000)
-
-# Solve both versions.
-sol_classic = solve_ivp(classic_lv, (0, 30), y0, args=(a, b, c, d), t_eval=t_eval)
-sol_limited = solve_ivp(logistic_lv, (0, 30), y0, args=(a, b, c, d, K), t_eval=t_eval)
-
-# Side-by-side comparison.
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-
-# Time series.
-axes[0].plot(sol_classic.t, sol_classic.y[0], label="Rabbits (classic)")
-axes[0].plot(sol_classic.t, sol_classic.y[1], label="Foxes (classic)")
-axes[0].plot(sol_limited.t, sol_limited.y[0], "--", label="Rabbits (K=50)")
-axes[0].plot(sol_limited.t, sol_limited.y[1], "--", label="Foxes (K=50)")
-axes[0].set_xlabel("Time")
-axes[0].set_ylabel("Population")
-axes[0].set_title("Classic vs. Logistic-LV Time Series")
-axes[0].legend()
-axes[0].grid(True, alpha=0.3)
-
-# Phase portrait.
-axes[1].plot(sol_classic.y[0], sol_classic.y[1], label="Classic (closed orbit)")
-axes[1].plot(sol_limited.y[0], sol_limited.y[1], "--", label="K=50 (spiral inward)")
-axes[1].set_xlabel("Rabbits")
-axes[1].set_ylabel("Foxes")
-axes[1].set_title("Phase Portrait Comparison")
-axes[1].legend()
-axes[1].grid(True, alpha=0.3)
-
-plt.tight_layout()
-plt.show()</code></pre>
-        </div>
-      </div>
-
-    </section>
 <section id="m6f" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">6f. 从狼兔模型出发：10 个可探究的现实假设</h2>
       <p class="text-slate-700 mb-6">建模不是“把方程算完”，而是<strong>用方程提问</strong>。下面每个假设都给出：现实意义、模型改动、以及实现提示。你可以逐个加到基础 LV 模型里，观察结果如何变化。</p>
