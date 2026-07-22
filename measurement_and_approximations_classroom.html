@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement & Approximations — Classroom Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.formula { border-left-color: #10b981; }
+    .module-card.method { border-left-color: #8b5cf6; }
+    .module-card.example { border-left-color: #f59e0b; }
+    pre { max-height: 600px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Measurement & Approximations for HiMCM</h1>
+      <p class="text-lg text-slate-600">Vectors · Matrices · Distances · Similarity · Fermi Estimation：把测量和近似变成可运行的工具</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 概念与公式，右侧 = Python Demo + 可视化</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. Vectors & Dot Product</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Matrices</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">3. Distances</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. Similarity</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">5. Fermi Estimation</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">6. Summary</a>
+      </div>
+    </nav>
+
+    <!-- Module 1: Vectors & Dot Product -->
+    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. 向量与点积（Dot Product）</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>把一个人的评分、一个物体的特征、一个数据样本都表示成向量。向量的点积告诉我们两个向量在方向上有多"一致"。</p>
+          <div class="p-4 bg-blue-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-blue-900 mb-2">核心定义</div>
+            <p><strong>向量：</strong>一组有序数字，如 <span class="math">a = (a₁, a₂, ..., aₙ)</span></p>
+            <p class="mt-2"><strong>点积：</strong></p>
+            <p class="math text-center my-2">a · b = Σ aᵢbᵢ</p>
+            <p class="mt-2"><strong>几何意义：</strong></p>
+            <p class="math text-center my-2">a · b = |a| |b| cos(θ)</p>
+            <p class="mt-2 text-xs">θ 是两向量夹角。点积为正表示方向大致相同，为负表示相反，为 0 表示正交。</p>
+            <p class="mt-2"><strong>投影：</strong></p>
+            <p class="math text-center my-2">projₐ(b) = (a·b / |a|²) · a</p>
+          </div>
+          <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+            <strong> takeaway：</strong>点积 = "同方向分量相乘再相加"，是衡量向量对齐程度的基础工具。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Define two 2D vectors.
+a = np.array([3, 4])
+b = np.array([4, 1])
+
+# Compute the dot product (two equivalent ways).
+dot_ab = np.dot(a, b)
+dot_ba = np.dot(b, a)
+
+# Compute vector norms (lengths).
+norm_a = np.linalg.norm(a)
+norm_b = np.linalg.norm(b)
+
+# Angle between vectors (in radians and degrees).
+cos_theta = dot_ab / (norm_a * norm_b)
+theta_rad = np.arccos(np.clip(cos_theta, -1, 1))
+theta_deg = np.degrees(theta_rad)
+
+print(f'a = {a}, b = {b}')
+print(f'Dot product a·b = {dot_ab}')
+print(f'|a| = {norm_a:.2f}, |b| = {norm_b:.2f}')
+print(f'Angle = {theta_deg:.1f}°')
+
+# Projection of b onto a.
+proj_len = dot_ab / norm_a
+proj_vec = proj_len * (a / norm_a)
+print(f'Projection of b onto a: {proj_vec}')
+
+# Visualization.
+fig, ax = plt.subplots(figsize=(6, 6))
+ax.quiver(0, 0, a[0], a[1], angles='xy', scale_units='xy', scale=1,
+          color='blue', width=0.05, label='a')
+ax.quiver(0, 0, b[0], b[1], angles='xy', scale_units='xy', scale=1,
+          color='red', width=0.05, label='b')
+# Draw projection of b onto a.
+ax.quiver(0, 0, proj_vec[0], proj_vec[1], angles='xy', scale_units='xy', scale=1,
+          color='green', width=0.03, linestyle='dashed', label='proj_a(b)')
+ax.plot([b[0], proj_vec[0]], [b[1], proj_vec[1]], 'k--', alpha=0.5)
+ax.set_xlim(0, 6); ax.set_ylim(0, 6)
+ax.set_aspect('equal')
+ax.grid(True)
+ax.legend()
+ax.set_title('Vectors and Projection')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Matrices -->
+    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. 矩阵：把数据排成表格，把变换写成乘法</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>5 个人对 5 种电影类型的偏好可以写成一个矩阵。矩阵乘法能把"个人偏好 × 类型权重"变成每个人的推荐分数。</p>
+          <div class="p-4 bg-green-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-green-900 mb-2">核心定义</div>
+            <p><strong>矩阵：</strong>一个 m×n 的数表，行常代表样本，列代表特征。</p>
+            <p class="mt-2"><strong>矩阵-向量乘法：</strong></p>
+            <p class="math text-center my-2">y = Ax</p>
+            <p class="mt-2 text-xs">结果 y 是 A 的列以 x 为权重的线性组合。</p>
+            <p class="mt-2"><strong>矩阵-矩阵乘法：</strong></p>
+            <p class="math text-center my-2">(AB)ᵢⱼ = Σ Aᵢₖ Bₖⱼ</p>
+            <p class="mt-2 text-xs">注意：矩阵乘法一般不满足交换律，即 AB ≠ BA。</p>
+          </div>
+          <div class="p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong> takeaway：</strong>矩阵是"批量处理向量"的工具；矩阵乘法把两个线性变换组合起来。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Preference matrix: rows = individuals, cols = items.
+# Entry (i,j) = how much person i likes item j (0-10).
+P = np.array([
+    [10, 8, 2, 1, 0],   # Alice
+    [3, 9, 7, 6, 5],    # Bob
+    [5, 4, 8, 9, 7],    # Carol
+    [1, 2, 3, 8, 10],   # David
+    [7, 6, 5, 4, 3]     # Eve
+])
+people = ['Alice', 'Bob', 'Carol', 'David', 'Eve']
+items = ['Action', 'Comedy', 'Drama', 'Sci-Fi', 'Horror']
+
+# Weight vector: how important each genre is for a recommendation.
+w = np.array([0.3, 0.2, 0.1, 0.25, 0.15])
+
+# Matrix-vector multiplication gives a weighted score per person.
+scores = P @ w
+print('Weighted recommendation scores:')
+for name, score in zip(people, scores):
+    print(f'  {name}: {score:.2f}')
+
+# Matrix-matrix multiplication: combine two transformation matrices.
+A = np.array([[1, 2],
+              [3, 4],
+              [5, 6]])      # 3x2
+B = np.array([[7, 8, 9],
+              [10, 11, 12]]) # 2x3
+C = A @ B
+print(f'\nA shape: {A.shape}, B shape: {B.shape}, A@B shape: {C.shape}')
+print(C)
+
+# Visualize the preference matrix as a heatmap.
+fig, ax = plt.subplots(figsize=(8, 5))
+im = ax.imshow(P, cmap='YlOrRd', aspect='auto')
+ax.set_xticks(np.arange(len(items)))
+ax.set_yticks(np.arange(len(people)))
+ax.set_xticklabels(items)
+ax.set_yticklabels(people)
+ax.set_title('Preference Matrix Heatmap')
+# Add text annotations.
+for i in range(len(people)):
+    for j in range(len(items)):
+        ax.text(j, i, P[i, j], ha='center', va='center', color='black')
+plt.colorbar(im, ax=ax, label='Preference score')
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 3: Distances -->
+    <section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. 距离：衡量两个向量有多"远"</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>比较三位学生在五门课上的成绩，哪位学生最相似？距离越小，越相似。</p>
+          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-purple-900 mb-2">常用距离</div>
+            <p><strong>欧氏距离（Euclidean）：</strong></p>
+            <p class="math text-center my-2">d(u, v) = √(Σ(uᵢ - vᵢ)²)</p>
+            <p class="mt-2"><strong>曼哈顿距离（Manhattan / L1）：</strong></p>
+            <p class="math text-center my-2">d(u, v) = Σ|uᵢ - vᵢ|</p>
+            <p class="mt-2"><strong>闵可夫斯基距离（Minkowski）：</strong></p>
+            <p class="math text-center my-2">d(u, v) = (Σ|uᵢ - vᵢ|ᵖ)^(1/p)</p>
+            <p class="mt-2 text-xs">p=1 是 Manhattan，p=2 是 Euclidean。</p>
+            <p class="mt-2"><strong>选择建议：</strong>Euclidean 对大的偏差敏感；Manhattan 更鲁棒；Minkowski 通过 p 调节敏感度。</p>
+          </div>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong> takeaway：</strong>距离度量要匹配数据意义。大偏差是否该被严重惩罚？这决定了选 Euclidean 还是 Manhattan。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Student scores across 5 subjects.
+students = {
+    'S1': np.array([5, 9, 7, 1, 1]),
+    'S2': np.array([0, 3, 6, 6, 5]),
+    'S3': np.array([3, 5, 8, 7, 9])
+}
+
+def euclidean(u, v):
+    return np.sqrt(np.sum((u - v)**2))
+
+def manhattan(u, v):
+    return np.sum(np.abs(u - v))
+
+# Compute pairwise distances.
+names = list(students.keys())
+print('Euclidean distances:')
+for i, n1 in enumerate(names):
+    for n2 in names[i+1:]:
+        d = euclidean(students[n1], students[n2])
+        print(f'  {n1}-{n2}: {d:.2f}')
+
+print('\nManhattan distances:')
+for i, n1 in enumerate(names):
+    for n2 in names[i+1:]:
+        d = manhattan(students[n1], students[n2])
+        print(f'  {n1}-{n2}: {d:.2f}')
+
+# Visualization: plot students in first two dimensions and connect pairs.
+fig, ax = plt.subplots(figsize=(6, 6))
+colors = {'S1': 'blue', 'S2': 'red', 'S3': 'green'}
+for name, vec in students.items():
+    ax.scatter(vec[0], vec[1], c=colors[name], s=150, label=name)
+    ax.annotate(name, (vec[0], vec[1]), textcoords='offset points', xytext=(5, 5))
+# Draw lines between pairs.
+pairs = [('S1', 'S2'), ('S1', 'S3'), ('S2', 'S3')]
+for n1, n2 in pairs:
+    p1, p2 = students[n1], students[n2]
+    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 'k--', alpha=0.5)
+    mid = (p1 + p2) / 2
+    ax.text(mid[0], mid[1], f'E={euclidean(p1,p2):.1f}', fontsize=9)
+ax.set_xlabel('Subject 1 score')
+ax.set_ylabel('Subject 2 score')
+ax.set_title('Pairwise Euclidean Distances')
+ax.legend()
+ax.grid(True)
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Similarity -->
+    <section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. 相似度：衡量两个向量方向有多"像"</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>两位学生总成绩不同，但偏科模式很像——都喜欢理科、不喜欢文科。余弦相似度能捕捉这种"方向一致"，而不是绝对大小。</p>
+          <div class="p-4 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-amber-900 mb-2">核心定义</div>
+            <p><strong>余弦相似度（Cosine Similarity）：</strong></p>
+            <p class="math text-center my-2">cos(θ) = (u · v) / (|u| |v|)</p>
+            <p class="mt-2 text-xs">取值 [-1, 1]。1 表示同向，0 表示正交，-1 表示反向。</p>
+            <p class="mt-2"><strong>余弦距离：</strong></p>
+            <p class="math text-center my-2">1 - cos(θ)</p>
+            <p class="mt-2"><strong>皮尔逊相关系数：</strong></p>
+            <p class="math text-center my-2">r = cov(u, v) / (σᵤ σᵥ)</p>
+            <p class="mt-2 text-xs">相当于把向量去均值后再算余弦相似度。</p>
+          </div>
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
+            <strong> takeaway：</strong>Euclidean 看绝对差距，Cosine 看方向/模式。对评分、文本等高维数据，Cosine 往往更合适。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Student score vectors.
+students = {
+    'S1': np.array([5, 9, 7, 1, 1]),
+    'S2': np.array([0, 3, 6, 6, 5]),
+    'S3': np.array([3, 5, 8, 7, 9])
+}
+
+def cosine_similarity(u, v):
+    return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
+
+# Compute pairwise cosine similarities.
+names = list(students.keys())
+print('Cosine similarities:')
+for i, n1 in enumerate(names):
+    for n2 in names[i+1:]:
+        sim = cosine_similarity(students[n1], students[n2])
+        print(f'  {n1}-{n2}: {sim:.3f}')
+
+# Pearson correlation (numpy built-in).
+print('\nPearson correlations:')
+for i, n1 in enumerate(names):
+    for n2 in names[i+1:]:
+        r = np.corrcoef(students[n1], students[n2])[0, 1]
+        print(f'  {n1}-{n2}: {r:.3f}')
+
+# Visualization: plot vectors as arrows from origin.
+fig, ax = plt.subplots(figsize=(6, 6))
+colors = {'S1': 'blue', 'S2': 'red', 'S3': 'green'}
+for name, vec in students.items():
+    # Use first two dimensions for visualization.
+    ax.quiver(0, 0, vec[0], vec[1], angles='xy', scale_units='xy', scale=1,
+              color=colors[name], width=0.05, label=f'{name} (first 2 dims)')
+ax.set_xlim(-1, 10); ax.set_ylim(-1, 10)
+ax.set_aspect('equal')
+ax.grid(True)
+ax.legend()
+ax.set_title('Cosine Similarity = cos(angle between vectors)')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 5: Fermi Estimation -->
+    <section id="m5" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Fermi 估计：用数量级思维解决"看起来不可能"的问题</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>核心思想：</strong>面对没有精确数据的问题，把它拆成若干子问题，对每个子问题做合理假设，再用简单计算组合起来。答案是否正确不重要，重要的是过程和数量级。</p>
+          <div class="p-4 bg-pink-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-pink-900 mb-2">Fermi 方法论</div>
+            <p><strong>步骤：</strong></p>
+            <ol class="list-decimal pl-5 space-y-1">
+              <li><strong>Decompose（分解）：</strong>把大问题拆成可估算的子问题</li>
+              <li><strong>Assume（假设）：</strong>为每个子问题给出合理数量级</li>
+              <li><strong>Compute（计算）：</strong>简单乘除组合结果</li>
+              <li><strong>Sanity Check（合理性检查）：</strong>和已知数据对比，是否在同一个数量级</li>
+            </ol>
+            <p class="mt-2"><strong>例题：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>全球一年生产多少块手机屏幕？</li>
+              <li>美国所有道路加起来有多长？</li>
+              <li>上海有多少家星巴克？</li>
+            </ul>
+            <p class="mt-2"><strong>不确定性传播：</strong>每个假设都有误差，用 Monte Carlo 方法可以得到答案的分布区间。</p>
+          </div>
+          <div class="p-3 bg-pink-50 rounded-lg text-sm text-pink-800">
+            <strong> takeaway：</strong>Fermi 估计训练的是"敢假设、会拆题、重数量级、做交叉验证"的建模思维。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+n = 10000
+
+# --- Fermi Example 1: Smartphone screens produced per year ---
+# Decomposition:
+# screens = population * smartphone ownership * (replacement rate + repair fraction)
+pop = 8e9                     # global population
+ownership = 0.66              # fraction with smartphone
+replacement_rate = 1 / 3      # replace every 3 years
+repair_fraction = 0.10        # additional screens for repair
+
+# Treat each factor as a distribution to propagate uncertainty.
+pop_s = np.random.normal(pop, 0.05 * pop, n)
+own_s = np.random.normal(ownership, 0.05 * ownership, n)
+rep_s = np.random.normal(replacement_rate, 0.2 * replacement_rate, n)
+repair_s = np.random.normal(repair_fraction, 0.3 * repair_fraction, n)
+
+screens = pop_s * own_s * (rep_s + repair_s)
+screens_billion = screens / 1e9
+
+print('--- Smartphone Screens per Year ---')
+print(f'Mean estimate: {screens_billion.mean():.2f} billion')
+print(f'95% interval: [{np.percentile(screens_billion, 2.5):.2f}, {np.percentile(screens_billion, 97.5):.2f}] billion')
+print('Sanity check: Apple/Samsung sell ~1.5B phones/year; estimate in same ballpark.')
+
+# --- Fermi Example 2: Total length of US roads ---
+# Length = (US area * road fraction) / average road width.
+area_km2 = 8e6
+road_fraction = 0.02
+width_km = 0.01
+road_length = (area_km2 * road_fraction) / width_km
+print(f'\n--- US Road Length ---')
+print(f'Estimate: {road_length:.2e} km')
+print(f'Official: ~6.5 million km (within factor of ~2.5)')
+
+# --- Fermi Example 3: Starbucks in Shanghai ---
+# Use density from NYC as reference: 760 shops / 8M people ≈ 1 per 10,000.
+shanghai_pop = 30e6
+starbucks_shanghai = shanghai_pop / 10_000
+print(f'\n--- Starbucks in Shanghai ---')
+print(f'Estimate: {starbucks_shanghai:.0f} shops')
+print(f'Reported: 6,500+ stores in 250+ cities in Chinese mainland')
+
+# --- Visualization: uncertainty distribution ---
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(screens_billion, bins=50, color='steelblue', edgecolor='white')
+ax.axvline(screens_billion.mean(), color='red', linestyle='--', label='Mean estimate')
+ax.set_title('Fermi Estimate with Uncertainty: Smartphone Screens per Year')
+ax.set_xlabel('Billion screens/year')
+ax.set_ylabel('Frequency')
+ax.legend()
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 6: Summary -->
+    <section id="m6" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. 知识对比与建模起手式</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-4 py-2 border text-left">工具</th>
+              <th class="px-4 py-2 border text-left">核心问题</th>
+              <th class="px-4 py-2 border text-left">适用场景</th>
+              <th class="px-4 py-2 border text-left">注意事项</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700">
+            <tr>
+              <td class="px-4 py-2 border font-semibold">向量 / 点积</td>
+              <td class="px-4 py-2 border">两个方向/特征有多一致？</td>
+              <td class="px-4 py-2 border">特征表示、推荐系统、投影</td>
+              <td class="px-4 py-2 border">受向量长度影响，必要时先归一化</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border font-semibold">矩阵乘法</td>
+              <td class="px-4 py-2 border">如何批量做线性变换？</td>
+              <td class="px-4 py-2 border">数据变换、神经网络、组合映射</td>
+              <td class="px-4 py-2 border">注意维度匹配，一般不满足交换律</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border font-semibold">Euclidean 距离</td>
+              <td class="px-4 py-2 border">绝对数值差多少？</td>
+              <td class="px-4 py-2 border">低维连续数据、几何问题</td>
+              <td class="px-4 py-2 border">对异常值和量纲敏感</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border font-semibold">Cosine 相似度</td>
+              <td class="px-4 py-2 border">方向/模式是否相似？</td>
+              <td class="px-4 py-2 border">文本、评分、高维稀疏数据</td>
+              <td class="px-4 py-2 border">忽略绝对大小，只看角度</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border font-semibold">Fermi 估计</td>
+              <td class="px-4 py-2 border">没有数据时如何估算？</td>
+              <td class="px-4 py-2 border">数量级估算、假设检验、快速验证</td>
+              <td class="px-4 py-2 border">答案不是唯一正确的，重过程和合理性</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+        <strong>建模起手式：</strong>拿到数据后先问：
+        (1) 该用向量还是矩阵表示？
+        (2) 是比较绝对差异（距离）还是模式一致（相似度）？
+        (3) 有没有量纲问题，需要先标准化？
+        (4) 缺少数据时，能否用 Fermi 估计给出数量级？
+      </div>
+    </section>
+
+    <footer class="text-center text-sm text-slate-500 mt-10">
+      Measurement & Approximations Classroom Demo · Based on HiMCM Lecture 2 · Every demo includes visualization
+    </footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const code = pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const old = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = old, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
