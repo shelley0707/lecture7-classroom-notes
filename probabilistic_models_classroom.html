@@ -404,123 +404,268 @@ plt.show()
 
     <!-- Module 5: Wolf-Sheep-Grass -->
     <section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：狼-羊-草生态系统</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>核心思想：</strong>从个体（agent）的简单规则出发，观察群体层面的涌现行为。三个要素：Agent、Environment、Rules。</p>
-          <div class="p-4 bg-pink-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-pink-900 mb-2">模型规则</div>
-            <p><strong>羊 Sheep：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每步随机移动，能量下降</li>
-              <li>吃到草 → 能量增加</li>
-              <li>能量 > 阈值 → 繁殖（分裂）</li>
-              <li>能量 ≤ 0 → 死亡</li>
-            </ul>
-            <p class="mt-2"><strong>狼 Wolves：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每步随机移动，能量下降</li>
-              <li>遇到羊 → 吃掉，能量大增</li>
-              <li>能量 > 阈值 → 繁殖</li>
-              <li>能量 ≤ 0 → 死亡</li>
-            </ul>
-            <p class="mt-2"><strong>草 Grass：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>被吃掉后按一定速率重新生长</li>
-            </ul>
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：狼-羊-草生态系统（由浅入深）</h2>
+      <p class="text-slate-700 mb-6"><strong>核心思想：</strong>从个体（agent）的简单规则出发，观察群体层面的涌现行为。下面分 5 个 Block 逐步增加复杂因素，看看模型如何演化。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：确定性 Lotka-Volterra 基础模型</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>假设：</strong>羊按固定速率繁殖，狼按固定速率捕食羊并繁殖，狼有固定死亡率。不考虑随机性、空间、资源限制。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>方程：</strong></p>
+              <p class="math text-center my-1">dS/dt = αS - βSW</p>
+              <p class="math text-center my-1">dW/dt = δβSW - γW</p>
+              <p class="mt-2 text-xs">S = 羊数量，W = 狼数量，α = 羊增长率，β = 捕食率，δ = 转化效率，γ = 狼死亡率。</p>
+            </div>
+            <p><strong>启发问题：</strong>这个模型为什么会出现周期振荡？现实中种群会一直周期性波动吗？</p>
           </div>
-          <div class="p-3 bg-pink-50 rounded-lg text-sm text-pink-800">
-            <strong> takeaway：</strong>简单局部规则 → 复杂全局模式（捕食者-猎物周期振荡）。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(42)
-
-# 简化版狼-羊-草（Lotka-Volterra 随机化近似）
 n_steps = 200
 sheep = np.zeros(n_steps)
 wolves = np.zeros(n_steps)
 sheep[0], wolves[0] = 40, 9
 
-# 参数
-alpha = 0.1    # 羊自然增长率
-beta = 0.02    # 狼吃羊效率
-gamma = 0.1    # 狼自然死亡率
-delta = 0.01   # 狼吃羊后增长
+alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
 
 for t in range(n_steps - 1):
-    # 加入随机噪声模拟 ABS 的离散事件
-    noise_s = np.random.normal(0, 1)
-    noise_w = np.random.normal(0, 0.5)
-    ds = alpha * sheep[t] - beta * sheep[t] * wolves[t] + noise_s
-    dw = delta * sheep[t] * wolves[t] - gamma * wolves[t] + noise_w
+    ds = alpha * sheep[t] - beta * sheep[t] * wolves[t]
+    dw = delta * sheep[t] * wolves[t] - gamma * wolves[t]
     sheep[t+1] = max(0, sheep[t] + ds)
     wolves[t+1] = max(0, wolves[t] + dw)
 
-# 可视化
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 axes[0].plot(sheep, label='Sheep', color='green')
 axes[0].plot(wolves, label='Wolves', color='red')
-axes[0].set_title('Wolf-Sheep Population Dynamics')
-axes[0].set_xlabel('Time step')
-axes[0].set_ylabel('Population')
+axes[0].set_title('Deterministic Lotka-Volterra')
 axes[0].legend()
-
-axes[1].plot(sheep, wolves, color='purple', alpha=0.7)
-axes[1].scatter(sheep[0], wolves[0], color='green', s=100, zorder=5, label='Start')
-axes[1].scatter(sheep[-1], wolves[-1], color='red', s=100, zorder=5, label='End')
-axes[1].set_title('Phase Space: Sheep vs Wolves')
-axes[1].set_xlabel('Sheep')
-axes[1].set_ylabel('Wolves')
-axes[1].legend()
-plt.tight_layout()
-plt.show()
+axes[1].plot(sheep, wolves, color='purple')
+axes[1].set_title('Phase Space')
+axes[1].set_xlabel('Sheep'); axes[1].set_ylabel('Wolves')
+plt.tight_layout(); plt.show()
 </code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：加入环境随机性</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>真实生态系统中，出生、死亡、相遇都是随机事件。用 Poisson 分布替代确定性增量，模拟个体层面的离散事件。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>调整：</strong></p>
+              <p class="math text-center my-1">S<sub>t+1</sub> ~ Poisson( S<sub>t</sub> + αS<sub>t</sub> - βS<sub>t</sub>W<sub>t</sub> )</p>
+              <p class="math text-center my-1">W<sub>t+1</sub> ~ Poisson( W<sub>t</sub> + δβS<sub>t</sub>W<sub>t</sub> - γW<sub>t</sub> )</p>
+            </div>
+            <p><strong>启发问题：</strong>随机性会让种群灭绝吗？多次运行结果差异大吗？什么情况下波动会被放大？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+n_steps, n_runs = 100, 20
+alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for run in range(n_runs):
+    S, W = np.zeros(n_steps), np.zeros(n_steps)
+    S[0], W[0] = 40, 9
+    for t in range(n_steps - 1):
+        mean_s = max(0, S[t] + alpha*S[t] - beta*S[t]*W[t])
+        mean_w = max(0, W[t] + delta*beta*S[t]*W[t] - gamma*W[t])
+        S[t+1] = np.random.poisson(mean_s)
+        W[t+1] = np.random.poisson(mean_w)
+    axes[0].plot(S, color='green', alpha=0.3)
+    axes[0].plot(W, color='red', alpha=0.3)
+
+axes[0].set_title('20 Stochastic Runs')
+axes[0].set_xlabel('Time step'); axes[0].set_ylabel('Population')
+axes[1].plot(S, W, color='purple', alpha=0.7)
+axes[1].scatter(S[0], W[0], color='green', s=80, label='Start')
+axes[1].scatter(S[-1], W[-1], color='red', s=80, label='End')
+axes[1].set_title('Phase Space (one run)')
+axes[1].legend()
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：加入空间结构与相遇概率</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>狼必须和羊在同一格才能捕食。把种群放到 10×10 网格上，每步随机移动，只在同格发生捕食。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>新规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>每个 agent 有 (x, y) 坐标</li>
+                <li>每步随机移动到相邻格</li>
+                <li>狼在同格遇到羊时按概率 p 捕食</li>
+              </ul>
+            </div>
+            <p><strong>启发问题：</strong>空间结构会让捕食更难还是更容易？种群波动幅度会变小吗？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+grid, n_steps = 10, 100
+n_sheep, n_wolves = 40, 9
+
+sheep_x = np.random.randint(0, grid, n_sheep)
+sheep_y = np.random.randint(0, grid, n_sheep)
+wolf_x = np.random.randint(0, grid, n_wolves)
+wolf_y = np.random.randint(0, grid, n_wolves)
+
+history_s, history_w = [n_sheep], [n_wolves]
+
+for _ in range(n_steps):
+    # move
+    sheep_x = (sheep_x + np.random.randint(-1, 2, len(sheep_x))) % grid
+    sheep_y = (sheep_y + np.random.randint(-1, 2, len(sheep_y))) % grid
+    wolf_x = (wolf_x + np.random.randint(-1, 2, len(wolf_x))) % grid
+    wolf_y = (wolf_y + np.random.randint(-1, 2, len(wolf_y))) % grid
+
+    # predation
+    alive_s = np.ones(len(sheep_x), dtype=bool)
+    for i in range(len(wolf_x)):
+        same = (sheep_x == wolf_x[i]) & (sheep_y == wolf_y[i]) & alive_s
+        if same.any() and np.random.rand() < 0.3:
+            victim = np.where(same)[0][0]
+            alive_s[victim] = False
+    sheep_x, sheep_y = sheep_x[alive_s], sheep_y[alive_s]
+
+    # reproduction
+    mask_s = np.random.rand(len(sheep_x)) < 0.05
+    sheep_x = np.concatenate([sheep_x, sheep_x[mask_s]])
+    sheep_y = np.concatenate([sheep_y, sheep_y[mask_s]])
+    mask_w = np.random.rand(len(wolf_x)) < 0.02
+    wolf_x = np.concatenate([wolf_x, wolf_x[mask_w]])
+    wolf_y = np.concatenate([wolf_y, wolf_y[mask_w]])
+
+    history_s.append(len(sheep_x))
+    history_w.append(len(wolf_x))
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+axes[0].plot(history_s, label='Sheep', color='green')
+axes[0].plot(history_w, label='Wolves', color='red')
+axes[0].set_title('Spatial ABS')
+axes[0].legend()
+axes[1].scatter(sheep_x, sheep_y, c='green', s=20, alpha=0.6, label='Sheep')
+axes[1].scatter(wolf_x, wolf_y, c='red', s=40, alpha=0.8, label='Wolves')
+axes[1].set_title('Final Spatial Distribution')
+axes[1].set_xlim(0, grid); axes[1].set_ylim(0, grid)
+axes[1].legend()
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 4 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：加入资源限制与承载能力</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>草不是无限的。羊需要吃草才能生存和繁殖，草被吃完后按 logistic 方式恢复。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>新增变量：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>G<sub>t</sub>：草量，范围 [0, K]</li>
+                <li>K：环境承载能力</li>
+                <li>羊有效繁殖率受草量影响：α' = α · G/K</li>
+              </ul>
+            </div>
+            <p><strong>启发问题：</strong>如果草恢复很慢，羊和狼会怎样？承载能力如何改变长期平衡？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+n_steps = 200
+S, W, G = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
+S[0], W[0], G[0] = 40, 9, 100
+
+alpha, beta, gamma, delta = 0.15, 0.02, 0.1, 0.01
+K, grass_growth = 100, 0.3
+
+for t in range(n_steps - 1):
+    effective_alpha = alpha * (G[t] / K)
+    ds = effective_alpha * S[t] - beta * S[t] * W[t]
+    dw = delta * beta * S[t] * W[t] - gamma * W[t]
+    dG = grass_growth * (K - G[t]) - 0.5 * S[t]
+    S[t+1] = max(0, S[t] + ds)
+    W[t+1] = max(0, W[t] + dw)
+    G[t+1] = np.clip(G[t] + dG, 0, K)
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+axes[0].plot(S, label='Sheep', color='green')
+axes[0].plot(W, label='Wolves', color='red')
+axes[0].plot(G, label='Grass', color='lime')
+axes[0].set_title('With Resource Limitation')
+axes[0].legend()
+axes[1].plot(S, W, color='purple')
+axes[1].set_title('Phase Space')
+axes[1].set_xlabel('Sheep'); axes[1].set_ylabel('Wolves')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 5 -->
+      <div class="border rounded-lg p-5 bg-pink-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 5：启发式讨论</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 参数敏感性：</strong>改变 α（羊增长率）或 β（捕食率），周期会发生什么变化？哪个参数更容易导致灭绝？</p>
+          <p><strong>2. 模型选择：</strong>什么时候用确定性微分方程足够？什么时候必须上 ABS？</p>
+          <p><strong>3. 管理策略：</strong>如果你是保护区管理员，想避免羊灭绝，应该控制狼数量还是增加草量？</p>
+          <p><strong>4. 进一步复杂化：</strong>还可以加入年龄结构、疾病传播、人类捕猎、气候变化等因素。如何用模型验证你的假设？</p>
         </div>
       </div>
     </section>
-
     <!-- Module 6: Bike Sharing -->
     <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Markov Chain 案例：共享单车分布</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>场景：</strong>三个共享单车站点 A、B、C。用户骑车的还车偏好稳定，但自行车在空间分布上不断变化。预测长期分布。</p>
-          <div class="p-4 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-indigo-900 mb-2">Markov 模型</div>
-            <p><strong>状态空间：</strong>S = {A, B, C}</p>
-            <p class="mt-2"><strong>状态分布向量：</strong>π<sub>t</sub> = [π<sub>A</sub>(t), π<sub>B</sub>(t), π<sub>C</sub>(t)]</p>
-            <p class="mt-2"><strong>转移矩阵 P：</strong></p>
-            <p class="math text-center my-2">P<sub>ij</sub> = P(X<sub>t+1</sub> = j | X<sub>t</sub> = i)</p>
-            <p class="mt-2"><strong>迭代公式：</strong></p>
-            <p class="math text-center my-2">π<sub>t+1</sub> = π<sub>t</sub> · P</p>
-            <p class="mt-2"><strong>稳态分布：</strong></p>
-            <p class="math text-center my-2">π = πP</p>
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Markov Chain 案例：共享单车分布（由浅入深）</h2>
+      <p class="text-slate-700 mb-6"><strong>核心思想：</strong>Markov 链的核心是"无记忆性"——下一状态只取决于当前状态。下面从最简单的两状态模型开始，逐步加入站点、车辆约束、调度、时间非齐次等复杂因素。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：两状态基础模型</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>场景：</strong>只有 A、B 两个站点。用户骑走一辆车后，可能还到 A，也可能还到 B。</p>
+            <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+              <p><strong>状态空间：</strong>S = {A, B}</p>
+              <p><strong>转移矩阵：</strong></p>
+              <p class="math text-center my-1">P = [[0.7, 0.3], [0.4, 0.6]]</p>
+              <p class="mt-2 text-xs">P<sub>ij</sub> = 当前在 i，下一步到 j 的概率。</p>
+            </div>
+            <p><strong>启发问题：</strong>稳态分布的物理意义是什么？如果 A 站初始车很多，长期来看两站比例会趋于多少？</p>
           </div>
-          <div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800">
-            <strong> takeaway：</strong>Markov 的核心是“无记忆性”：下一状态只取决于当前状态。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# 转移矩阵：行 = 当前站，列 = 下一站
-# 示例：从 A 出发，60% 还 A，30% 还 B，10% 还 C
-P = np.array([
-    [0.6, 0.3, 0.1],
-    [0.2, 0.5, 0.3],
-    [0.25, 0.25, 0.5]
-])
-
-# 初始分布：所有车都在 A
-pi = np.array([1.0, 0.0, 0.0])
-
+P = np.array([[0.7, 0.3],
+              [0.4, 0.6]])
+pi = np.array([1.0, 0.0])  # 所有车从 A 出发
 steps = 30
 history = [pi]
 for _ in range(steps):
@@ -528,113 +673,425 @@ for _ in range(steps):
     history.append(pi)
 history = np.array(history)
 
-print('Distribution after 30 steps:', history[-1])
-
-# 求稳态分布（特征值为 1 的左特征向量）
-eigenvalues, eigenvectors = np.linalg.eig(P.T)
-idx = np.argmin(np.abs(eigenvalues - 1))
-stationary = eigenvectors[:, idx].real
+# 稳态
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
 stationary = stationary / stationary.sum()
-print('Stationary distribution:', stationary)
 
-# 可视化
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+axes[0].plot(history[:, 0], label='A', marker='o', markersize=3)
+axes[0].plot(history[:, 1], label='B', marker='o', markersize=3)
+axes[0].set_title('Evolution from A')
+axes[0].legend()
+axes[1].bar(['A', 'B'], stationary, color=['#93c5fd', '#86efac'], edgecolor='black')
+axes[1].set_title('Stationary Distribution')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：扩展到三站点网络</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>现实中站点不止两个。加入 C 站，形成更真实的还车网络。</p>
+            <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+              <p><strong>状态空间：</strong>S = {A, B, C}</p>
+              <p><strong>转移矩阵：</strong></p>
+              <p class="math text-center my-1">π<sub>t+1</sub> = π<sub>t</sub> · P</p>
+            </div>
+            <p><strong>启发问题：</strong>增加一个站点后，稳态分布会怎么变？哪个站点可能成为"黑洞"（车越来越多）？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+P = np.array([
+    [0.6, 0.3, 0.1],
+    [0.2, 0.5, 0.3],
+    [0.25, 0.25, 0.5]
+])
+pi = np.array([1.0, 0.0, 0.0])
+steps = 30
+history = [pi]
+for _ in range(steps):
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
+stationary = stationary / stationary.sum()
+
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 stations = ['A', 'B', 'C']
 for i, name in enumerate(stations):
-    axes[0].plot(history[:, i], label=f'Station {name}', marker='o', markersize=3)
-axes[0].set_title('Bike Distribution Over Time')
-axes[0].set_xlabel('Time step')
-axes[0].set_ylabel('Proportion')
+    axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
+axes[0].set_title('3-Station Evolution')
 axes[0].legend()
-axes[0].set_ylim(0, 1)
-
-axes[1].bar(stations, history[-1], color=['#93c5fd', '#86efac', '#fde047'], edgecolor='black')
-axes[1].axhline(stationary[0], color='blue', linestyle='--', alpha=0.5)
-axes[1].set_title('Long-Term Distribution vs Stationary')
-axes[1].set_ylabel('Proportion')
-plt.tight_layout()
-plt.show()
+axes[1].bar(stations, stationary, color=['#93c5fd', '#86efac', '#fde047'], edgecolor='black')
+axes[1].set_title('Stationary Distribution')
+plt.tight_layout(); plt.show()
 </code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：车辆总数约束与调度</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>真实系统里每个站容量有限，车也可能被借光。我们需要跟踪绝对车辆数，并模拟"空桩"事件。如果某站车太少，运营方会用卡车重新调配（rebalancing）。</p>
+            <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+              <p><strong>新增因素：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>总车辆数固定（finite fleet）</li>
+                <li>站点容量上限</li>
+                <li>每晚凌晨按当前分布重新平衡</li>
+              </ul>
+            </div>
+            <p><strong>启发问题：</strong>为什么即使转移矩阵稳态是均匀的，实际运营中仍然需要调度卡车？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+n_steps = 100
+bikes = np.array([30, 10, 10])  # A, B, C 初始车辆
+capacity = 40
+P = np.array([
+    [0.6, 0.3, 0.1],
+    [0.2, 0.5, 0.3],
+    [0.25, 0.25, 0.5]
+])
+
+history = [bikes.copy()]
+empty_events = 0
+
+for t in range(n_steps):
+    # each station loses one bike with some probability
+    for i in range(3):
+        if bikes[i] > 0 and np.random.rand() < 0.4:
+            bikes[i] -= 1
+            dest = np.random.choice(3, p=P[i])
+            if bikes[dest] < capacity:
+                bikes[dest] += 1
+            else:
+                bikes[i] += 1  # return if full
+        elif bikes[i] == 0:
+            empty_events += 1
+    # nightly rebalancing: move toward average
+    if t % 24 == 0 and t > 0:
+        avg = bikes.sum() // 3
+        bikes = np.clip(np.array([avg, avg, avg]), 0, capacity)
+    history.append(bikes.copy())
+
+history = np.array(history)
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(['A', 'B', 'C']):
+    axes[0].plot(history[:, i], label=name)
+axes[0].axhline(capacity, color='red', linestyle='--', label='Capacity')
+axes[0].set_title('Bike Counts with Rebalancing')
+axes[0].legend()
+axes[1].bar(['A', 'B', 'C'], history[-1])
+axes[1].set_title('Final Distribution')
+plt.tight_layout(); plt.show()
+print('Empty-station events:', empty_events)
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 4 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：时间非齐次 Markov Chain</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>早高峰和晚高峰的骑行方向不同：早上大量车从住宅区骑向商务区，晚上相反。转移矩阵随时间变化。</p>
+            <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+              <p><strong>调整：</strong></p>
+              <p class="math text-center my-1">π<sub>t+1</sub> = π<sub>t</sub> · P(t)</p>
+              <p class="mt-2 text-xs">P(t) = P<sub>morning</sub> 当 t mod 24 ∈ [7,9]；否则 P<sub>normal</sub>。</p>
+            </div>
+            <p><strong>启发问题：</strong>非齐次转移下还有稳态分布吗？如果只看日平均矩阵，会低估高峰期的波动吗？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+P_normal = np.array([
+    [0.6, 0.3, 0.1],
+    [0.2, 0.5, 0.3],
+    [0.25, 0.25, 0.5]
+])
+# morning: more A->B, B->A
+P_morning = np.array([
+    [0.3, 0.6, 0.1],
+    [0.6, 0.2, 0.2],
+    [0.25, 0.25, 0.5]
+])
+
+pi = np.array([1.0, 0.0, 0.0])
+history = [pi]
+for t in range(7 * 24):  # one week in hours
+    P = P_morning if t % 24 in [7, 8, 9] else P_normal
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(['A', 'B', 'C']):
+    axes[0].plot(history[:, i], label=name)
+axes[0].set_title('Non-Homogeneous MC: Rush Hour Effects')
+axes[0].set_xlabel('Hour')
+axes[0].legend()
+axes[1].plot(history[:, 0], history[:, 1], color='purple', alpha=0.7)
+axes[1].set_title('A vs B Phase Space')
+axes[1].set_xlabel('A'); axes[1].set_ylabel('B')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 5 -->
+      <div class="border rounded-lg p-5 bg-indigo-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 5：启发式讨论</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 稳态 vs 实际：</strong>Markov 稳态告诉我们长期比例，但为什么不能直接用于实时调度？</p>
+          <p><strong>2. 状态设计：</strong>除了"车在哪个站"，还可以把"站点满/空"作为状态。这会带来什么问题？</p>
+          <p><strong>3. 数据估计：</strong>转移矩阵 P 通常从骑行订单数据中统计得到。如果数据有季节性，应该怎么办？</p>
+          <p><strong>4. 运营优化：</strong>如果调度成本很高，能否通过动态定价（高峰期高价）来引导用户自然平衡车辆？</p>
         </div>
       </div>
     </section>
-
     <!-- Module 7: Weather Markov Chain -->
     <section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Markov Chain 案例：天气预测</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>场景：</strong>今天天气已知，预测明天、后天以及长期的天气概率。状态只有三种：晴天 Sunny、多云 Cloudy、雨天 Rainy。</p>
-          <div class="p-4 bg-teal-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-teal-900 mb-2">天气转移模型</div>
-            <p><strong>状态空间：</strong>S = {Sunny, Cloudy, Rainy}</p>
-            <p class="mt-2"><strong>转移矩阵示例：</strong></p>
-            <table class="min-w-full border text-xs mt-2">
-              <thead class="bg-slate-100"><tr><th class="border px-2 py-1"></th><th class="border px-2 py-1">Sunny</th><th class="border px-2 py-1">Cloudy</th><th class="border px-2 py-1">Rainy</th></tr></thead>
-              <tbody>
-                <tr><td class="border px-2 py-1 font-semibold">Sunny</td><td class="border px-2 py-1">0.7</td><td class="border px-2 py-1">0.2</td><td class="border px-2 py-1">0.1</td></tr>
-                <tr><td class="border px-2 py-1 font-semibold">Cloudy</td><td class="border px-2 py-1">0.3</td><td class="border px-2 py-1">0.4</td><td class="border px-2 py-1">0.3</td></tr>
-                <tr><td class="border px-2 py-1 font-semibold">Rainy</td><td class="border px-2 py-1">0.2</td><td class="border px-2 py-1">0.3</td><td class="border px-2 py-1">0.5</td></tr>
-              </tbody>
-            </table>
-            <p class="mt-2"><strong>问题：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>已知今天多云，明天晴天的概率是多少？</li>
-              <li>长期天气比例（稳态分布）是什么？</li>
-            </ul>
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Markov Chain 案例：天气预测（由浅入深）</h2>
+      <p class="text-slate-700 mb-6"><strong>核心思想：</strong>用 Markov 链把"明天天气会是什么"变成矩阵乘法。下面从最简单的两状态开始，逐步加入更多状态、季节性、历史记忆等因素。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：两状态晴/雨模型</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>场景：</strong>只关心两种天气：晴天或雨天。今天晴，明天仍晴的概率是 0.8；今天雨，明天晴的概率是 0.4。</p>
+            <div class="p-3 bg-teal-50 rounded-lg mb-3">
+              <p><strong>状态空间：</strong>S = {Sunny, Rainy}</p>
+              <p><strong>转移矩阵：</strong></p>
+              <p class="math text-center my-1">P = [[0.8, 0.2], [0.4, 0.6]]</p>
+            </div>
+            <p><strong>启发问题：</strong>"今天晴，后天晴"的概率是多少？长期看晴天比例是多少？</p>
           </div>
-          <div class="p-3 bg-teal-50 rounded-lg text-sm text-teal-800">
-            <strong> takeaway：</strong>Markov 链把“序列预测”变成矩阵乘法。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# 天气转移矩阵
+P = np.array([[0.8, 0.2],
+              [0.4, 0.6]])
+states = ['Sunny', 'Rainy']
+pi = np.array([0, 1])  # 今天下雨
+
+history = [pi]
+for _ in range(30):
+    history.append(history[-1] @ P)
+history = np.array(history)
+
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
+stationary = stationary / stationary.sum()
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(states):
+    axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
+axes[0].set_title('Weather from Rainy Today')
+axes[0].legend()
+axes[1].bar(states, stationary, color=['#fde047', '#60a5fa'], edgecolor='black')
+axes[1].set_title('Long-Run Weather')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：三状态晴/多云/雨模型</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>把"多云"单独作为一个状态，让模型更精细。</p>
+            <div class="p-3 bg-teal-50 rounded-lg mb-3">
+              <p><strong>状态空间：</strong>S = {Sunny, Cloudy, Rainy}</p>
+              <p><strong>转移矩阵：</strong>3×3 矩阵，反映天气逐步过渡（雨 rarely 直接变晴）。</p>
+            </div>
+            <p><strong>启发问题：</strong>状态越多，模型越准吗？会带来什么代价？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
 states = ['Sunny', 'Cloudy', 'Rainy']
 P = np.array([
     [0.7, 0.2, 0.1],
     [0.3, 0.4, 0.3],
     [0.2, 0.3, 0.5]
 ])
+pi = np.array([0, 1, 0])  # 今天多云
 
-# 今天多云 -> 明天概率
-pi_today = np.array([0, 1, 0])
-pi_tomorrow = pi_today @ P
-print('Today cloudy -> tomorrow:', dict(zip(states, pi_tomorrow)))
-
-# 长期稳态
-steps = 50
-history = [pi_today]
-for _ in range(steps):
+history = [pi]
+for _ in range(50):
     history.append(history[-1] @ P)
 history = np.array(history)
 
-# 稳态解析
-eigenvalues, eigenvectors = np.linalg.eig(P.T)
-idx = np.argmin(np.abs(eigenvalues - 1))
-stationary = eigenvectors[:, idx].real
-stationary /= stationary.sum()
-print('Stationary:', dict(zip(states, stationary)))
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
+stationary = stationary / stationary.sum()
 
-# 可视化
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 for i, name in enumerate(states):
     axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
-axes[0].set_title('Weather Probability from Cloudy Today')
-axes[0].set_xlabel('Days ahead')
-axes[0].set_ylabel('Probability')
+axes[0].set_title('3-State Weather Evolution')
 axes[0].legend()
-axes[0].set_ylim(0, 1)
-
 axes[1].bar(states, stationary, color=['#fde047', '#93c5fd', '#60a5fa'], edgecolor='black')
-axes[1].set_title('Long-Run Weather Proportion')
-axes[1].set_ylabel('Probability')
-plt.tight_layout()
-plt.show()
+axes[1].set_title('Long-Run Proportion')
+plt.tight_layout(); plt.show()
 </code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：季节性非齐次 Markov Chain</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>雨季和旱季的转移矩阵不同。例如雨季"雨天→雨天"概率更高，旱季"晴天→晴天"概率更高。</p>
+            <div class="p-3 bg-teal-50 rounded-lg mb-3">
+              <p><strong>调整：</strong></p>
+              <p class="math text-center my-1">π<sub>t+1</sub> = π<sub>t</sub> · P<sub>season(t)</sub></p>
+            </div>
+            <p><strong>启发问题：</strong>如果全年用一个矩阵，会低估还是高估雨天比例？如何确定季节切换点？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+P_dry = np.array([
+    [0.8, 0.15, 0.05],
+    [0.4, 0.4, 0.2],
+    [0.3, 0.4, 0.3]
+])
+P_wet = np.array([
+    [0.4, 0.3, 0.3],
+    [0.2, 0.4, 0.4],
+    [0.2, 0.3, 0.5]
+])
+pi = np.array([1, 0, 0])
+history = [pi]
+for t in range(365):
+    # dry season: day 0-150 and 270-365
+    P = P_dry if (t % 365 < 150 or t % 365 >= 270) else P_wet
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+states = ['Sunny', 'Cloudy', 'Rainy']
+for i, name in enumerate(states):
+    axes[0].plot(history[:, i], label=name)
+axes[0].set_title('Seasonal Non-Homogeneous Weather')
+axes[0].set_xlabel('Day')
+axes[0].legend()
+axes[1].plot(history[:, 0], history[:, 2], color='purple', alpha=0.7)
+axes[1].set_title('Sunny vs Rainy Phase Space')
+axes[1].set_xlabel('Sunny'); axes[1].set_ylabel('Rainy')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 4 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：高阶 Markov Chain（考虑历史）</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>真实天气有记忆——连续雨天后再下雨的概率更高。二阶 Markov 链把"今天+昨天"作为一个组合状态。</p>
+            <div class="p-3 bg-teal-50 rounded-lg mb-3">
+              <p><strong>新状态空间：</strong>S' = {(今天, 昨天)}，共 9 个组合状态</p>
+              <p><strong>转移：</strong>从 (昨天, 今天) → (今天, 明天)</p>
+            </div>
+            <p><strong>启发问题：</strong>二阶模型一定比一阶好吗？什么情况下会过拟合？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# 3 states: 0=Sunny, 1=Cloudy, 2=Rainy
+# 2nd-order transition: P(yesterday, today -> tomorrow)
+P2 = np.array([
+    # (0,0) (0,1) (0,2) (1,0) (1,1) (1,2) (2,0) (2,1) (2,2)
+    [0.8, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 0
+    [0.2, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 1
+    [0.0, 0.4, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 2
+    [0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+]).T  # transpose so rows = current pair, cols = next weather
+
+# start: yesterday=0, today=1 -> state index 1
+state = 1
+history = [1]
+for _ in range(100):
+    tomorrow = np.random.choice(3, p=P2[state])
+    yesterday = state // 3
+    state = yesterday * 3 + tomorrow  # new pair (today, tomorrow)
+    history.append(tomorrow)
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+states = ['Sunny', 'Cloudy', 'Rainy']
+axes[0].plot(history, marker='o', markersize=3)
+axes[0].set_title('2nd-Order MC Sample Path')
+axes[0].set_xlabel('Day')
+axes[0].set_yticks([0, 1, 2])
+axes[0].set_yticklabels(states)
+unique, counts = np.unique(history, return_counts=True)
+axes[1].bar(states, [counts[np.where(unique==i)[0][0]] if i in unique else 0 for i in range(3)],
+            color=['#fde047', '#93c5fd', '#60a5fa'], edgecolor='black')
+axes[1].set_title('Empirical Frequencies')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 5 -->
+      <div class="border rounded-lg p-5 bg-teal-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 5：启发式讨论</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 无记忆性假设：</strong>天气真的是 Markov 过程吗？哪些气象因素会破坏这个假设？</p>
+          <p><strong>2. 状态粒度：</strong>把温度分成"高/中/低"三类，会比"晴/多云/雨"更适合某些场景吗？</p>
+          <p><strong>3. 数据驱动：</strong>转移矩阵通常用历史天气数据频数估计。如果某年异常干旱，矩阵还能用吗？</p>
+          <p><strong>4. 预测极限：</strong>Markov 链适合 1-3 天预测。对于 7 天以上，应该考虑什么其他方法？</p>
         </div>
       </div>
     </section>
