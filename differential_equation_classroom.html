@@ -40,10 +40,12 @@
         <a href="#m6c" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">6c. 方向场</a>
         <a href="#m6d" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">6d. 入侵</a>
         <a href="#m6e" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">6e. K 拓展</a>
+        <a href="#m6f" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">6f. 10 假设</a>
         <a href="#m7" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7. SIR</a>
         <a href="#m7b" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7b. 相平面</a>
         <a href="#m7c" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7c. 免疫消退</a>
         <a href="#m7d" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7d. 变种</a>
+        <a href="#m7e" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">7e. 10 假设</a>
         <a href="#m8" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">8. 敏感性</a>
         <a href="#m9" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">9. 合成数据</a>
         <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. 总结</a>
@@ -708,6 +710,121 @@ plt.show()</code></pre>
       </div>
 
     </section>
+<section id="m6f" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6f. 从狼兔模型出发：10 个可探究的现实假设</h2>
+      <p class="text-slate-700 mb-6">建模不是“把方程算完”，而是<strong>用方程提问</strong>。下面每个假设都给出：现实意义、模型改动、以及实现提示。你可以逐个加到基础 LV 模型里，观察结果如何变化。</p>
+
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">1. 季节性繁殖</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>兔子在春夏繁殖更快，秋冬变慢。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>a(t) = a₀ + a₁·sin(2πt/T)</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>在 ODE 里用 <code>a0 + a1*np.sin(2*np.pi*t/T)</code> 代替常数 a。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">2. 人为捕猎狐狸</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>保护区管理者定期捕猎狐狸控制数量。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>dF/dt = −c·F + d·R·F − h·F</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>给狐狸方程加一个负的 <code>h*F</code> 项，h 为捕猎强度。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">3. 兔子避难所</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>部分洞穴/地形让狐狸抓不到兔子。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>只有暴露的兔子会被捕食：max(R − R_refuge, 0)·F</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>把 <code>R*F</code> 换成 <code>max(R - R_ref, 0)*F</code>。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">4. Holling Type II 功能反应</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>狐狸吃兔子有“处理时间”，不能无限捕食。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>捕食项改为 b·R·F / (1 + e·R)</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>定义 <code>pred = b*R*F/(1 + e*R)</code> 替换所有 b·R·F。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">5. Allee 效应</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>兔子太少时难以找到配偶，繁殖率反而下降。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>a·R 替换为 a·R·(R − A) / (K + R)</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>设置临界值 A，当 R &lt; A 时增长率变负。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">6. 时滞响应</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>狐狸繁殖依赖过去一段时间的兔子数量。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>dF/dt = −c·F + d·R(t − τ)·F</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>用 delay differential equation 或 Euler 方法保存历史状态。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">7. 兔子传染病</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>一种疾病在兔群中传播，降低繁殖或增加死亡。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>把兔子拆成 S_R、I_R，加入感染与恢复/死亡。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>在兔子内部建立 SIR，再与狐狸捕食耦合。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">8. 替代猎物</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>狐狸在兔子少时可以吃其他小动物。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>给狐狸增加一个固定食物来源 s。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>dF/dt = −c·F + d·R·F + s，观察狐狸是否不再随兔子崩溃。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">9. 环境随机扰动</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>干旱、寒冬等随机事件影响兔子食物。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>a → a + σ·ξ(t)，ξ(t) 为白噪声。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>用 Euler-Maruyama 方法，每步加 <code>sigma*np.sqrt(dt)*np.random.randn()</code>。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">10. 空间斑块模型</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>不同草地的兔子会迁移，狐狸随猎物移动。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>多个斑块耦合：dRᵢ/dt = ... + m·(Rⱼ − Rᵢ)</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>把状态向量扩展到所有斑块，加迁移项。</p>
+        </div>
+      </div>
+
+      <div class="mt-8 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>示例：把“季节性繁殖 + 狐狸捕猎”同时加入模型。</strong>这段代码展示如何在一个函数里组合多个假设，并和经典模型对比。</p>
+          <div class="p-3 bg-emerald-50 rounded-lg text-sm text-emerald-800">
+            <strong> takeaway：</strong>每个假设只改一个或两个项；组合多个假设时，先单独验证再叠加。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+# Extended LV with seasonality and fox harvesting.
+def lv_extended(t, y, a0, a1, b, c, d, h, T, K):
+    R, F = y
+    # Seasonal rabbit birth rate.
+    a_t = a0 + a1 * np.sin(2 * np.pi * t / T)
+    # Logistic growth + predation.
+    dR = a_t * R * (1 - R / K) - b * R * F
+    # Fox growth - natural death - harvesting.
+    dF = -c * F + d * R * F - h * F
+    return [dR, dF]
+
+# Parameters.
+a0, a1 = 1.0, 0.3
+b, c, d = 0.1, 1.5, 0.075
+h = 0.2          # harvesting rate
+T = 5            # seasonal period (years)
+K = 80           # carrying capacity
+y0 = [40, 9]
+t_eval = np.linspace(0, 30, 2000)
+
+sol = solve_ivp(lv_extended, (0, 30), y0,
+                args=(a0, a1, b, c, d, h, T, K), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Seasonal breeding + fox harvesting")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+    </section>
 <section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">7. SIR 传染病模型</h2>
       <div class="grid lg:grid-cols-2 gap-8">
@@ -916,6 +1033,124 @@ print("Threshold N/R0: resident = {:.0f}, variant = {:.0f}".format(N/1.5, N/3.0)
         </div>
       </div>
 
+    </section>
+<section id="m7e" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7e. 从 SIR 出发：10 个可探究的现实假设</h2>
+      <p class="text-slate-700 mb-6">SIR 是最简单的传染病骨架。真实疫情中，干预措施、人口结构、病毒变异等都可以被“翻译”成方程里的新增项。下面是 10 个常见且可实现的扩展方向。</p>
+
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">1. 持续疫苗接种</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>每天有一定比例的易感者被接种。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>dS/dt = −βSI/N − v·S，dR/dt = γI + v·S</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>给 S 和 R 各加一项 v*S。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">2. 隔离感染者</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>出现症状后被隔离，不再传播。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>SIR → SIQR：dI/dt = βSI/N − γI − q·I，dQ/dt = q·I − γ_Q·Q</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>新增 Q compartment，从 I 以速率 q 流入。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">3. 无症状感染者</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>部分感染者不发病，但也能传播。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>把 I 拆成 I_sym 和 I_asy，各自有传播率。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>dS/dt = −S·(β_sym·I_sym + β_asy·I_asy)/N。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">4. 年龄结构接触</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>儿童、成年人、老年人接触模式不同。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>每个年龄组一个 SIR，用接触矩阵 C_ij 描述组间传播。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>对每组 i：dS_i/dt = −S_i·Σ_j β·C_ij·I_j/N_j。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">5. 季节性传播</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>流感等呼吸道疾病冬季传播更强。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>β(t) = β₀·(1 + β₁·cos(2πt/365))</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>在 ODE 内部用时间 t 计算 β_t。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">6. 行为反馈</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>病例增多时，人们自觉减少接触。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>β(I) = β₀ / (1 + k·I)</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>让传播率随当前感染人数 I 动态下降。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">7. 人口出生与死亡</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>长期疫情中，新生儿补充易感者，死亡减少各 compartment。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>各 compartment 加 μ·N（出生）和 −μ·S, −μ·I, −μ·R（死亡）。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>把 μ 项加入每个方程，用于研究长期地方病。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">8. 医疗资源饱和</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>医院床位不足时，重症死亡率上升、恢复变慢。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>γ 或死亡率随 I 超过阈值后变差。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>γ(I) = γ₀·max(0, 1 − (I − I_cap)/I_cap) 等分段函数。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">9. 疫苗突破性感染</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>疫苗降低感染概率和重症率，但不完全阻断。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>新增 V compartment，V 以较低速率被感染。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>dV/dt = v·S − (1 − eff)·β·V·I/N。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">10. 空间网络传播</div>
+          <p class="text-slate-600 mt-1"><strong>现实：</strong>疾病在不同城市间通过旅行传播。</p>
+          <p class="text-slate-600 mt-1"><strong>改动：</strong>每个城市一个 SIR，人群按旅行矩阵在城市间迁移。</p>
+          <p class="text-slate-600 mt-1"><strong>实现：</strong>对城市 i 的 S_i 加 Σ_j m_ij·(S_j/N_j − S_i/N_i)。</p>
+        </div>
+      </div>
+
+      <div class="mt-8 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>示例：加入隔离 + 季节性传播。</strong>这段代码演示如何把两个假设同时写进一个函数，并与基础 SIR 对比峰值。</p>
+          <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
+            <strong> takeaway：</strong>干预措施通常表现为“让某些人流向新的 compartment”或“让 β 随时间/状态变化”。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+# SIR with quarantine and seasonal beta.
+def sir_extended(t, y, beta0, beta1, gamma, q, gamma_q, N):
+    S, I, Q, R = y
+    # Seasonal transmission rate.
+    beta_t = beta0 * (1 + beta1 * np.cos(2 * np.pi * t / 365))
+    dS = -beta_t * S * I / N
+    dI = beta_t * S * I / N - gamma * I - q * I
+    dQ = q * I - gamma_q * Q
+    dR = gamma * I + gamma_q * Q
+    return [dS, dI, dQ, dR]
+
+# Parameters.
+N = 10000
+I0 = 10
+beta0, beta1 = 0.3, 0.2
+gamma = 0.1
+q = 0.05          # isolation rate
+gamma_q = 0.14    # faster recovery in quarantine
+t_span = (0, 300)
+t_eval = np.linspace(0, 300, 1500)
+
+sol = solve_ivp(sir_extended, t_span, [N - I0, I0, 0, 0],
+                args=(beta0, beta1, gamma, q, gamma_q, N), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[1], label="Infectious I")
+plt.plot(sol.t, sol.y[2], label="Quarantined Q")
+plt.xlabel("Time (days)")
+plt.ylabel("Number of people")
+plt.title("SIR with quarantine and seasonal beta")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+print("Peak infectious = {:.0f}".format(sol.y[1].max()))</code></pre>
+        </div>
+      </div>
     </section>
 <section id="m8" class="module-card  bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">8a. 敏感性分析：参数扫描表</h2>
