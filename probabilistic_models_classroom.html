@@ -1183,19 +1183,18 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 
 # Three weather states: 0=Sunny, 1=Cloudy, 2=Rainy.
-# Second-order transition matrix: rows = (yesterday, today) pair, cols = tomorrow.
-# The matrix is transposed so rows index the current pair.
+# Second-order transition matrix:
+# rows = (yesterday, today) pair; cols = probability of tomorrow's weather.
+# Pair index = yesterday * 3 + today.
 P2 = np.array([
-    [0.8, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Sunny
-    [0.2, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Cloudy
-    [0.0, 0.4, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Rainy
-    [0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-]).T
+    # (S,S)  (S,C)  (S,R)  (C,S)  (C,C)  (C,R)  (R,S)  (R,C)  (R,R)
+    [0.70,  0.40,  0.30,  0.50,  0.20,  0.20,  0.50,  0.30,  0.20],  # -> Sunny
+    [0.20,  0.40,  0.40,  0.30,  0.60,  0.30,  0.30,  0.40,  0.30],  # -> Cloudy
+    [0.10,  0.20,  0.30,  0.20,  0.20,  0.50,  0.20,  0.30,  0.50],  # -> Rainy
+]).T  # transpose to 9 rows (pairs) x 3 columns (tomorrow)
+
+# Verify every row sums to 1 (required for a valid transition matrix).
+print('Row sums:', P2.sum(axis=1))
 
 # Start: yesterday=0 (Sunny), today=1 (Cloudy) -> pair index 1.
 state = 1
@@ -1203,10 +1202,11 @@ history = [1]
 
 # Generate a 100-day sample path using the second-order transition rule.
 for _ in range(100):
+    # Sample tomorrow's weather from the distribution of the current pair.
     tomorrow = np.random.choice(3, p=P2[state])
-    yesterday = state // 3
+    today = state % 3
     # New pair becomes (today, tomorrow).
-    state = yesterday * 3 + tomorrow
+    state = today * 3 + tomorrow
     history.append(tomorrow)
 
 # --- Visualizations ---
