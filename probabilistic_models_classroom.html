@@ -68,10 +68,14 @@
           <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Set random seed so the results are reproducible every time the demo runs.
 np.random.seed(42)
+# Number of random samples drawn for each distribution.
 n_samples = 10000
 
+# Create a 2x3 grid of subplots for the five distributions.
 fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+# Dictionary mapping distribution names to sampled arrays.
 samples = {
     'Normal(5, 3)': np.random.normal(5, 3, n_samples),
     'Binomial(10, 0.5)': np.random.binomial(10, 0.5, n_samples),
@@ -79,11 +83,13 @@ samples = {
     'Uniform(0, 1)': np.random.uniform(0, 1, n_samples),
     'Exponential(λ=0.5)': np.random.exponential(1/0.5, n_samples)
 }
+# Plot a histogram for each distribution in its own subplot.
 for ax, (name, data) in zip(axes.flat, samples.items()):
     ax.hist(data, bins=30, color='steelblue', edgecolor='white', alpha=0.8)
     ax.set_title(name)
     ax.set_xlabel('Value')
     ax.set_ylabel('Frequency')
+# Hide the sixth unused subplot.
 axes.flat[-1].axis('off')
 plt.suptitle('Common Probability Distributions')
 plt.tight_layout()
@@ -98,7 +104,7 @@ plt.show()
       <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Monte Carlo 案例：飘落的叶子</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>场景：</strong>一片叶子从 5 米高的树枝脱落。水平风速 V ~ Normal(μ=5, σ=3) m/s，垂直下落速度恒为 1 m/s。求叶子落地点的分布。</p>
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>一片叶子从 5 米高的树枝脱落。水平风速 V ~ Normal(μ=5, σ=3) m/s，风向 θ 可在一定范围内随机摆动，垂直下落速度恒为 1 m/s。求叶子落地点在地面上的二维分布。</p>
           <div class="p-4 bg-green-50 rounded-lg text-sm text-slate-700 mb-4">
             <div class="font-semibold text-green-900 mb-2">模型设定</div>
             <p><strong>已知参数：</strong></p>
@@ -106,14 +112,16 @@ plt.show()
               <li>h = 5 m：初始高度</li>
               <li>v<sub>vertical</sub> = 1 m/s：垂直下落速度</li>
               <li>V ~ N(5, 3)：水平风速</li>
+              <li>θ ~ N(μ<sub>dir</sub>, σ<sub>dir</sub>)：风向，单位弧度（可手动调整方向范围）</li>
             </ul>
             <p class="mt-2"><strong>核心变量：</strong></p>
             <ul class="list-disc pl-5 space-y-1">
               <li>T = h / v<sub>vertical</sub> = 5 s：下落时间</li>
-              <li>X = V · T：水平落点距离</li>
+              <li>X = V · T · cos(θ)：落点 x 坐标</li>
+              <li>Y = V · T · sin(θ)：落点 y 坐标</li>
+              <li>R = √(X² + Y²)：落点与树干的水平距离</li>
             </ul>
-            <p class="mt-2"><strong>分布结论：</strong></p>
-            <p class="math text-center my-2">X ~ N(μ·T, σ·T) = N(25, 15)</p>
+            <p class="mt-2"><strong>扩展：</strong>通过调整 μ<sub>dir</sub> 和 σ<sub>dir</sub>，可以模拟"主要从东边吹来但有一定扩散"的风。</p>
           </div>
           <div class="p-3 bg-green-50 rounded-lg text-sm text-green-800">
             <strong> takeaway：</strong>一个简单的随机输入（风速）乘以一个确定的时间，就得到随机输出（落点）。
@@ -124,35 +132,73 @@ plt.show()
           <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix the random seed for reproducible results.
 np.random.seed(42)
+# Number of simulated leaves.
 n = 10000
-h = 5.0          # m
-v_vert = 1.0     # m/s
-mu_v = 5.0       # m/s
-sigma_v = 3.0    # m/s
 
-T = h / v_vert                    # 下落时间
+# --- Physical parameters ---
+h = 5.0                    # Initial falling height in meters.
+v_vert = 1.0               # Constant vertical falling speed in m/s.
+mu_v = 5.0                 # Mean horizontal wind speed in m/s.
+sigma_v = 3.0              # Standard deviation of wind speed in m/s.
+# Wind direction: mean direction (radians) and angular spread (radians).
+# 0 radians = positive x-axis; π/2 radians = positive y-axis.
+mu_dir = np.pi / 6         # Mean wind direction: 30 degrees.
+sigma_dir = np.pi / 4      # Direction spread: ±45 degrees.
+
+# --- Monte Carlo sampling ---
+# Fall time is deterministic because vertical speed is constant.
+T = h / v_vert
+# Sample wind speed and direction for each leaf.
 V = np.random.normal(mu_v, sigma_v, n)
-X = V * T
+theta = np.random.normal(mu_dir, sigma_dir, n)
+# Convert polar (speed, direction) to Cartesian landing coordinates (X, Y).
+X = V * T * np.cos(theta)
+Y = V * T * np.sin(theta)
+# Total horizontal displacement from the drop point.
+R = np.sqrt(X**2 + Y**2)
 
+# --- Summary statistics ---
 print(f'Fall time: {T:.1f} s')
-print(f'Mean landing distance: {X.mean():.2f} m')
-print(f'Std landing distance: {X.std():.2f} m')
-print(f'P(landing between 10m and 40m): {((X >= 10) & (X <= 40)).mean():.2%}')
+print(f'Mean landing X: {X.mean():.2f} m')
+print(f'Mean landing Y: {Y.mean():.2f} m')
+print(f'Mean horizontal distance: {R.mean():.2f} m')
+print(f'P(landing within 40 m): {(R <= 40).mean():.2%}')
 
-# 可视化
-fig, axes = plt.subplots(1, 2, figsize=(13, 4))
-axes[0].hist(V, bins=40, color='skyblue', edgecolor='white')
-axes[0].set_title('Wind Speed Distribution V ~ N(5, 3)')
-axes[0].set_xlabel('Wind speed (m/s)')
-axes[0].set_ylabel('Count')
+# --- Visualizations ---
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+# 1. Histogram of sampled wind speeds.
+axes[0, 0].hist(V, bins=40, color='skyblue', edgecolor='white')
+axes[0, 0].set_title('Wind Speed Distribution V ~ N(5, 3)')
+axes[0, 0].set_xlabel('Wind speed (m/s)')
+axes[0, 0].set_ylabel('Count')
 
-axes[1].hist(X, bins=40, color='seagreen', edgecolor='white')
-axes[1].axvline(X.mean(), color='red', linestyle='--', label=f'Mean={X.mean():.1f}m')
-axes[1].set_title('Landing Distance Distribution X = V · T')
-axes[1].set_xlabel('Horizontal distance (m)')
-axes[1].set_ylabel('Count')
-axes[1].legend()
+# 2. Histogram of total horizontal landing distance.
+axes[0, 1].hist(R, bins=40, color='seagreen', edgecolor='white')
+axes[0, 1].axvline(R.mean(), color='red', linestyle='--', label=f'Mean={R.mean():.1f}m')
+axes[0, 1].set_title('Landing Distance Distribution')
+axes[0, 1].set_xlabel('Horizontal distance (m)')
+axes[0, 1].set_ylabel('Count')
+axes[0, 1].legend()
+
+# 3. Top-down scatter plot of landing positions.
+axes[1, 0].scatter(X, Y, s=5, alpha=0.3, c='green')
+axes[1, 0].scatter(0, 0, c='red', s=100, marker='x', label='Tree base')
+axes[1, 0].set_aspect('equal')
+axes[1, 0].set_title('Top-Down View of Landing Positions')
+axes[1, 0].set_xlabel('X (m)')
+axes[1, 0].set_ylabel('Y (m)')
+axes[1, 0].legend()
+
+# 4. 2D density heatmap of landing positions.
+axes[1, 1].hist2d(X, Y, bins=40, cmap='Greens')
+axes[1, 1].scatter(0, 0, c='red', s=100, marker='x')
+axes[1, 1].set_aspect('equal')
+axes[1, 1].set_title('Landing Density Heatmap')
+axes[1, 1].set_xlabel('X (m)')
+axes[1, 1].set_ylabel('Y (m)')
+
 plt.tight_layout()
 plt.show()
 </code></pre>
@@ -184,18 +230,24 @@ plt.show()
           <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix the random seed for reproducibility.
 np.random.seed(42)
+# Total number of random points thrown inside the square.
 N = 5000
+# Sample (X, Y) uniformly from the square [-1, 1] x [-1, 1].
 x = np.random.uniform(-1, 1, N)
 y = np.random.uniform(-1, 1, N)
+# Indicator: point falls inside the unit circle.
 inside = x**2 + y**2 <= 1
 
+# Estimate π as 4 * (fraction of points inside the circle).
 pi_est = 4 * inside.sum() / N
 print(f'Estimated π with N={N}: {pi_est:.5f}')
 print(f'Error: {abs(np.pi - pi_est):.5f}')
 
-# 可视化撒点
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+# 1. Scatter plot showing which points land inside vs outside the circle.
 axes[0].scatter(x[inside], y[inside], c='blue', s=5, alpha=0.5, label='Inside circle')
 axes[0].scatter(x[~inside], y[~inside], c='orange', s=5, alpha=0.5, label='Outside circle')
 theta = np.linspace(0, 2*np.pi, 100)
@@ -204,7 +256,7 @@ axes[0].set_aspect('equal')
 axes[0].set_title(f'Estimate π ≈ {pi_est:.4f}')
 axes[0].legend()
 
-# 收敛曲线
+# 2. Convergence curve: estimate π with increasing sample sizes.
 Ns = np.logspace(2, 5, 50, dtype=int)
 ests = []
 for n in Ns:
@@ -321,20 +373,22 @@ plt.show()
 import matplotlib.pyplot as plt
 import networkx as nx
 
+# Fix the random seed for reproducibility.
 np.random.seed(42)
+# Number of Monte Carlo trials.
 n = 10000
 
-# 每次试验抽样各任务时长
-A = np.random.normal(10, 2, n)
-B = np.random.normal(7, 1.5, n)
-C = np.random.normal(8, 2, n)
-D = np.random.normal(6, 1, n)
-E = np.random.uniform(5, 10, n)
-F = np.random.normal(12, 3, n)
-G = np.random.uniform(3, 7, n)
-H = 1
+# --- Sample task durations for each trial ---
+A = np.random.normal(10, 2, n)      # Feature dev
+B = np.random.normal(7, 1.5, n)     # UI/UX
+C = np.random.normal(8, 2, n)       # Backend (depends on A)
+D = np.random.normal(6, 1, n)       # Frontend (depends on B)
+E = np.random.uniform(5, 10, n)     # Testing (depends on C, D)
+F = np.random.normal(12, 3, n)      # Marketing
+G = np.random.uniform(3, 7, n)      # Legal (depends on A, B)
+H = 1                               # Launch (depends on E, F, G)
 
-# 计算五条并行线路
+# --- Compute the five parallel paths in the project network ---
 path1 = A + C + E
 path2 = B + D + E
 path3 = A + G
@@ -342,15 +396,16 @@ path4 = B + G
 path5 = F
 path_names = ['A+C+E', 'B+D+E', 'A+G', 'B+G', 'F']
 
-# 关键路径：每次模拟中耗时最长的线路
+# Identify the critical path for each trial (the longest path).
 paths = np.vstack([path1, path2, path3, path4, path5])
 critical_idx = np.argmax(paths, axis=0)
 critical_counts = np.bincount(critical_idx, minlength=5)
 critical_freq = critical_counts / n
 
-# 总工期 = 最长线路 + 最终任务 H
+# Total completion time = longest path + final launch task H.
 T = np.max(paths, axis=0) + H
 
+# --- Summary statistics ---
 print(f'Mean completion time: {T.mean():.1f} days')
 print(f'P(finish within 30 days): {(T <= 30).mean():.2%}')
 print(f'P(finish within 35 days): {(T <= 35).mean():.2%}')
@@ -359,10 +414,10 @@ print('\nCritical path frequency:')
 for name, freq in zip(path_names, critical_freq):
     print(f'  {name}: {freq:.2%}')
 
-# 可视化
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-# 1. AoN 项目网络图
+# 1. Draw the Activity-on-Node (AoN) project network.
 G_nx = nx.DiGraph()
 edges = [('START','A'), ('START','B'), ('START','F'),
          ('A','C'), ('A','G'), ('B','D'), ('B','G'),
@@ -381,7 +436,7 @@ nx.draw_networkx_labels(G_nx, pos, font_size=10, ax=axes[0])
 axes[0].set_title('AoN Project Network (Activity on Node)')
 axes[0].axis('off')
 
-# 2. 总工期分布
+# 2. Histogram of total completion time with deadline line.
 axes[1].hist(T, bins=50, color='coral', edgecolor='white')
 axes[1].axvline(30, color='red', linestyle='--', label='30-day deadline')
 axes[1].set_title('Distribution of Total Completion Time')
@@ -389,7 +444,7 @@ axes[1].set_xlabel('Days')
 axes[1].set_ylabel('Frequency')
 axes[1].legend()
 
-# 3. 关键路径频率
+# 3. Bar chart of how often each path is the critical path.
 axes[2].barh(path_names, critical_freq, color='steelblue')
 axes[2].set_title('Critical Path Frequency (PERT / Monte Carlo)')
 axes[2].set_xlabel('Probability of being critical')
@@ -426,19 +481,25 @@ plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Number of time steps for the deterministic simulation.
 n_steps = 200
+# Arrays to store population counts over time.
 sheep = np.zeros(n_steps)
 wolves = np.zeros(n_steps)
+# Initial populations.
 sheep[0], wolves[0] = 40, 9
 
+# Lotka-Volterra parameters.
 alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
 
+# Deterministic update loop.
 for t in range(n_steps - 1):
     ds = alpha * sheep[t] - beta * sheep[t] * wolves[t]
     dw = delta * sheep[t] * wolves[t] - gamma * wolves[t]
     sheep[t+1] = max(0, sheep[t] + ds)
     wolves[t+1] = max(0, wolves[t] + dw)
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 axes[0].plot(sheep, label='Sheep', color='green')
 axes[0].plot(wolves, label='Wolves', color='red')
@@ -464,6 +525,7 @@ plt.tight_layout(); plt.show()
               <p class="math text-center my-1">S<sub>t+1</sub> ~ Poisson( S<sub>t</sub> + αS<sub>t</sub> - βS<sub>t</sub>W<sub>t</sub> )</p>
               <p class="math text-center my-1">W<sub>t+1</sub> ~ Poisson( W<sub>t</sub> + δβS<sub>t</sub>W<sub>t</sub> - γW<sub>t</sub> )</p>
             </div>
+            <p><strong>可视化说明：</strong>左图显示 200 次运行的<strong>平均值 ± 标准差</strong>，中间图展示 5 条代表性单一路径，右图是某一次运行的相空间轨迹。这样比叠加 20 条透明线更容易看清随机性的整体影响。</p>
             <p><strong>启发问题：</strong>随机性会让种群灭绝吗？多次运行结果差异大吗？什么情况下波动会被放大？</p>
           </div>
           <div class="relative">
@@ -471,29 +533,62 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix seed and set simulation parameters.
 np.random.seed(42)
-n_steps, n_runs = 100, 20
+n_steps, n_runs = 100, 200
 alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
 
-fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+# Store all trajectories to compute mean and standard deviation.
+S_runs = np.zeros((n_runs, n_steps))
+W_runs = np.zeros((n_runs, n_steps))
+
 for run in range(n_runs):
     S, W = np.zeros(n_steps), np.zeros(n_steps)
     S[0], W[0] = 40, 9
     for t in range(n_steps - 1):
+        # Poisson-distributed next states, using max to avoid negative means.
         mean_s = max(0, S[t] + alpha*S[t] - beta*S[t]*W[t])
         mean_w = max(0, W[t] + delta*beta*S[t]*W[t] - gamma*W[t])
         S[t+1] = np.random.poisson(mean_s)
         W[t+1] = np.random.poisson(mean_w)
-    axes[0].plot(S, color='green', alpha=0.3)
-    axes[0].plot(W, color='red', alpha=0.3)
+    S_runs[run] = S
+    W_runs[run] = W
 
-axes[0].set_title('20 Stochastic Runs')
-axes[0].set_xlabel('Time step'); axes[0].set_ylabel('Population')
-axes[1].plot(S, W, color='purple', alpha=0.7)
-axes[1].scatter(S[0], W[0], color='green', s=80, label='Start')
-axes[1].scatter(S[-1], W[-1], color='red', s=80, label='End')
-axes[1].set_title('Phase Space (one run)')
-axes[1].legend()
+# Compute ensemble statistics across all stochastic runs.
+S_mean, S_std = S_runs.mean(axis=0), S_runs.std(axis=0)
+W_mean, W_std = W_runs.mean(axis=0), W_runs.std(axis=0)
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 3, figsize=(18, 4))
+t = np.arange(n_steps)
+
+# 1. Mean trajectory with shaded standard deviation across runs.
+axes[0].plot(t, S_mean, color='green', label='Sheep mean')
+axes[0].fill_between(t, S_mean - S_std, S_mean + S_std, color='green', alpha=0.2)
+axes[0].plot(t, W_mean, color='red', label='Wolves mean')
+axes[0].fill_between(t, W_mean - W_std, W_mean + W_std, color='red', alpha=0.2)
+axes[0].set_title('Mean ± Std Across Stochastic Runs')
+axes[0].set_xlabel('Time step')
+axes[0].set_ylabel('Population')
+axes[0].legend()
+
+# 2. A few representative individual runs.
+for i in range(5):
+    axes[1].plot(S_runs[i], color='green', alpha=0.5)
+    axes[1].plot(W_runs[i], color='red', alpha=0.5)
+axes[1].set_title('Five Individual Stochastic Runs')
+axes[1].set_xlabel('Time step')
+axes[1].set_ylabel('Population')
+
+# 3. Phase space of the last run.
+axes[2].plot(S_runs[-1], W_runs[-1], color='purple', alpha=0.7)
+axes[2].scatter(S_runs[-1, 0], W_runs[-1, 0], color='green', s=80, label='Start')
+axes[2].scatter(S_runs[-1, -1], W_runs[-1, -1], color='red', s=80, label='End')
+axes[2].set_title('Phase Space (one run)')
+axes[2].set_xlabel('Sheep')
+axes[2].set_ylabel('Wolves')
+axes[2].legend()
+
 plt.tight_layout(); plt.show()
 </code></pre>
           </div>
@@ -521,25 +616,28 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix seed and set grid size.
 np.random.seed(42)
 grid, n_steps = 10, 100
 n_sheep, n_wolves = 40, 9
 
+# Initialize agent positions uniformly on the grid.
 sheep_x = np.random.randint(0, grid, n_sheep)
 sheep_y = np.random.randint(0, grid, n_sheep)
 wolf_x = np.random.randint(0, grid, n_wolves)
 wolf_y = np.random.randint(0, grid, n_wolves)
 
+# Track population counts over time.
 history_s, history_w = [n_sheep], [n_wolves]
 
 for _ in range(n_steps):
-    # move
+    # Each agent moves one step in a random direction (with wrap-around).
     sheep_x = (sheep_x + np.random.randint(-1, 2, len(sheep_x))) % grid
     sheep_y = (sheep_y + np.random.randint(-1, 2, len(sheep_y))) % grid
     wolf_x = (wolf_x + np.random.randint(-1, 2, len(wolf_x))) % grid
     wolf_y = (wolf_y + np.random.randint(-1, 2, len(wolf_y))) % grid
 
-    # predation
+    # Predation: each wolf checks for sheep on the same cell.
     alive_s = np.ones(len(sheep_x), dtype=bool)
     for i in range(len(wolf_x)):
         same = (sheep_x == wolf_x[i]) & (sheep_y == wolf_y[i]) & alive_s
@@ -548,7 +646,7 @@ for _ in range(n_steps):
             alive_s[victim] = False
     sheep_x, sheep_y = sheep_x[alive_s], sheep_y[alive_s]
 
-    # reproduction
+    # Reproduction: a small fraction of agents produce offspring.
     mask_s = np.random.rand(len(sheep_x)) < 0.05
     sheep_x = np.concatenate([sheep_x, sheep_x[mask_s]])
     sheep_y = np.concatenate([sheep_y, sheep_y[mask_s]])
@@ -559,6 +657,7 @@ for _ in range(n_steps):
     history_s.append(len(sheep_x))
     history_w.append(len(wolf_x))
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 axes[0].plot(history_s, label='Sheep', color='green')
 axes[0].plot(history_w, label='Wolves', color='red')
@@ -596,23 +695,28 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix seed and initialize arrays for sheep, wolves, and grass.
 np.random.seed(42)
 n_steps = 200
 S, W, G = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
 S[0], W[0], G[0] = 40, 9, 100
 
+# Parameters for reproduction, predation, death, and grass regrowth.
 alpha, beta, gamma, delta = 0.15, 0.02, 0.1, 0.01
 K, grass_growth = 100, 0.3
 
 for t in range(n_steps - 1):
+    # Sheep reproduction rate depends on available grass (carrying-capacity effect).
     effective_alpha = alpha * (G[t] / K)
     ds = effective_alpha * S[t] - beta * S[t] * W[t]
     dw = delta * beta * S[t] * W[t] - gamma * W[t]
+    # Grass regrows logistically and is consumed by sheep.
     dG = grass_growth * (K - G[t]) - 0.5 * S[t]
     S[t+1] = max(0, S[t] + ds)
     W[t+1] = max(0, W[t] + dw)
     G[t+1] = np.clip(G[t] + dG, 0, K)
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 axes[0].plot(S, label='Sheep', color='green')
 axes[0].plot(W, label='Wolves', color='red')
@@ -663,22 +767,27 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Two-state transition matrix: rows = current station, cols = next station.
 P = np.array([[0.7, 0.3],
               [0.4, 0.6]])
-pi = np.array([1.0, 0.0])  # 所有车从 A 出发
+# Initial distribution: all bikes start at station A.
+pi = np.array([1.0, 0.0])
 steps = 30
+
+# Iteratively apply the transition matrix.
 history = [pi]
 for _ in range(steps):
     pi = pi @ P
     history.append(pi)
 history = np.array(history)
 
-# 稳态
+# Compute the stationary distribution from the left eigenvector for eigenvalue 1.
 eigvals, eigvecs = np.linalg.eig(P.T)
 idx = np.argmin(np.abs(eigvals - 1))
 stationary = eigvecs[:, idx].real
 stationary = stationary / stationary.sum()
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 axes[0].plot(history[:, 0], label='A', marker='o', markersize=3)
 axes[0].plot(history[:, 1], label='B', marker='o', markersize=3)
@@ -710,24 +819,30 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Three-state transition matrix for stations A, B, and C.
 P = np.array([
     [0.6, 0.3, 0.1],
     [0.2, 0.5, 0.3],
     [0.25, 0.25, 0.5]
 ])
+# All bikes start at A.
 pi = np.array([1.0, 0.0, 0.0])
 steps = 30
+
+# Evolve the distribution over time.
 history = [pi]
 for _ in range(steps):
     pi = pi @ P
     history.append(pi)
 history = np.array(history)
 
+# Solve for the stationary distribution.
 eigvals, eigvecs = np.linalg.eig(P.T)
 idx = np.argmin(np.abs(eigvals - 1))
 stationary = eigvecs[:, idx].real
 stationary = stationary / stationary.sum()
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 stations = ['A', 'B', 'C']
 for i, name in enumerate(stations):
@@ -763,9 +878,10 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix seed and initialize absolute bike counts and station capacity.
 np.random.seed(42)
 n_steps = 100
-bikes = np.array([30, 10, 10])  # A, B, C 初始车辆
+bikes = np.array([30, 10, 10])  # A, B, C initial counts
 capacity = 40
 P = np.array([
     [0.6, 0.3, 0.1],
@@ -777,24 +893,28 @@ history = [bikes.copy()]
 empty_events = 0
 
 for t in range(n_steps):
-    # each station loses one bike with some probability
+    # Each station may have one bike borrowed with probability 0.4.
     for i in range(3):
         if bikes[i] > 0 and np.random.rand() < 0.4:
             bikes[i] -= 1
+            # Return the bike according to the transition matrix.
             dest = np.random.choice(3, p=P[i])
             if bikes[dest] < capacity:
                 bikes[dest] += 1
             else:
-                bikes[i] += 1  # return if full
+                # If the destination is full, keep the bike at the origin.
+                bikes[i] += 1
         elif bikes[i] == 0:
             empty_events += 1
-    # nightly rebalancing: move toward average
+    # Nightly rebalancing: redistribute evenly at midnight.
     if t % 24 == 0 and t > 0:
         avg = bikes.sum() // 3
         bikes = np.clip(np.array([avg, avg, avg]), 0, capacity)
     history.append(bikes.copy())
 
 history = np.array(history)
+
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 for i, name in enumerate(['A', 'B', 'C']):
     axes[0].plot(history[:, i], label=name)
@@ -828,27 +948,31 @@ print('Empty-station events:', empty_events)
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Fix seed and define normal vs morning rush-hour transition matrices.
 np.random.seed(42)
 P_normal = np.array([
     [0.6, 0.3, 0.1],
     [0.2, 0.5, 0.3],
     [0.25, 0.25, 0.5]
 ])
-# morning: more A->B, B->A
+# Morning rush: more trips from A to B and B to A.
 P_morning = np.array([
     [0.3, 0.6, 0.1],
     [0.6, 0.2, 0.2],
     [0.25, 0.25, 0.5]
 ])
 
+# All bikes start at A.
 pi = np.array([1.0, 0.0, 0.0])
 history = [pi]
-for t in range(7 * 24):  # one week in hours
+# Simulate one week hour by hour, switching matrices during rush hours.
+for t in range(7 * 24):
     P = P_morning if t % 24 in [7, 8, 9] else P_normal
     pi = pi @ P
     history.append(pi)
 history = np.array(history)
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 for i, name in enumerate(['A', 'B', 'C']):
     axes[0].plot(history[:, i], label=name)
@@ -898,21 +1022,26 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Two-state transition matrix: Sunny (0) and Rainy (1).
 P = np.array([[0.8, 0.2],
               [0.4, 0.6]])
 states = ['Sunny', 'Rainy']
-pi = np.array([0, 1])  # 今天下雨
+# Today is rainy.
+pi = np.array([0, 1])
 
+# Evolve the weather distribution over 30 days.
 history = [pi]
 for _ in range(30):
     history.append(history[-1] @ P)
 history = np.array(history)
 
+# Compute the stationary distribution.
 eigvals, eigvecs = np.linalg.eig(P.T)
 idx = np.argmin(np.abs(eigvals - 1))
 stationary = eigvecs[:, idx].real
 stationary = stationary / stationary.sum()
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 for i, name in enumerate(states):
     axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
@@ -943,24 +1072,29 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Three-state transition matrix: Sunny, Cloudy, Rainy.
 states = ['Sunny', 'Cloudy', 'Rainy']
 P = np.array([
     [0.7, 0.2, 0.1],
     [0.3, 0.4, 0.3],
     [0.2, 0.3, 0.5]
 ])
-pi = np.array([0, 1, 0])  # 今天多云
+# Today is cloudy.
+pi = np.array([0, 1, 0])
 
+# Evolve the distribution.
 history = [pi]
 for _ in range(50):
     history.append(history[-1] @ P)
 history = np.array(history)
 
+# Compute stationary distribution.
 eigvals, eigvecs = np.linalg.eig(P.T)
 idx = np.argmin(np.abs(eigvals - 1))
 stationary = eigvecs[:, idx].real
 stationary = stationary / stationary.sum()
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 for i, name in enumerate(states):
     axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
@@ -991,6 +1125,7 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# Transition matrices for dry and wet seasons.
 P_dry = np.array([
     [0.8, 0.15, 0.05],
     [0.4, 0.4, 0.2],
@@ -1001,15 +1136,19 @@ P_wet = np.array([
     [0.2, 0.4, 0.4],
     [0.2, 0.3, 0.5]
 ])
+# Start on a sunny day.
 pi = np.array([1, 0, 0])
 history = [pi]
+
+# Switch between dry and wet season matrices over one year.
 for t in range(365):
-    # dry season: day 0-150 and 270-365
+    # Dry season roughly days 0-149 and 270-364; wet season in between.
     P = P_dry if (t % 365 < 150 or t % 365 >= 270) else P_wet
     pi = pi @ P
     history.append(pi)
 history = np.array(history)
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 states = ['Sunny', 'Cloudy', 'Rainy']
 for i, name in enumerate(states):
@@ -1043,30 +1182,34 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# 3 states: 0=Sunny, 1=Cloudy, 2=Rainy
-# 2nd-order transition: P(yesterday, today -> tomorrow)
+# Three weather states: 0=Sunny, 1=Cloudy, 2=Rainy.
+# Second-order transition matrix: rows = (yesterday, today) pair, cols = tomorrow.
+# The matrix is transposed so rows index the current pair.
 P2 = np.array([
-    # (0,0) (0,1) (0,2) (1,0) (1,1) (1,2) (2,0) (2,1) (2,2)
-    [0.8, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 0
-    [0.2, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 1
-    [0.0, 0.4, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> 2
+    [0.8, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Sunny
+    [0.2, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Cloudy
+    [0.0, 0.4, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # -> Rainy
     [0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-]).T  # transpose so rows = current pair, cols = next weather
+]).T
 
-# start: yesterday=0, today=1 -> state index 1
+# Start: yesterday=0 (Sunny), today=1 (Cloudy) -> pair index 1.
 state = 1
 history = [1]
+
+# Generate a 100-day sample path using the second-order transition rule.
 for _ in range(100):
     tomorrow = np.random.choice(3, p=P2[state])
     yesterday = state // 3
-    state = yesterday * 3 + tomorrow  # new pair (today, tomorrow)
+    # New pair becomes (today, tomorrow).
+    state = yesterday * 3 + tomorrow
     history.append(tomorrow)
 
+# --- Visualizations ---
 fig, axes = plt.subplots(1, 2, figsize=(13, 4))
 states = ['Sunny', 'Cloudy', 'Rainy']
 axes[0].plot(history, marker='o', markersize=3)
