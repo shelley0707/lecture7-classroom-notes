@@ -890,7 +890,9 @@ print("R0 = {:.2f}".format(beta / gamma))</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">7b. SIR 相平面与疫情阈值</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>画出 I-S 相平面，并标出阈值线 S = N/R₀。感染人数恰好在这条线处达到峰值。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>SIR 用时间序列告诉我们 S、I、R 怎么变，但相平面把“易感者 S”和“感染者 I”画在一起，让我们直接看到疫情演化的几何规律。</p>
+          <p class="text-slate-700 mb-4"><strong>系数含义：</strong>β 是“一个感染者每天能传染多少易感者”（单位 1/天）；γ 是“感染者每天康复的比例”（1/天）。R₀ = β/γ 表示一个患者在完全易感人群中平均能传染多少人。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>令 dI/dt = 0，得到疫情转折条件 S = N/R₀。当 S 大于这个阈值时 I 上升，小于时下降，所以 I 的峰值恰好出现在 S = N/R₀ 处。</p>
           <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
             <strong> takeaway：</strong>相平面把“疫情何时见顶”转化为一个几何条件。
           </div>
@@ -934,7 +936,9 @@ plt.show()</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">7c. 免疫消退：一次性暴发还是反复波动？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>比较“终身免疫”和“免疫消退”两种假设。后者把一次性暴发变成持续性地方病。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>基础 SIR 假设康复者永久免疫，因此疫情最终消失。现实中很多疾病（如流感、新冠）康复后免疫会消退，易感者会重新补充，疫情可能反复。</p>
+          <p class="text-slate-700 mb-4"><strong>系数含义：</strong>ω 是“康复者每天失去免疫、变回易感者的比例”（1/天）。ω 越大，免疫消退越快。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>在 R 方程中减去 ω·R，在 S 方程中加上 ω·R。长期看，系统会趋向一个稳定的地方病平衡：S* ≈ N/R₀，感染人数维持在一个非零水平。</p>
           <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
             <strong> takeaway：</strong>ω = 0 时疫情燃烧一次后消失；ω > 0 时系统回到 S* = N/R₀ 的稳态。
           </div>
@@ -978,7 +982,9 @@ plt.show()</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">7d. 新变种入侵与 R₀ 规则</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>一个传播力更强的新变种入侵正在流行的疫情，两毒株竞争同一群易感者。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>当一种新变种出现时，它和原有毒株竞争同一群易感者。谁的传播力更强，谁就能在竞争中占据优势。</p>
+          <p class="text-slate-700 mb-4"><strong>系数含义：</strong>b₁、b₂ 分别是原有毒株和新变种的传播率。每个毒株的 R₀ 分别为 b₁/γ 和 b₂/γ。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>两种毒株都从 S 中“吸取”易感者。新毒株若 R₀ 更高，则其维持传播所需的易感者阈值 N/R₀ 更低，因此即使原有毒株还在流行，新毒株也能扩散并最终取代它。</p>
           <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
             <strong> takeaway：</strong>R₀ 更高的毒株拥有更低的易感阈值，最终取代原有毒株。
           </div>
@@ -1037,7 +1043,8 @@ print("Threshold N/R0: resident = {:.0f}, variant = {:.0f}".format(N/1.5, N/3.0)
     </section>
 <section id="m7e" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">7e. 从 SIR 出发：10 个可探究的现实假设</h2>
-      <p class="text-slate-700 mb-6">SIR 是最简单的传染病骨架。真实疫情中，干预措施、人口结构、病毒变异等都可以被“翻译”成方程里的新增项。下面是 10 个常见且可实现的扩展方向。</p>
+      <p class="text-slate-700 mb-4">SIR 是最简单的传染病骨架。真实疫情中，干预措施、人口结构、病毒变异等都可以被“翻译”成方程里的新增项。下面是 10 个常见且可实现的扩展方向。</p>
+          <p class="text-slate-700 mb-4"><strong>验证假设的一般方法：</strong>先明确“现实问题”→把它写成方程改动→设定参数的取值范围→运行模型→比较关键指标（峰值、最终规模、R₀、阈值）的变化。</p>
 
       <div class="grid md:grid-cols-2 gap-4 text-sm">
         <div class="p-4 border rounded-lg bg-slate-50">
@@ -1157,7 +1164,9 @@ print("Peak infectious = {:.0f}".format(sol.y[1].max()))</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">8a. 敏感性分析：参数扫描表</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>问题：</strong>参数的小小变化可能显著改变疫情规模、峰值时间和最终感染人数。敏感性分析帮我们识别最关键的参数。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>参数往往来自估计或文献，真实值可能偏离。敏感性分析回答：如果 β 或 γ 不准，模型预测会有多大偏差？哪种参数对结果影响最大？</p>
+          <p class="text-slate-700 mb-4"><strong>系数含义：</strong>β 受接触频率、防护措施、病毒传染性影响；γ 受医疗水平、病程长短影响。公共卫生干预本质上是在降低 β 或提高 γ。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>一次只变一个参数（控制变量），保持其他参数不变，比较 peak_I、peak_day、final_R 和 R₀ 的变化幅度。</p>
           <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
             <div class="font-semibold text-purple-900 mb-2">分析思路</div>
             <p>固定其他参数，把 β 和 γ 分别变化 ±20%，观察 peak_I、peak_day、final_R、R₀。</p>
@@ -1220,7 +1229,8 @@ for param_name, base_val in [("beta", base_beta), ("gamma", base_gamma)]:
       <h2 class="text-2xl font-bold text-slate-900 mb-6">8b. 敏感性可视化：不同 R₀ 的 I(t) 曲线</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>固定 γ，改变 β 得到不同的 R₀，把多条 I(t) 曲线叠在一起，直观展示阈值效应。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>参数扫描表给出具体数字，但叠加曲线能让我们一眼看到 R₀ 如何决定疫情形态。</p>
+          <p class="text-slate-700 mb-4"><strong>解读：</strong>R₀ < 1 时感染单调下降；R₀ 略大于 1 时出现小峰；R₀ 很大时峰高且早。通过比较不同 R₀ 的曲线，可以直观感受干预措施（降低 β）的效果。</p>
           <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
             <strong> takeaway：</strong>R₀ 从 0.8 升到 4.0，曲线从“直接熄灭”变成“巨大峰值”。
           </div>
@@ -1272,7 +1282,9 @@ plt.show()</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">8c. 群体免疫阈值对比</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>计算群体免疫阈值 1 − 1/R₀，并对比“无免疫”和“70% 预先免疫”两种情景的峰值。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>疫苗或自然感染让一部分人免疫，从而间接保护未免疫者。当免疫比例达到阈值时，病毒传播会被有效阻断。</p>
+          <p class="text-slate-700 mb-4"><strong>系数含义：</strong>群体免疫阈值 p_c = 1 − 1/R₀。R₀ 越高，需要接种疫苗的比例就越高。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>把一部分初始人口直接放入 R，模拟已免疫人群，再与无免疫情景对比峰值和最终感染规模。</p>
           <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
             <strong> takeaway：</strong>当免疫比例超过阈值时，疫情规模会被显著压低。
           </div>
@@ -1333,7 +1345,8 @@ print("70% immune: peak = {:.0f}".format(sol_vacc.y[1].max()))</code></pre>
       <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 数据缺失时：用模型生成合成数据</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
-<p class="text-slate-700 mb-4">真实数据可能不可得、太复杂或敏感。用已知规律生成合成数据，可以测试模型稳健性、探索极端情景。</p>
+<p class="text-slate-700 mb-4"><strong>背景：</strong>真实数据可能缺失、有噪声或包含隐私问题。在模型开发阶段，用合成数据可以快速测试算法、探索极端场景、验证模型稳健性。</p>
+          <p class="text-slate-700 mb-4"><strong>思路：</strong>先确定数据应服从的规律（如趋势 + 周期 + 噪声），再用随机数生成。合成数据的关键是“可控”——你知道真实参数，因此可以检验估计是否准确。</p>
           <div class="p-4 bg-slate-100 rounded-lg text-sm text-slate-700 mb-4">
             <div class="font-semibold text-slate-900 mb-2">常用方法</div>
             <ul class="list-disc pl-5 space-y-1">
