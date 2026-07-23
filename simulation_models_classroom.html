@@ -132,9 +132,11 @@ marbles = (
 )
 np.random.shuffle(marbles)
 
+# Function: draw_and_report - draw n marbles and report sample color proportions
 def draw_and_report(n):
     drawn = np.random.choice(marbles, size=n, replace=False)
     counts = Counter(drawn)
+    # Loop: iterate over [('red',10),('yellow',30),('blue',60)]
     for color, true_p in [('red', 10), ('yellow', 30), ('blue', 60)]:
         pct = counts.get(color, 0) / n * 100
         print(f"{color:6}: {counts.get(color, 0):4d} ({pct:5.2f}%)  true={true_p}%")
@@ -177,6 +179,7 @@ marbles = (
 np.random.shuffle(marbles)
 
 red_err, blue_err = [], []
+# Loop: iterate over SAMPLE_SIZES
 for n in SAMPLE_SIZES:
     drawn = np.random.choice(marbles, size=n, replace=False)
     red_err.append(abs((drawn == 'red').mean() - RED_PCT))
@@ -228,6 +231,7 @@ np.random.shuffle(marbles)
 
 # 模拟：每次抽 N_TRIALS 颗，记录蓝球数
 blue_counts = []
+# Loop: iterate range(N_SIMULATIONS) times
 for _ in range(N_SIMULATIONS):
     drawn = np.random.choice(marbles, size=N_TRIALS, replace=True)
     blue_counts.append(np.sum(drawn == 'blue'))
@@ -335,6 +339,7 @@ TASKS_DATA = [
     {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
 ]
 
+# Function: sample_duration - draw a random duration for a task from its chosen distribution
 def sample_duration(d):
     t = d["type"]
     if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
@@ -408,6 +413,7 @@ TASKS_DATA = [
     {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
 ]
 
+# Function: sample_duration - draw a random duration for a task from its chosen distribution
 def sample_duration(d):
     t = d["type"]
     if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
@@ -505,6 +511,7 @@ TASKS_DATA = [
     {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
 ]
 
+# Function: sample_duration - draw a random duration for a task from its chosen distribution
 def sample_duration(d):
     t = d["type"]
     if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
@@ -620,7 +627,9 @@ np.random.seed(6)
 cars = [{'x': i * CAR_SPACING, 'v': CAR_SPEED} for i in range(INITIAL_CARS)]
 n_on_road = []
 
+# Loop: iterate range(N_STEPS) times
 for t in range(N_STEPS):
+    # Loop: iterate over cars
     for c in cars:
         c['x'] += c['v'] * TIME_STEP
     cars = [c for c in cars if c['x'] < ROAD_LENGTH]
@@ -675,10 +684,12 @@ travel_times = []
 max_queue = 0
 n_on_road = []
 
+# Loop: iterate range(N_STEPS) times
 for t in range(N_STEPS):
     # 1) 按 Poisson 到达新车
     arrivals = np.random.poisson(ARRIVAL_RATE)
     blocked = 0
+    # Loop: iterate range(arrivals) times
     for _ in range(arrivals):
         if not cars or cars[-1]['x'] >= SAFE_DISTANCE:
             cars.append({'x': 0, 'entry_t': t})
@@ -746,12 +757,15 @@ N_STEPS = 300
 ARRIVAL_RATES = np.linspace(0.1, 0.8, 15)  # arrival rates to scan
 RANDOM_SEED = 8
 
+# Function: run_traffic - run the traffic simulation for a fixed number of time steps
 def run_traffic(lam, seed=RANDOM_SEED):
     np.random.seed(seed)
     cars, travel_times, max_queue = [], [], 0
+    # Loop: iterate range(N_STEPS) times
     for t in range(N_STEPS):
         arrivals = np.random.poisson(lam)
         blocked = 0
+        # Loop: iterate range(arrivals) times
         for _ in range(arrivals):
             if not cars or cars[-1]['x'] >= SAFE_DISTANCE:
                 cars.append({'x': 0, 'entry_t': t})
@@ -841,6 +855,7 @@ RECEIVE_PROB = 0.9       # probability listener accepts gossip
 np.random.seed(9); random.seed(9)
 
 class Agent:
+    # Function: __init__ - initialize the agent with home location, current location, and known gossip
     def __init__(self, aid):
         self.id = aid
         self.home = tuple(np.random.randint(0, GRID_SIZE, 2))
@@ -910,6 +925,7 @@ SPREAD_PROB = 0.8
 RECEIVE_PROB = 0.9
 MEET_PROBS = [0.3, 0.5, 0.7, 0.9]  # meeting probabilities to compare
 
+# Function: run_gossip - run one gossip-spread simulation and return the time series
 def run_gossip(meet_prob, seed=10):
     np.random.seed(seed); random.seed(seed)
     agents = [{'home': tuple(np.random.randint(0, GRID_SIZE, 2)),
@@ -918,7 +934,9 @@ def run_gossip(meet_prob, seed=10):
     places = [tuple(np.random.randint(0, GRID_SIZE, 2)) for _ in range(NUM_PUBLIC_PLACES)]
     agents[0]['gossip'].add(1)
     hist = []
+    # Loop: iterate range(N_STEPS) times
     for t in range(N_STEPS):
+        # Loop: iterate over agents
         for a in agents:
             a['loc'] = a['home'] if random.random() < a['stay_home'] else random.choice(places)
         locs = {}
@@ -992,6 +1010,7 @@ np.random.seed(11)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 CMAP = ListedColormap(['white', 'green', 'red', 'black'])
 
+# Function: init_forest - initialize the forest grid with trees and a central ignition point
 def init_forest(size, density):
     f = np.zeros((size, size), dtype=int)
     f[np.random.rand(size, size) < density] = TREE
@@ -1048,6 +1067,7 @@ DENSITIES = np.arange(0.1, 0.9, 0.03)  # initial tree densities to scan
 np.random.seed(12)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 
+# Function: init_f - initialize the forest with random spontaneous ignition
 def init_f(size, d, p_ignite):
     f = (np.random.rand(size, size) < d).astype(int)
     ignite = np.random.rand(size, size) < p_ignite * 10
@@ -1115,12 +1135,15 @@ np.random.seed(13)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 CMAP = ListedColormap(['white', 'green', 'red', 'black'])
 
+# Function: step_full - one dynamic step including regrowth, ignition, and fire spread
 def step_full(f, p_grow, p_spread, p_ignite):
     new = f.copy()
     burn = (f == BURNING)
     new[burn] = ASH
     risk = np.zeros_like(f, dtype=float)
+    # Loop: iterate over (-1,0,1)
     for dr in (-1, 0, 1):
+        # Loop: iterate over (-1,0,1)
         for dc in (-1, 0, 1):
             if dr == 0 and dc == 0: continue
             risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
@@ -1201,6 +1224,7 @@ MAX_ITERATIONS = 50      # upper limit on relocation rounds
 np.random.seed(14); random.seed(14)
 EMPTY = 0
 
+# Function: init_grid - initialize the grid with empty cells and agent types
 def init_grid(size, empty_ratio, ratios):
     total = size * size
     n_empty = int(total * empty_ratio)
@@ -1209,6 +1233,7 @@ def init_grid(size, empty_ratio, ratios):
     if diff > 0: n_empty += diff
     elif diff < 0: counts[-1] += diff
     cells = [EMPTY]*n_empty
+    # Loop: iterate over enumerate(counts,start=1)
     for t, n in enumerate(counts, start=1):
         cells += [t]*n
     random.shuffle(cells)
@@ -1304,6 +1329,7 @@ def init_grid(size, empty_ratio, ratios):
     if diff > 0: n_empty += diff
     elif diff < 0: counts[-1] += diff
     cells = [0]*n_empty
+    # Loop: iterate over enumerate(counts,start=1)
     for t, n in enumerate(counts, start=1):
         cells += [t]*n
     random.shuffle(cells)
@@ -1398,6 +1424,7 @@ def init_grid(size, empty_ratio, ratios):
     if diff > 0: n_empty += diff
     elif diff < 0: counts[-1] += diff
     cells = [0]*n_empty
+    # Loop: iterate over enumerate(counts,start=1)
     for t, n in enumerate(counts, start=1):
         cells += [t]*n
     random.shuffle(cells)
@@ -1531,6 +1558,7 @@ np.random.seed(17); random.seed(17)
 costs = [random.randint(50, 150) for _ in range(NUM_DEPOTS)]
 benefits = [random.randint(30, 80) for _ in range(NUM_DEPOTS)]
 
+# Function: objective - evaluate total benefit while respecting the budget constraint
 def objective(state):
     c = sum(costs[i] for i, s in enumerate(state) if s)
     b = sum(benefits[i] for i, s in enumerate(state) if s)
@@ -1620,6 +1648,7 @@ random.seed(17); np.random.seed(17)
 costs = [random.randint(50, 150) for _ in range(NUM_DEPOTS)]
 benefits = [random.randint(30, 80) for _ in range(NUM_DEPOTS)]
 
+# Function: objective - evaluate total benefit while respecting the budget constraint
 def objective(state):
     c = sum(costs[i] for i, s in enumerate(state) if s)
     b = sum(benefits[i] for i, s in enumerate(state) if s)
