@@ -876,6 +876,365 @@ print("Alien survives if rabbits &gt;= g/h = {:.1f}".format(g/h))</code></pre>
         </div>
       </div>
 
+      <h3 class="text-xl font-bold text-slate-900 mt-10 mb-4">逐一代码演示</h3>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>1. 季节性繁殖：</strong>把兔子内禀增长率 a 改成随时间正弦变化的 a(t)，观察周期性繁殖如何驱动种群振荡。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_seasonal(t, y, a0, a1, b, c, d, T):
+    R, F = y
+    a_t = a0 + a1 * np.sin(2 * np.pi * t / T)
+    dR = a_t * R - b * R * F
+    dF = -c * F + d * R * F
+    return [dR, dF]
+
+a0, a1, b, c, d = 1.0, 0.4, 0.1, 1.5, 0.075
+T = 5
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_seasonal, (0, 30), y0,
+                args=(a0, a1, b, c, d, T), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Seasonal rabbit breeding rate")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>2. 人为捕猎狐狸：</strong>在狐狸方程中加入 -h·F 项模拟人为捕猎，观察捕猎强度如何改变共存平衡。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_harvest(t, y, a, b, c, d, h):
+    R, F = y
+    dR = a * R - b * R * F
+    dF = -c * F + d * R * F - h * F
+    return [dR, dF]
+
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+h = 0.25
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_harvest, (0, 30), y0,
+                args=(a, b, c, d, h), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title(f"Fox harvesting with h={h}")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>3. 兔子避难所：</strong>只有超过避难所阈值的兔子才会被捕食，其余兔子受到完全保护。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_refuge(t, y, a, b, c, d, R_ref):
+    R, F = y
+    exposed = max(R - R_ref, 0)
+    dR = a * R - b * exposed * F
+    dF = -c * F + d * exposed * F
+    return [dR, dF]
+
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+R_ref = 15
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_refuge, (0, 30), y0,
+                args=(a, b, c, d, R_ref), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.axhline(R_ref, color="gray", linestyle="--", label=f"Refuge threshold")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Rabbit refuge: only exposed rabbits are hunted")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>4. Holling Type II 功能反应：</strong>狐狸处理猎物需要时间，捕食率随兔子密度饱和，不再无限增长。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_holling2(t, y, a, b, c, d, e):
+    R, F = y
+    pred = b * R * F / (1 + e * R)
+    dR = a * R - pred
+    dF = -c * F + d * pred
+    return [dR, dF]
+
+a, b, c, d, e = 1.0, 0.15, 1.5, 0.5, 0.1
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_holling2, (0, 30), y0,
+                args=(a, b, c, d, e), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Holling Type II functional response")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>5. Allee 效应：</strong>当兔子密度低于临界值 A 时，繁殖率变为负值，种群更难恢复。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_allee(t, y, a, b, c, d, A):
+    R, F = y
+    # Growth is negative when R &lt; A.
+    dR = a * R * (R / A - 1) - b * R * F
+    dF = -c * F + d * R * F
+    return [dR, dF]
+
+a, b, c, d = 0.3, 0.1, 1.5, 0.075
+A = 8
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_allee, (0, 30), y0,
+                args=(a, b, c, d, A), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.axhline(A, color="gray", linestyle="--", label="Allee threshold A")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Allee effect in rabbit population")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>6. 时滞响应：</strong>狐狸繁殖依赖过去一段时间的兔子数量，用 Euler 近似实现简单时滞。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Simple Euler approximation of delayed fox reproduction.
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+tau = 1.0
+dt = 0.01
+t_max = 30
+n_delay = int(tau / dt)
+n_steps = int(t_max / dt)
+
+R = [40.0]
+F = [9.0]
+R_buffer = [40.0] * n_delay  # stores past R values, length = tau/dt
+
+for _ in range(n_steps):
+    R_now = R[-1]
+    F_now = F[-1]
+    R_past = R_buffer[0]
+    dR = a * R_now - b * R_now * F_now
+    dF = -c * F_now + d * R_past * F_now
+    R.append(R_now + dR * dt)
+    F.append(F_now + dF * dt)
+    R_buffer.append(R_now + dR * dt)
+    R_buffer.pop(0)
+
+t = np.linspace(0, t_max, n_steps + 1)
+plt.figure(figsize=(10, 4))
+plt.plot(t, R, label="Rabbits")
+plt.plot(t, F, label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Delayed fox reproduction (tau=1.0)")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>7. 兔子传染病：</strong>把兔子分成易感、感染、康复三类，再加入狐狸捕食，观察疾病与捕食的共同作用。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def sir_rabbit_fox(t, y, a, b, c, d, beta_r, gamma_r):
+    S, I, R_immune, F = y
+    N_r = S + I + R_immune
+    dS = a * S - b * S * F - beta_r * S * I / max(N_r, 1)
+    dI = beta_r * S * I / max(N_r, 1) - gamma_r * I - b * I * F
+    dRimm = gamma_r * I - b * R_immune * F
+    dF = -c * F + d * (S + I + R_immune) * F
+    return [dS, dI, dRimm, dF]
+
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+beta_r, gamma_r = 0.5, 0.1
+y0 = [30, 10, 0, 9]
+t_eval = np.linspace(0, 30, 2000)
+sol = solve_ivp(sir_rabbit_fox, (0, 30), y0,
+                args=(a, b, c, d, beta_r, gamma_r), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Susceptible rabbits")
+plt.plot(sol.t, sol.y[1], label="Infected rabbits")
+plt.plot(sol.t, sol.y[3], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Disease spreading among rabbits + fox predation")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>8. 替代猎物：</strong>给狐狸提供一个恒定食物补贴 s，即使兔子稀少狐狸也不会崩溃。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_alternative_prey(t, y, a, b, c, d, s):
+    R, F = y
+    dR = a * R - b * R * F
+    dF = -c * F + d * R * F + s
+    return [dR, dF]
+
+a, b, c, d = 1.0, 0.1, 1.5, 0.075
+s = 0.5
+y0, t_eval = [40, 9], np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_alternative_prey, (0, 30), y0,
+                args=(a, b, c, d, s), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits")
+plt.plot(sol.t, sol.y[1], label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title(f"Alternative prey subsidy s={s}")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>9. 环境随机扰动：</strong>用 Euler-Maruyama 方法给兔子增长率添加白噪声，模拟干旱、寒冬等随机事件。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Euler-Maruyama for stochastic rabbit growth rate.
+a, b, c, d, sigma = 1.0, 0.1, 1.5, 0.075, 0.15
+dt = 0.01
+t_max = 30
+R, F = [40.0], [9.0]
+
+for _ in np.arange(0, t_max, dt):
+    R_now, F_now = R[-1], F[-1]
+    noise = sigma * np.sqrt(dt) * np.random.randn()
+    dR = a * R_now * dt - b * R_now * F_now * dt + R_now * noise
+    dF = (-c * F_now + d * R_now * F_now) * dt
+    R.append(R_now + dR)
+    F.append(F_now + dF)
+
+t = np.arange(0, t_max + dt, dt)
+plt.figure(figsize=(10, 4))
+plt.plot(t, R, label="Rabbits")
+plt.plot(t, F, label="Foxes")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Environmental stochasticity in rabbit growth")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+      <div class="mt-6 grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>10. 空间斑块模型：</strong>把栖息地分成两个斑块，兔子和狐狸按浓度差 m 迁移，观察空间同步与不同步。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+def lv_patches(t, y, a, b, c, d, m):
+    R1, F1, R2, F2 = y
+    dR1 = a * R1 - b * R1 * F1 + m * (R2 - R1)
+    dF1 = -c * F1 + d * R1 * F1 + m * (F2 - F1)
+    dR2 = a * R2 - b * R2 * F2 + m * (R1 - R2)
+    dF2 = -c * F2 + d * R2 * F2 + m * (F1 - F2)
+    return [dR1, dF1, dR2, dF2]
+
+a, b, c, d, m = 1.0, 0.1, 1.5, 0.075, 0.05
+y0 = [50, 12, 20, 4]
+t_eval = np.linspace(0, 30, 2000)
+sol = solve_ivp(lv_patches, (0, 30), y0,
+                args=(a, b, c, d, m), t_eval=t_eval)
+
+plt.figure(figsize=(10, 4))
+plt.plot(sol.t, sol.y[0], label="Rabbits patch 1")
+plt.plot(sol.t, sol.y[1], label="Foxes patch 1")
+plt.plot(sol.t, sol.y[2], "--", label="Rabbits patch 2")
+plt.plot(sol.t, sol.y[3], "--", label="Foxes patch 2")
+plt.xlabel("Time")
+plt.ylabel("Population")
+plt.title("Two-patch LV model with migration")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+        </div>
+      </div>
+
       <div class="mt-8 grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
           <p class="text-slate-700 mb-4"><strong>示例：把“季节性繁殖 + 狐狸捕猎”同时加入模型。</strong>这段代码展示如何在一个函数里组合多个假设，并和经典模型对比。</p>
