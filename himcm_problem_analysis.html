@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HiMCM 2020–2025 赛题综合分析 | Problem Landscape & O-paper Models</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .serif { font-family: 'Noto Serif SC', serif; }
+    .prob-card { border-left: 5px solid #3b82f6; }
+    .prob-card.b { border-left-color: #10b981; }
+    .tag { @apply inline-block px-2 py-0.5 rounded text-xs font-semibold mr-1 mb-1; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-4 serif">HiMCM 2020–2025 赛题综合分析</h1>
+      <p class="text-lg text-slate-600">基于官方赛题文本与 42 篇 O 奖论文分析明细的选题、建模与方法全景图</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-10">
+      <div class="flex flex-wrap gap-2 justify-center text-sm">
+        <a href="#overview" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">总览</a>
+        <a href="#trends" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">趋势洞察</a>
+        <a href="#problems" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">逐年详解</a>
+        <a href="#model-stats" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">模型统计</a>
+        <a href="#prep" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">备考建议</a>
+      </div>
+    </nav>
+
+    <section id="overview" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">一、总览：12 道赛题一览</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left border rounded-lg">
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="px-3 py-2 border-b">年份</th>
+              <th class="px-3 py-2 border-b">题号</th>
+              <th class="px-3 py-2 border-b">主题</th>
+              <th class="px-3 py-2 border-b">话题分类</th>
+              <th class="px-3 py-2 border-b">是否给数据</th>
+              <th class="px-3 py-2 border-b">高频模型</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2020</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2020-A" class="text-blue-600 hover:underline">The Best Summer Job</a></td>
+              <td class="px-3 py-2 border-b">多准则决策 / 个人决策支持</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">AHP、TOPSIS、熵权法</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2020</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2020-B" class="text-blue-600 hover:underline">Funding Biodiversity Conservation</a></td>
+              <td class="px-3 py-2 border-b">资源分配 / 优化 / 生态保护</td>
+              <td class="px-3 py-2 border-b"><span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">提供数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">整数规划 / 线性规划、动态规划、网络流</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2021</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2021-A" class="text-blue-600 hover:underline">Storing the Sun</a></td>
+              <td class="px-3 py-2 border-b">多准则决策 / 能源系统 / 储能技术评估</td>
+              <td class="px-3 py-2 border-b"><span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">提供数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">多准则决策（AHP/TOPSIS/熵权法）、成本效益分析、生命周期成本（LCC）</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2021</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2021-B" class="text-blue-600 hover:underline">Tackling the Drought</a></td>
+              <td class="px-3 py-2 border-b">预测 / 水资源管理 / 环境建模</td>
+              <td class="px-3 py-2 border-b"><span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">提供数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">时间序列（ARIMA）、回归分析（线性/多元回归）、指数平滑</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2022</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2022-A" class="text-blue-600 hover:underline">The Need for Bees (and not just for honey)</a></td>
+              <td class="px-3 py-2 border-b">种群动态 / 生态系统服务 / 模拟</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">差分方程 / 离散时间种群模型、系统动力学、Agent-Based Modeling</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2022</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2022-B" class="text-blue-600 hover:underline">CO2 and Global Warming</a></td>
+              <td class="px-3 py-2 border-b">预测 / 气候变化 / 回归分析</td>
+              <td class="px-3 py-2 border-b"><span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">提供数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">回归分析（线性/多元/非线性）、时间序列（ARIMA）、指数增长模型</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2023</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2023-A" class="text-blue-600 hover:underline">Dandelions: Friend? Foe? Both? Neither?</a></td>
+              <td class="px-3 py-2 border-b">种群扩散 / Agent-Based Modeling / 生态入侵</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">Agent-Based Modeling（ABM）、蒙特卡洛模拟、Lévy Flight / 随机游走</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2023</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2023-B" class="text-blue-600 hover:underline">Charging Ahead with E-buses</a></td>
+              <td class="px-3 py-2 border-b">交通系统优化 / 资源配置 / 决策评估</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">整数规划 / 混合整数线性规划、网络流、仿真模拟</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2024</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2024-A" class="text-blue-600 hover:underline">To Play or not to Play: Modeling Future Olympic Games</a></td>
+              <td class="px-3 py-2 border-b">多准则决策 / 预测 / 体育经济</td>
+              <td class="px-3 py-2 border-b"><span class="text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs">提供数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">多准则决策（AHP/TOPSIS/熵权法）、回归分析、预测模型</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2024</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2024-B" class="text-blue-600 hover:underline">Examining the Environmental Impact of High-Powered Computing</a></td>
+              <td class="px-3 py-2 border-b">环境影响评估 / 预测 / 机器学习</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">回归分析、时间序列预测、机器学习（监督学习）</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2025</td>
+              <td class="px-3 py-2 border-b">A</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2025-A" class="text-blue-600 hover:underline">Emergency Evacuation Sweeps</a></td>
+              <td class="px-3 py-2 border-b">网络优化 / 图论 / 应急管理</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">图论（最短路径、最大流）、网络流优化</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2 border-b font-semibold">2025</td>
+              <td class="px-3 py-2 border-b">B</td>
+              <td class="px-3 py-2 border-b"><a href="#prob-2025-B" class="text-blue-600 hover:underline">Environmental Impact of Sport Mega-Events</a></td>
+              <td class="px-3 py-2 border-b">环境影响评估 / 多准则决策 / 体育经济</td>
+              <td class="px-3 py-2 border-b"><span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs">无数据</span></td>
+              <td class="px-3 py-2 border-b text-slate-600">生命周期评估（LCA）、碳足迹核算、回归分析</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="trends" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">二、趋势洞察：六年赛题的共性与发展</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <h3 class="font-bold text-blue-900 mb-2">话题分布</h3>
+          <p class="text-slate-700 text-sm">2020–2025 的赛题高度聚焦环境、能源与生态：水资源、蜜蜂、蒲公英、电动公交、高性能计算碳排放、体育赛事环境影响、生物多样性保护等。决策支持类（暑期工作、太阳能储能、奥运会申办）与现实政策绑定紧密。</p>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <h3 class="font-bold text-green-900 mb-2">数据供给</h3>
+          <p class="text-slate-700 text-sm">约 50% 的赛题提供官方数据（2020B、2021A/B、2022B、2024A），其余需要队伍自行收集或合理假设。无数据题更考验文献调研与参数设定能力，但也更容易出现创新性建模。</p>
+        </div>
+        <div class="p-4 bg-amber-50 rounded-lg">
+          <h3 class="font-bold text-amber-900 mb-2">模型共性</h3>
+          <p class="text-slate-700 text-sm">多准则决策（AHP/TOPSIS/熵权法）出现频率最高；优化模型（整数规划、线性规划）在资源配置类题目中占主导；预测类题目偏爱回归与时间序列；生态/扩散类题目多用仿真模拟与 Agent-Based Modeling。</p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <h3 class="font-bold text-purple-900 mb-2">创新方向</h3>
+          <p class="text-slate-700 text-sm">近年高分论文倾向于：把不确定性显性化（蒙特卡洛）、把空间维度纳入模型（GIS）、把社会/公平因素纳入决策、以及把模型包装成可直接使用的工具/政策建议。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="problems" class="mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6 serif">三、逐年详解与获奖论文方法总结</h2>
+      <div class="space-y-6">
+        <div id="prob-2020-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2020 Problem A</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">The Best Summer Job</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">多准则决策 / 个人决策支持</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">高中生需要在多种暑期工作机会中做出选择，工作类型包括远程、步行可达、需通勤等；工作时长、时薪、体力/脑力要求各不相同。 开发一个模型或算法，帮助学生根据个人情况和偏好评估并选择“最佳”暑期工作；用至少10个虚构人物测试；并设计一种易懂的使用方式（网页、App或报纸文章）。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">因素高度定性（通勤、体力、社交时间），需要把个人偏好量化；没有给定数据，所有参数需自行合理设定；需在“赚钱”与“生活质量”之间权衡。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">AHP、TOPSIS、熵权法、加权评分模型、决策树、蒙特卡洛模拟、GIS（通勤距离可视化）</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">自行设定的虚构人物数据；可引用美国劳工统计局（BLS）时薪、通勤时间调查、公共交通时刻表等公开数据。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入学生个性化偏好问卷；把通勤碳排放、健康收益纳入评价体系；设计交互式决策工具原型；用敏感性分析展示不同性格学生的最优选择差异。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">O奖论文普遍采用多准则决策框架（AHP/TOPSIS/熵权法）确定权重，再用加权评分或决策树给出排序；部分团队用蒙特卡洛处理参数不确定性，用GIS可视化通勤；强调面向高中生使用的直观呈现。</p>
+          </div>
+        </div>
+        <div id="prob-2020-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2020 Problem B</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">提供数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Funding Biodiversity Conservation</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">资源分配 / 优化 / 生态保护</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">佛罗里达大量植物物种濒危，保护资金有限。FRPCE信托基金需要为48个物种的保护项目筹集并分配长期资金。 建立模型确定最低筹款目标与筹资时间表；在满足各物种长期保护成本的前提下，给出项目优先资助顺序；并向董事会撰写一页非技术备忘录。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">项目时间跨度长达25年，成本分布不均；需同时考虑保护收益、分类学独特性、成功概率等多目标；资金约束动态变化。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">整数规划 / 线性规划、动态规划、网络流、AHP/TOPSIS、蒙特卡洛模拟、优化模型</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">题目附赠 Excel（48物种的年度成本、Benefit、Taxonomic Uniqueness、Feasibility of Success）；可补充佛罗里达自然保护区、IUCN红色名录数据。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">构建多年期资金池模型；引入物种灭绝风险动态更新；把保护成功概率作为随机变量；比较不同风险偏好下的资金配置策略。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">获奖论文多用优化模型（整数规划/线性规划）做资金分配，AHP/TOPSIS处理多目标权重，蒙特卡洛模拟不确定性；常见做法是把25年成本折现后求解最小筹资额，再用敏感性分析测试关键参数。</p>
+          </div>
+        </div>
+        <div id="prob-2021-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2021 Problem A</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">提供数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Storing the Sun</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">多准则决策 / 能源系统 / 储能技术评估</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">一座偏远地区1600平方英尺住宅计划离网运行，需要选择合适的光伏储能电池系统；电池在功率、容量、效率、寿命、成本等指标上差异显著。 为给定住宅选择最佳电池；将模型推广到任意家庭；讨论新型“水泥电池”的潜在应用；并撰写新闻文章。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">电池参数多且单位复杂（kW、kWh、循环次数、效率）；家庭用电需求具有随机性；需要在成本与可靠性之间权衡；水泥电池属于概念性技术，信息有限。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">多准则决策（AHP/TOPSIS/熵权法）、成本效益分析、生命周期成本（LCC）、线性规划/整数规划、蒙特卡洛模拟</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">题目附赠电池规格表（Deka、Trojan、Discover、Electriq、Tesla等）；可引用NREL太阳能数据、家庭用电负荷曲线、电池产品手册。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">把天气不确定性纳入蒙特卡洛模拟；建立电池退化模型；设计“家庭储能配置器”网页原型；比较锂电与水泥电池的未来场景。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">O奖论文多采用AHP/熵权法/TOPSIS确定指标权重，再用生命周期成本或线性规划选型；部分团队用蒙特卡洛模拟用电波动；推广到任意家庭时常用参数化模型或分类规则。</p>
+          </div>
+        </div>
+        <div id="prob-2021-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2021 Problem B</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">提供数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Tackling the Drought</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">预测 / 水资源管理 / 环境建模</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">美国最大水库Lake Mead因气候变化和用水需求下降至历史最低水位；需研究干旱对水库的影响，并评估废水回收作为补充水源的可行性。 建立两个水水位预测模型（基于最近干旱期 vs 2005-2020数据），预测2025/2030/2050水位；设计废水回收方案并评估其弥补缺口的能力；撰写新闻文章。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">水位受入流、出流、蒸发等多因素影响；需定义干旱期；模型外推至2050存在较大不确定性；废水回收涉及社会接受度和成本。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">时间序列（ARIMA）、回归分析（线性/多元回归）、指数平滑、机器学习（决策树/随机森林）、微分方程（水库水量平衡）、优化模型</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">题目附赠Lake Mead月度/年度高程Excel；Bureau of Reclamation公开数据；EPA水回用指南；气候模型输出。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">融合气候情景（RCP/SSP）进行长期预测；把社会接受度作为约束引入优化；用Map可视化水资源分配；比较“节水”“调水”“回收”组合方案。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">获奖论文多用时间序列（ARIMA）和回归模型做水位预测，部分用决策树或机器学习；对废水回收方案常用优化模型或情景分析；重视历史数据验证和模型对比。</p>
+          </div>
+        </div>
+        <div id="prob-2022-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2022 Problem A</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">The Need for Bees (and not just for honey)</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">种群动态 / 生态系统服务 / 模拟</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">全球蜜蜂种群因CCD（蜂群崩溃综合症）下降，蜜蜂对授粉至关重要。需要建立蜂群动态模型并估算支持20英亩作物授粉所需的蜂箱数量。 建立蜂群种群随时间变化的模型；敏感性分析找出影响蜂群规模的关键因素；预测支持20英亩作物所需蜂箱数；制作博客或信息图。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">蜜蜂生命周期复杂（蜂王产卵、工蜂寿命、季节变化）；涉及授粉需求与作物类型的匹配；没有给定数据，需自行设定生物学参数。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">差分方程 / 离散时间种群模型、系统动力学、Agent-Based Modeling、生命周期分析（LCA）、网络模型、微分方程</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">文献中的蜜蜂生物学参数（产卵率、寿命、采蜜范围）；USDA授粉服务数据；作物授粉需求研究。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入季节和温度对工蜂寿命的影响；模拟病虫害或农药压力情景；把花粉/花蜜库存作为状态变量；用Agent模型追踪个体蜜蜂行为。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">O奖论文常用离散时间种群模型或系统动力学模拟蜂群；敏感性分析聚焦产卵率、工蜂寿命、活跃季节长度；部分团队用Agent模型或生命周期分析；结果常与管理建议结合。</p>
+          </div>
+        </div>
+        <div id="prob-2022-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2022 Problem B</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">提供数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">CO2 and Global Warming</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">预测 / 气候变化 / 回归分析</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">二氧化碳浓度与全球变暖关系密切。题目提供历史CO2和温度数据，要求建立关系模型并预测未来。 分析CO2与全球温度关系；建立预测模型；评估不同减排情景下的温度变化；给出政策建议。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">气候系统具有长期趋势和周期性；需处理非线性关系；外推至未来面临情景不确定性；需区分相关性与因果性。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">回归分析（线性/多元/非线性）、时间序列（ARIMA）、指数增长模型、机器学习（决策树/随机森林）、情景分析</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">题目附赠CO2与温度Excel；NOAA Mauna Loa CO2数据；NASA GISS温度数据；IPCC情景。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入滞后效应（CO2对温度的影响存在时间滞后）；分区域建模；把人口、GDP、能源结构作为协变量；用蒙特卡洛量化预测区间。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">获奖论文多用回归分析（线性/多元）和ARIMA时间序列；部分用决策树或机器学习；常见做法是把CO2作为输入变量预测温度，再评估不同减排路径。</p>
+          </div>
+        </div>
+        <div id="prob-2023-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2023 Problem A</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Dandelions: Friend? Foe? Both? Neither?</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">种群扩散 / Agent-Based Modeling / 生态入侵</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">蒲公英既可食用/药用，又是入侵物种。需要建立模型模拟蒲公英在地块上的扩散，评估其生态角色。 模拟蒲公英种子传播、萌发、生长、死亡的生命周期；评估不同条件下蒲公英是“朋友”“敌人”“两者兼具”还是“都不是”；提出管理建议。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">种子传播具有长距离跳跃特征；需考虑风、动物、人为等因素；生态角色取决于多维度指标（经济效益、生态影响、美观）；没有给定数据。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">Agent-Based Modeling（ABM）、蒙特卡洛模拟、Lévy Flight / 随机游走、微分方程（Logistic/反应扩散）、生命周期分析、GIS</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">文献中的蒲公英生物学参数（种子产量、萌发率、飞行距离）；USDA入侵物种数据库；当地气候数据。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">用Lévy Flight模拟种子长距离传播；引入风场和地形影响；建立“蒲公英角色”综合评分指数；比较化学除草、机械移除、生物防治等管理策略。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">O奖论文广泛使用Agent-Based Modeling和蒙特卡洛模拟种子传播；部分团队用Lévy Flight改进传统随机扩散模型；常见做法是把生命周期与环境因子耦合，再定义综合指标判断角色。</p>
+          </div>
+        </div>
+        <div id="prob-2023-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2023 Problem B</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Charging Ahead with E-buses</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">交通系统优化 / 资源配置 / 决策评估</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">城市公交系统电气化转型。需要为某城市设计电动公交车队转换方案，包括车辆选择、充电基础设施布局、路线调度等。 评估电动公交车队转换的可行性；确定最佳车型、充电站位置和数量、公交线路优先级；考虑成本、排放、运营效率等多目标。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">公交线路、里程、班次复杂；充电时间和续航里程约束；需平衡一次性投资与长期运营成本；没有给定具体城市数据。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">整数规划 / 混合整数线性规划、网络流、仿真模拟、AHP/TOPSIS、生命周期成本分析（LCC）、GIS</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">自行选择城市并收集公交路线、里程、班次数据；DOE/NREL电动公交车数据；充电基础设施成本数据；当地电价与排放因子。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入电池退化与更换策略；考虑动态电价和可再生能源充电；把社会公平性（服务低收入社区）纳入优化目标；用GIS可视化充电网络。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">获奖论文多用整数规划/混合整数规划做车队和充电站选址，AHP/TOPSIS评估方案，生命周期成本分析比较电动与柴油公交；仿真模拟常用于验证日常运营可行性。</p>
+          </div>
+        </div>
+        <div id="prob-2024-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2024 Problem A</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">提供数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">To Play or not to Play: Modeling Future Olympic Games</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">多准则决策 / 预测 / 体育经济</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">奥运会举办城市面临成本超支、场馆闲置、社会抗议等问题。需要建立模型帮助城市决定是否申办奥运会，并为奥委会选择主办城市提供建议。 建立城市申办奥运会的决策模型；预测未来奥运会的成本、收益、风险；为国际奥委会推荐主办城市选择策略。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">涉及经济、社会、环境、政治等多维度；历史奥运会数据有限且异质性强；需处理“主办城市选择”这一双向决策问题。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">多准则决策（AHP/TOPSIS/熵权法）、回归分析、预测模型、蒙特卡洛模拟、成本效益分析、机器学习分类/聚类</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">题目附赠Olympic Data；国际奥委会（IOC）报告；历届奥运会成本与收益研究（Flyvbjerg等）；World Bank城市指标。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入动态成本超支风险；考虑赛后场馆再利用价值；建立“申办意愿指数”；用情景分析评估无申办城市或联合申办等新模式。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">O奖论文普遍使用多准则决策框架评估城市申办适宜性，结合回归/时间序列预测未来成本收益；蒙特卡洛常用于风险量化；部分团队提出新的主办城市选择机制。</p>
+          </div>
+        </div>
+        <div id="prob-2024-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2024 Problem B</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Examining the Environmental Impact of High-Powered Computing</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">环境影响评估 / 预测 / 机器学习</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">高性能计算（AI训练、数据中心）能耗巨大，碳排放问题突出。需要评估其环境影响并提出减缓策略。 建立模型评估高性能计算的能源消耗与碳排放；预测未来增长趋势；评估不同 mitigation 策略（可再生能源、效率提升、碳捕捉等）效果。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">计算负载、硬件效率、能源结构快速变化；数据获取困难（商业机密）；需要把技术参数与宏观能源系统结合。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">回归分析、时间序列预测、机器学习（监督学习）、生命周期评估（LCA）、情景分析、优化模型</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">自行收集数据中心能耗报告（Google、Amazon等可持续发展报告）；IEA电力数据；ML训练能耗研究（Patterson等）；硬件能效趋势数据。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">按AI模型规模（参数、训练时长）建立能耗估算公式；考虑模型推理与训练的差异；评估“绿色AI”政策效果；把碳排放与算力需求增长耦合。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">获奖论文多用回归和机器学习方法基于公开数据训练能耗/排放预测模型，LCA评估全生命周期影响；常见做法是比较不同能源结构和技术效率情景下的排放路径。</p>
+          </div>
+        </div>
+        <div id="prob-2025-A" class="prob-card bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2025 Problem A</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Emergency Evacuation Sweeps</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">网络优化 / 图论 / 应急管理</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">自然灾害或紧急情况下需要快速疏散人口。需要设计高效的疏散方案，考虑道路容量、车辆、人员分布等。 建立疏散网络模型；优化疏散路线和时间；考虑弱势群体需求；提出应急管理建议。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">道路网络动态变化（拥堵、损坏）；人员行为和响应时间不确定；多目标冲突（最短时间 vs 公平性 vs 资源限制）。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">图论（最短路径、最大流）、网络流优化、Agent-Based Modeling、排队论、仿真模拟、整数规划</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">OpenStreetMap道路网络； census人口分布数据；FEMA疏散案例；交通流量数据。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">引入动态交通分配；考虑不同灾害情景（洪水、火灾、飓风）；把避难所容量和物资分配纳入优化；用ABM模拟个体疏散决策。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">2025年赛题刚结束，可参考同类型问题的常见做法：图论与网络流优化做路线规划，Agent-Based Modeling模拟拥堵演化，排队论评估瓶颈点。</p>
+          </div>
+        </div>
+        <div id="prob-2025-B" class="prob-card b bg-white rounded-xl shadow-sm p-6">
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-sm font-bold">2025 Problem B</span>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">无官方数据</span>
+            <h3 class="text-xl font-bold text-slate-900 serif">Environmental Impact of Sport Mega-Events</h3>
+          </div>
+          <p class="text-slate-500 text-sm mb-4">环境影响评估 / 多准则决策 / 体育经济</p>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">背景与目标</div>
+              <p class="text-slate-700 text-sm">以2025年新奥尔良超级碗为基线，评估大型体育赛事对环境的影响。 量化体育盛事的碳排放、废弃物、交通等环境影响；提出减缓策略；为城市和政策制定者提供建议。</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-lg">
+              <div class="font-bold text-slate-900 mb-1">难点分析</div>
+              <p class="text-slate-700 text-sm">影响范围广泛且难以直接测量；需界定系统边界；旅游、交通、场馆运营等多源排放；数据有限。</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 bg-blue-50 rounded-lg">
+              <div class="font-bold text-blue-900 mb-1">推荐模型</div>
+              <p class="text-slate-700 text-sm">生命周期评估（LCA）、碳足迹核算、回归分析、AHP/TOPSIS、情景分析、蒙特卡洛模拟</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg">
+              <div class="font-bold text-teal-900 mb-1">数据来源建议</div>
+              <p class="text-slate-700 text-sm">EPA排放因子；赛事官方可持续发展报告；交通部门数据；酒店/餐饮能耗数据；废弃物管理报告。</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-amber-50 rounded-lg mb-4">
+            <div class="font-bold text-amber-900 mb-1">可能的创新加分方向</div>
+            <p class="text-slate-700 text-sm">建立“赛事环境压力指数”；比较现场观赛与远程观赛的环境影响；评估碳抵消 vs 实际减排；把球迷交通方式选择纳入行为模型。</p>
+          </div>
+
+          <div class="p-4 bg-indigo-50 rounded-lg">
+            <div class="font-bold text-indigo-900 mb-1">O 奖论文方法总结</div>
+            <p class="text-slate-700 text-sm">2025年赛题刚结束，可参考常见做法：LCA核算Scope 1-3排放，AHP/TOPSIS评估减缓策略优先级，情景分析比较不同办赛模式。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="model-stats" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">四、模型与方法统计</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="font-bold text-slate-900 mb-3">高频模型 / 方法</h3>
+          <div class="space-y-2">
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">蒙特卡洛模拟</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:72%"></div>
+              </div>
+              <span class="text-slate-500 w-6">6</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">AHP/TOPSIS</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:36%"></div>
+              </div>
+              <span class="text-slate-500 w-6">3</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">优化模型</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:36%"></div>
+              </div>
+              <span class="text-slate-500 w-6">3</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">情景分析</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:36%"></div>
+              </div>
+              <span class="text-slate-500 w-6">3</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">回归分析</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:36%"></div>
+              </div>
+              <span class="text-slate-500 w-6">3</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">网络流</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">多准则决策（AHP/TOPSIS/熵权法）</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">成本效益分析</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">时间序列（ARIMA）</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">机器学习（决策树/随机森林）</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">Agent-Based Modeling</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">GIS</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">仿真模拟</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">生命周期评估（LCA）</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:24%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">AHP</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">TOPSIS</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">熵权法</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">加权评分模型</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">决策树</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-32 text-slate-700">GIS（通勤距离可视化）</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-blue-500 rounded-full" style="width:12%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 mb-3">话题分类分布</h3>
+          <div class="space-y-2">
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">多准则决策</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:75%"></div>
+              </div>
+              <span class="text-slate-500 w-6">3</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">预测</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:50%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">环境影响评估</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:50%"></div>
+              </div>
+              <span class="text-slate-500 w-6">2</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">资源分配</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:25%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">种群动态</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:25%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">种群扩散</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:25%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">交通系统优化</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:25%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+            <div class="flex items-center text-sm">
+              <span class="w-40 text-slate-700">网络优化</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full mx-2">
+                <div class="h-2 bg-emerald-500 rounded-full" style="width:25%"></div>
+              </div>
+              <span class="text-slate-500 w-6">1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prep" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">五、备考建议：如何根据赛题特点准备</h2>
+      <div class="space-y-4">
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-1">1. 构建“模型工具箱”</div>
+          <p class="text-slate-700 text-sm">至少熟练掌握：AHP/TOPSIS/熵权法（多准则决策）、线性/整数规划（优化）、回归/ARIMA（预测）、蒙特卡洛（不确定性）、系统动力学/Agent-Based Modeling（生态/扩散）、GIS（空间可视化）。</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-1">2. 训练数据收集能力</div>
+          <p class="text-slate-700 text-sm">近半数赛题不提供数据。提前熟悉 USGS、NOAA、EPA、World Bank、OpenStreetMap、BLS、NREL 等公开数据源，并能在论文中说明数据获取与处理方法。</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-1">3. 强化敏感性分析与验证</div>
+          <p class="text-slate-700 text-sm">O 奖论文几乎都有明确的 sensitivity/validation 板块。练习对关键参数进行 ±20% 扰动，并解释结果对决策的影响。</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-1">4. 重视非技术表达</div>
+          <p class="text-slate-700 text-sm">每道题几乎都要求信件/备忘录/新闻文章/博客。提前准备把数学结果转化为政策建议、公众沟通、管理决策的语言能力。</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-1">5. 关注跨学科融合</div>
+          <p class="text-slate-700 text-sm">近年赛题常把生态、能源、交通、经济、社会公平糅合在一起。队伍应提前阅读相关领域的基础文献，避免建模变成纯数学游戏。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8 border-t">
+      <p>Generated from official HiMCM problem PDFs and 42 O-award paper analyses (2020–2025)</p>
+    </footer>
+  </div>
+</body>
+</html>
