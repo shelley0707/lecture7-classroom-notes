@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markov Chain — Classroom Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #6366f1; }
+    pre { max-height: 600px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">Markov Chain for HiMCM</h1>
+      <p class="text-lg text-slate-600">从两状态天气到 2023A 蒲公英 Leslie 阶段模型：用无记忆性把随机演化写成矩阵</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 模型设定与方程，右侧 = Python Demo + 可视化</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8"><div class="flex flex-wrap gap-3 justify-center text-sm"><a href="#m0" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">0. 核心思想</a><a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. 两状态</a><a href="#m2" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">2. 三状态</a><a href="#m3" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">3. 共享单车</a><a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. 蒲公英</a><a href="#m5" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">5. 高阶模型</a><a href="#m6" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">6. 决策树</a></div></nav>
+
+    <section id="m0" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">0. Markov Chain 核心思想：未来只依赖现在</h2>
+<div class="grid lg:grid-cols-2 gap-8">
+<div class="prose prose-slate">
+<p class="text-slate-700 mb-4"><strong>无记忆性（Markov Property）：</strong>一个随机过程如果下一时刻的状态只依赖于当前状态，而不依赖于更早的历史，就称为 Markov 链。</p>
+<div class="p-4 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+<div class="font-semibold text-indigo-900 mb-2">数学表达</div>
+<p class="math text-center my-1">P(X<sub>t+1</sub> = j | X<sub>t</sub> = i, X<sub>t-1</sub>, ..., X<sub>0</sub>) = P(X<sub>t+1</sub> = j | X<sub>t</sub> = i) = P<sub>ij</sub></p>
+<p class="mt-2"><strong>状态向量 π<sub>t</sub></strong>：每个分量表示 t 时刻处于该状态的概率。</p>
+<p class="mt-1"><strong>转移矩阵 P</strong>：P<sub>ij</sub> 表示从状态 i 一步转移到状态 j 的概率。</p>
+<p class="mt-1"><strong>演化方程：</strong>π<sub>t+1</sub> = π<sub>t</sub> · P</p>
+</div>
+<div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800">
+<strong> takeaway：</strong>把“随机演化”写成矩阵乘法，就能用线性代数求长期行为、稳态分布和特征值。
+</div>
+</div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+n_steps = 15          # Number of months to simulate.
+seed = 42             # Random seed for reproducibility.
+np.random.seed(seed)
+
+# Two weather states: 0 = Sunny, 1 = Rainy.
+# Transition matrix P[i, j] = probability of going from state i to state j.
+P = np.array([[0.8, 0.2],   # from Sunny
+              [0.4, 0.6]])  # from Rainy
+states = ['Sunny', 'Rainy']
+
+# Start on a sunny day.
+current = 0
+path = [current]
+
+# Generate a sample path of daily weather.
+for _ in range(n_steps):
+    # Sample tomorrow's state using the row of P for the current state.
+    current = np.random.choice([0, 1], p=P[current])
+    path.append(current)
+
+# --- Visualization ---
+fig, ax = plt.subplots(figsize=(10, 3))
+ax.step(range(len(path)), path, where='post', linewidth=2, color='steelblue')
+ax.set_yticks([0, 1])
+ax.set_yticklabels(states)
+ax.set_xlabel('Day')
+ax.set_title('A 15-Day Weather Sample Path')
+ax.grid(True, axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+</code></pre></div>
+</div>
+</section>
+    <section id="m1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">1. 两状态 Markov Chain：晴天与雨天</h2>
+<div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：基本转移与稳态</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>场景：</strong>只关心两种天气。今天晴，明天仍晴的概率是 0.8；今天雨，明天晴的概率是 0.4。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>状态空间：</strong>S = {'Sunny', 'Rainy'}</p>
+<p><strong>转移矩阵：</strong></p>
+<p class="math text-center my-1">P = [[0.8, 0.2], [0.4, 0.6]]</p>
+</div>
+<p><strong>启发问题：</strong>如果今天晴，后天晴的概率是多少？长期看晴天比例会稳定在多少？改变 P 的数值，稳态会怎么变？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+P = np.array([[0.8, 0.2],   # Sunny -> Sunny, Sunny -> Rainy
+              [0.4, 0.6]])  # Rainy -> Sunny, Rainy -> Rainy
+states = ['Sunny', 'Rainy']
+pi0 = np.array([1.0, 0.0])   # Initial distribution: definitely sunny.
+n_steps = 30
+
+# --- Evolve the distribution ---
+# Store distribution at each step.
+history = [pi0]
+pi = pi0.copy()
+for _ in range(n_steps):
+    # Matrix multiplication: next distribution = current distribution @ P.
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+# --- Compute stationary distribution via left eigenvector for eigenvalue 1 ---
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
+stationary = stationary / stationary.sum()
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(states):
+    axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
+axes[0].axhline(stationary[0], color='gold', linestyle='--', alpha=0.7)
+axes[0].axhline(stationary[1], color='blue', linestyle='--', alpha=0.7)
+axes[0].set_title('Distribution Evolution from Sunny')
+axes[0].set_xlabel('Step')
+axes[0].set_ylabel('Probability')
+axes[0].legend()
+axes[1].bar(states, stationary, color=['#fde047', '#60a5fa'], edgecolor='black')
+axes[1].set_title(f'Stationary Distribution ({stationary[0]:.2%}, {stationary[1]:.2%})')
+plt.tight_layout()
+plt.show()
+
+print(f'P(Sunny after 2 days | Sunny today) = {pi0 @ np.linalg.matrix_power(P, 2) @ [1, 0]:.3f}')
+</code></pre></div>
+</div>
+</div>
+</section>
+    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">2. 三状态 Markov Chain：加入“多云”</h2>
+<div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：状态空间扩展</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>复杂化：</strong>把“多云”单独作为一个状态，让天气转换更符合现实（雨 rarely 直接变晴）。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>状态空间：</strong>S = {'Sunny', 'Cloudy', 'Rainy'}</p>
+<p><strong>转移矩阵：</strong>3×3，行和必须等于 1。</p>
+</div>
+<p><strong>启发问题：</strong>状态越多，模型一定越准吗？会带来什么代价？如何判断三状态模型比两状态更好？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+states = ['Sunny', 'Cloudy', 'Rainy']
+# Transition matrix: rows = current state, cols = next state.
+P = np.array([
+    [0.70, 0.20, 0.10],   # Sunny
+    [0.30, 0.40, 0.30],   # Cloudy
+    [0.20, 0.30, 0.50]    # Rainy
+])
+pi0 = np.array([0, 1, 0])   # Today is cloudy.
+n_steps = 50
+
+# --- Evolve the distribution ---
+history = [pi0]
+pi = pi0.copy()
+for _ in range(n_steps):
+    pi = pi @ P
+    history.append(pi)
+history = np.array(history)
+
+# --- Compute stationary distribution ---
+eigvals, eigvecs = np.linalg.eig(P.T)
+idx = np.argmin(np.abs(eigvals - 1))
+stationary = eigvecs[:, idx].real
+stationary = stationary / stationary.sum()
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(states):
+    axes[0].plot(history[:, i], label=name, marker='o', markersize=3)
+axes[0].set_title('3-State Weather Evolution from Cloudy')
+axes[0].set_xlabel('Step')
+axes[0].legend()
+axes[1].bar(states, stationary, color=['#fde047', '#93c5fd', '#60a5fa'], edgecolor='black')
+axes[1].set_title('Stationary Distribution')
+plt.tight_layout()
+plt.show()
+</code></pre></div>
+</div>
+</div>
+</section>
+    <section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">3. 多状态网络：共享单车调度</h2>
+<div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：从概率分布到绝对车辆数</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>场景：</strong>A、B、C 三个站点之间用户骑车还车。我们不仅关心“车在哪”的概率，还要关心绝对车辆数、容量上限和空桩事件。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>新增复杂度：</strong></p>
+<ul class="list-disc pl-5 space-y-1">
+<li>总车辆数固定（finite fleet）</li>
+<li>站点容量上限</li>
+<li>每晚凌晨按当前分布重新平衡</li>
+</ul>
+</div>
+<p><strong>启发问题：</strong>为什么即使转移矩阵的稳态是均匀的，实际运营中仍然需要调度卡车？空桩事件和满桩事件哪个更影响用户体验？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+np.random.seed(42)
+n_steps = 100           # Simulation steps (hours).
+capacity = 40           # Max bikes per station.
+bikes = np.array([30, 10, 10])   # Initial bikes at A, B, C.
+
+# Transition matrix: row i = where a bike borrowed from station i is returned.
+P = np.array([
+    [0.6, 0.3, 0.1],   # borrowed at A -> returned to A/B/C
+    [0.2, 0.5, 0.3],   # borrowed at B
+    [0.25, 0.25, 0.5]  # borrowed at C
+])
+borrow_prob = 0.4       # Probability that one bike is borrowed from a station each hour.
+
+# --- Simulation with finite fleet and rebalancing ---
+history = [bikes.copy()]
+empty_events = 0
+
+for t in range(n_steps):
+    # Each station may have one bike borrowed.
+    for i in range(3):
+        if bikes[i] > 0 and np.random.rand() < borrow_prob:
+            bikes[i] -= 1
+            # Return bike according to transition matrix.
+            dest = np.random.choice(3, p=P[i])
+            if bikes[dest] < capacity:
+                bikes[dest] += 1
+            else:
+                # Destination full: keep the bike at origin.
+                bikes[i] += 1
+        elif bikes[i] == 0:
+            empty_events += 1
+    # Nightly rebalancing: redistribute evenly at midnight.
+    if t % 24 == 0 and t > 0:
+        avg = bikes.sum() // 3
+        bikes = np.clip(np.array([avg, avg, avg]), 0, capacity)
+    history.append(bikes.copy())
+
+history = np.array(history)
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(['A', 'B', 'C']):
+    axes[0].plot(history[:, i], label=name)
+axes[0].axhline(capacity, color='red', linestyle='--', label='Capacity')
+axes[0].set_title('Bike Counts with Rebalancing')
+axes[0].set_xlabel('Hour')
+axes[0].legend()
+axes[1].bar(['A', 'B', 'C'], history[-1])
+axes[1].set_title('Final Distribution')
+plt.tight_layout()
+plt.show()
+print('Empty-station events:', empty_events)
+</code></pre></div>
+</div>
+</div><div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：时间非齐次 Markov Chain</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>复杂化：</strong>早高峰和晚高峰的骑行方向不同：早上大量车从住宅区骑向商务区，晚上相反。转移矩阵随时间变化。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>调整：</strong></p>
+<p class="math text-center my-1">π<sub>t+1</sub> = π<sub>t</sub> · P(t)</p>
+<p class="mt-2 text-xs">P(t) = P<sub>morning</sub> 当 t mod 24 ∈ [7,9]；否则 P<sub>normal</sub>。</p>
+</div>
+<p><strong>启发问题：</strong>非齐次转移下还有稳态分布吗？如果只看日平均矩阵，会低估高峰期的波动吗？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+np.random.seed(42)
+n_hours = 7 * 24        # One week hour by hour.
+
+# Normal transition matrix for three stations.
+P_normal = np.array([
+    [0.6, 0.3, 0.1],
+    [0.2, 0.5, 0.3],
+    [0.25, 0.25, 0.5]
+])
+
+# Morning rush hour: more trips from A (residential) to B (business).
+P_morning = np.array([
+    [0.3, 0.6, 0.1],
+    [0.6, 0.2, 0.2],
+    [0.25, 0.25, 0.5]
+])
+
+# All bikes start at A.
+pi = np.array([1.0, 0.0, 0.0])
+history = [pi.copy()]
+
+# --- Non-homogeneous evolution ---
+for t in range(n_hours):
+    # Use rush-hour matrix during morning peak (7-9 AM).
+    P = P_morning if t % 24 in [7, 8, 9] else P_normal
+    pi = pi @ P
+    history.append(pi.copy())
+history = np.array(history)
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+for i, name in enumerate(['A', 'B', 'C']):
+    axes[0].plot(history[:, i], label=name)
+axes[0].set_title('Non-Homogeneous MC: Rush Hour Effects')
+axes[0].set_xlabel('Hour')
+axes[0].legend()
+axes[1].plot(history[:, 0], history[:, 1], color='purple', alpha=0.7)
+axes[1].set_title('A vs B Phase Space')
+axes[1].set_xlabel('A')
+axes[1].set_ylabel('B')
+plt.tight_layout()
+plt.show()
+</code></pre></div>
+</div>
+</div><div class="border rounded-lg p-5 bg-indigo-50"><h3 class="text-lg font-bold text-slate-800 mb-3">Block 5：启发式讨论</h3><div class="text-sm text-slate-700 space-y-2"><p><strong>1. 稳态 vs 实际：</strong> Markov 稳态告诉我们长期比例，但为什么不能直接用于实时调度？</p>
+<p><strong>2. 状态设计：</strong> 除了“车在哪个站”，还可以把“站点满/空”作为状态。这会带来什么问题？</p>
+<p><strong>3. 数据估计：</strong> 转移矩阵 P 通常从骑行订单数据中统计得到。如果数据有季节性，应该怎么办？</p>
+<p><strong>4. 运营优化：</strong> 如果调度成本很高，能否通过动态定价来引导用户自然平衡车辆？</p></div></div>
+</section>
+    <section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">4. HiMCM 2023A：蒲公英扩散的 Leslie / Markov 阶段模型</h2>
+<p class="text-slate-700 mb-6"><strong>背景：</strong>2023A 赛题要求预测蒲公英在 1、2、3、6、12 个月后的扩散情况，并设计入侵物种“影响因子”。获奖论文 Team 14076 将蒲公英生命周期划分为 4 个阶段，用 <strong>Leslie 矩阵</strong>（一种带繁殖项的 Markov 阶段转移模型）描述阶段之间的转移。</p><div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 6：基础 Leslie 矩阵模型</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>生命阶段：</strong>S0 = 新生幼苗，S1 = 生长 1 个月，S2 = 生长 2 个月，B = 开花结籽。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>转移矩阵 T（Leslie matrix）：</strong></p>
+<p class="math text-center my-1">T = [[0, 0, 0, N], [1-p, 0, 0, 0], [p, 1-p, 0, 0], [0, p, 1, 0]]</p>
+<p class="mt-2 text-xs">第一行是繁殖力（只有 B 能产生 N 棵新苗 S0）；下方子矩阵描述幼苗成长到开花的转移。</p>
+</div>
+<p><strong>启发问题：</strong>为什么第一行不是概率而是新生个体数？这会让总种群增长还是保持恒定？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+# Based on HiMCM 2023A winning paper (Team 14076) Leslie-matrix life-stage model.
+N_seed = 5            # New seedlings produced by one blossom per month.
+p_short = 0.25        # Probability of accelerated 3-month life cycle.
+n_months = 12         # Prediction horizon.
+
+# Compute p = P(seedling advances one extra stage in a month).
+p = 1 - np.sqrt(1 - p_short)
+
+# Four states: S0=new seedling, S1=1-month seedling, S2=2-month seedling, B=blossom.
+# Transition matrix T (Leslie matrix): column = current stage, row = next stage.
+T = np.array([
+    [0,    0,    0,    N_seed],   # -> S0 (only blossoms reproduce)
+    [1-p,  0,    0,    0      ],  # -> S1
+    [p,    1-p,  0,    0      ],  # -> S2
+    [0,    p,    1,    0      ]   # -> B
+])
+
+# Initial state: one blossom releases N_seed seedlings.
+s0 = np.array([N_seed, 0, 0, 0])
+
+# --- Evolve the population stage vector ---
+history = [s0.copy()]
+s = s0.copy()
+for _ in range(n_months):
+    s = T @ s
+    history.append(s.copy())
+history = np.array(history)
+
+# --- Summary ---
+final_total = history[-1].sum()
+print(f'Total dandelions after {n_months} months: {final_total:.1f}')
+print(f'Final stage vector: S0={history[-1,0]:.1f}, S1={history[-1,1]:.1f}, S2={history[-1,2]:.1f}, B={history[-1,3]:.1f}')
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+labels = ['S0 seedling', 'S1 seedling', 'S2 seedling', 'B blossom']
+colors = ['#86efac', '#93c5fd', '#fde047', '#fca5a5']
+for i, (lab, col) in enumerate(zip(labels, colors)):
+    axes[0].plot(history[:, i], label=lab, marker='o', markersize=3, color=col)
+axes[0].set_title('Dandelion Stage Population Over 12 Months')
+axes[0].set_xlabel('Month')
+axes[0].set_ylabel('Count')
+axes[0].legend()
+axes[1].bar(labels, history[-1], color=colors, edgecolor='black')
+axes[1].set_title('Final Stage Distribution')
+plt.tight_layout()
+plt.show()
+</code></pre></div>
+</div>
+</div><div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 7：气候非齐次扩展</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>复杂化：</strong>温带、干旱、热带气候下，蒲公英繁殖成功率不同。把每个月的繁殖项乘以气候因子，得到随时间变化的 Leslie 矩阵。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>调整：</strong></p>
+<p class="math text-center my-1">T(month) = T_base，但 T[0,3] = N_seed × climate_modifier(month)</p>
+</div>
+<p><strong>启发问题：</strong>如何根据真实气候数据（温度、降水、风速）估计每月的 modifier？如果气候逐年变暖，模型该做何调整？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+# Extend the Leslie model with climate-dependent reproduction.
+N_seed = 5            # Baseline seedlings per blossom.
+n_months = 12
+p_short = 0.25
+p = 1 - np.sqrt(1 - p_short)
+
+# Climate modifier per month for temperate, arid, tropical.
+# Modifier multiplies N_seed to reflect seasonal survival.
+climate = 'temperate'
+if climate == 'temperate':
+    monthly_modifier = [0.2, 0.3, 0.6, 1.0, 1.2, 1.0, 0.8, 0.8, 0.6, 0.5, 0.3, 0.2]
+elif climate == 'arid':
+    monthly_modifier = [0.1, 0.2, 0.4, 0.6, 0.7, 0.5, 0.3, 0.3, 0.4, 0.3, 0.2, 0.1]
+elif climate == 'tropical':
+    monthly_modifier = [1.0, 1.1, 1.0, 0.9, 0.9, 0.8, 0.9, 1.0, 1.0, 1.1, 1.0, 1.0]
+
+# Base transition matrix (without fecundity modulation).
+T_base = np.array([
+    [0,    0,    0,    1],      # reproduction handled separately
+    [1-p,  0,    0,    0],
+    [p,    1-p,  0,    0],
+    [0,    p,    1,    0]
+])
+
+s0 = np.array([N_seed, 0, 0, 0])
+history = [s0.copy()]
+s = s0.copy()
+
+# --- Non-homogeneous Leslie evolution ---
+for month in range(n_months):
+    # Build this month's matrix with climate-adjusted fecundity.
+    T = T_base.copy()
+    T[0, 3] = N_seed * monthly_modifier[month]
+    s = T @ s
+    history.append(s.copy())
+
+history = np.array(history)
+totals = history.sum(axis=1)
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+axes[0].plot(totals, marker='o', markersize=3, color='green')
+axes[0].set_title(f'Total Dandelions Over 12 Months ({climate})')
+axes[0].set_xlabel('Month')
+axes[0].set_ylabel('Total count')
+labels = ['S0', 'S1', 'S2', 'B']
+axes[1].bar(labels, history[-1], color=['#86efac', '#93c5fd', '#fde047', '#fca5a5'], edgecolor='black')
+axes[1].set_title('Final Stage Distribution')
+plt.tight_layout()
+plt.show()
+print(f'Final total in {climate} climate: {totals[-1]:.1f}')
+</code></pre></div>
+</div>
+</div><div class="border rounded-lg p-5 bg-indigo-50"><h3 class="text-lg font-bold text-slate-800 mb-3">Block 8：启发式讨论</h3><div class="text-sm text-slate-700 space-y-2"><p><strong>1. 阶段划分：</strong> 把连续生长过程离散成 S0/S1/S2/B 有什么好处？划分过细或过粗会怎样？</p>
+<p><strong>2. 繁殖 vs 转移：</strong> Leslie 矩阵第一行是“繁殖”而非概率，和严格的概率转移矩阵有何区别？</p>
+<p><strong>3. 空间扩散：</strong> 这里的 Leslie 模型只算了阶段数量。要预测“蒲公英在哪里”，还需要叠加什么模型？</p>
+<p><strong>4. 不确定性：</strong> N_seed 和 p_short 都是估计值。如何用 Monte Carlo 估计最终总数的置信区间？</p></div></div>
+</section>
+    <section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">5. 高阶 Markov Chain：考虑历史记忆</h2>
+<div class="mb-8 border rounded-lg p-5 bg-slate-50">
+<h3 class="text-lg font-bold text-slate-800 mb-3">Block 9：二阶天气模型</h3>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="prose prose-slate text-sm"><p><strong>复杂化：</strong>真实天气有记忆——连续雨天后再下雨的概率更高。二阶 Markov 链把“昨天 + 今天”作为一个组合状态。</p>
+<div class="p-3 bg-indigo-50 rounded-lg mb-3">
+<p><strong>新状态空间：</strong>S' = {(昨天, 今天)}，共 9 个组合状态</p>
+<p><strong>转移：</strong>从 (昨天, 今天) → (今天, 明天)</p>
+</div>
+<p><strong>启发问题：</strong>二阶模型一定比一阶好吗？什么情况下会过拟合？如何用 AIC/BIC 选择阶数？</p></div>
+<div class="relative"><button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button><pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parameters (user-tunable) ---
+n_days = 100
+np.random.seed(7)
+
+# Three weather states: 0=Sunny, 1=Cloudy, 2=Rainy.
+# Second-order transition matrix:
+# rows = (yesterday, today) pair index = yesterday*3 + today;
+# cols = probability of tomorrow's state.
+P2 = np.array([
+    [0.70, 0.40, 0.30, 0.50, 0.20, 0.20, 0.50, 0.30, 0.20],  # -> Sunny
+    [0.20, 0.40, 0.40, 0.30, 0.60, 0.30, 0.30, 0.40, 0.30],  # -> Cloudy
+    [0.10, 0.20, 0.30, 0.20, 0.20, 0.50, 0.20, 0.30, 0.50]   # -> Rainy
+]).T  # transpose to shape (9 pairs, 3 next states)
+
+print('Row sums (should all be 1):', P2.sum(axis=1))
+
+# Initial pair: yesterday=0 (Sunny), today=1 (Cloudy) -> index 1.
+state = 1
+history = [1]
+
+# --- Generate second-order sample path ---
+for _ in range(n_days):
+    # Sample tomorrow's weather from current pair distribution.
+    tomorrow = np.random.choice(3, p=P2[state])
+    today = state % 3
+    # New pair becomes (today, tomorrow).
+    state = today * 3 + tomorrow
+    history.append(tomorrow)
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+states = ['Sunny', 'Cloudy', 'Rainy']
+axes[0].plot(history, marker='o', markersize=3)
+axes[0].set_title('2nd-Order MC Sample Path')
+axes[0].set_xlabel('Day')
+axes[0].set_yticks([0, 1, 2])
+axes[0].set_yticklabels(states)
+unique, counts = np.unique(history, return_counts=True)
+freqs = [counts[np.where(unique == i)[0][0]] if i in unique else 0 for i in range(3)]
+axes[1].bar(states, freqs, color=['#fde047', '#93c5fd', '#60a5fa'], edgecolor='black')
+axes[1].set_title('Empirical Frequencies')
+plt.tight_layout()
+plt.show()
+</code></pre></div>
+</div>
+</div>
+</section>
+    <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+<h2 class="text-2xl font-bold text-slate-900 mb-6">6. Markov Chain 建模决策树</h2>
+<div class="overflow-x-auto">
+<table class="min-w-full text-sm border">
+<thead class="bg-slate-100"><tr><th class="px-4 py-2 border text-left">问题特征</th><th class="px-4 py-2 border text-left">建议模型</th><th class="px-4 py-2 border text-left">本节示例</th></tr></thead>
+<tbody class="text-slate-700">
+<tr><td class="px-4 py-2 border">未来只依赖当前状态</td><td class="px-4 py-2 border">一阶 Markov Chain</td><td class="px-4 py-2 border">两状态 / 三状态天气</td></tr>
+<tr><td class="px-4 py-2 border">多个离散位置/阶段</td><td class="px-4 py-2 border">多状态转移矩阵</td><td class="px-4 py-2 border">共享单车三站点</td></tr>
+<tr><td class="px-4 py-2 border">转移概率随时间变化</td><td class="px-4 py-2 border">非齐次 Markov Chain</td><td class="px-4 py-2 border">早高峰转移矩阵 / 蒲公英气候因子</td></tr>
+<tr><td class="px-4 py-2 border">未来依赖前两步历史</td><td class="px-4 py-2 border">高阶 Markov Chain</td><td class="px-4 py-2 border">二阶天气模型</td></tr>
+<tr><td class="px-4 py-2 border">个体按年龄/阶段分组并繁殖</td><td class="px-4 py-2 border">Leslie 矩阵 / 阶段模型</td><td class="px-4 py-2 border">2023A 蒲公英</td></tr>
+</tbody>
+</table>
+</div>
+<div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+<strong>建模起手式：</strong>拿到带时间演化的随机问题，先问：
+(1) 状态空间是什么？
+(2) 下一状态只依赖当前，还是也依赖历史？
+(3) 转移概率会随时间/季节变化吗？
+(4) 要预测长期稳态，还是短期路径？
+</div>
+</section>
+
+    <footer class="text-center text-sm text-slate-500 mt-10">
+Markov Chain Classroom Demo · Based on HiMCM 2023A winning paper (Team 14076) · Every demo includes visualization
+</footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const code = pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const old = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = old, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
