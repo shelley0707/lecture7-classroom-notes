@@ -26,17 +26,19 @@
       <p class="text-sm text-slate-500 mt-2">每节左侧 = 模型设定、假设与用法，右侧 = Python Demo + 可视化</p>
     </header>
 
-    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+        <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
       <div class="flex flex-wrap gap-3 justify-center text-sm">
         <a href="#m0" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">0. 统一框架</a>
         <a href="#m1" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">1. MC：弹珠抽样</a>
-        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. MC：产品上线</a>
-        <a href="#m3" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">3. ABS：交通流</a>
-        <a href="#m4" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">4. ABS：谣言传播</a>
-        <a href="#m5" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">5. ABS：森林大火</a>
-        <a href="#m6" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">6. ABS：Schelling</a>
-        <a href="#m7" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7. 概率优化：模拟退火</a>
-        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. 总结</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">2. MC：飘落的叶子</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">3. MC：估算 π</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-lime-100 text-lime-700 hover:bg-lime-200">4. MC：产品上线</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">5. ABS：交通流</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">6. ABS：谣言传播</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">7. ABS：森林大火</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">8. ABS：Schelling</a>
+        <a href="#m9" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">9. SA：模拟退火</a>
+        <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. 总结</a>
       </div>
     </nav>
 
@@ -89,9 +91,7 @@ print(f"Mean={out.mean():.2f}, Std={out.std():.2f}, P>7={np.mean(out>7):.2%}")
 </code></pre>
         </div>
       </div>
-    </section>
-
-    <section id="m1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+    </section><section id="m1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">1. Monte Carlo：弹珠抽样与大数定律</h2>
       <p class="text-slate-700 mb-6">袋子里有 10% 红、30% 黄、60% 蓝弹珠。我们无法一次性清点整袋，于是不断随机抽取，用样本比例逼近真实比例。这是 Monte Carlo 最直观的形态。</p>
 
@@ -261,10 +261,181 @@ ax.legend(); plt.tight_layout(); plt.show()
           <p><strong>3. 总体比例未知：</strong>真实问题中总体比例常常未知，我们只能用样本比例估计它，并给出置信区间。</p>
         </div>
       </div>
-    </section>
+    </section><section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Monte Carlo：飘落的叶子</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>一片叶子从 5 米高的树枝脱落。水平风速 V ~ Normal(μ=5, σ=3) m/s，风向 θ 可在一定范围内随机摆动，垂直下落速度恒为 1 m/s。求叶子落地点在地面上的二维分布。</p>
+          <div class="p-4 bg-green-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-green-900 mb-2">模型设定</div>
+            <p><strong>已知参数：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>h = 5 m：初始高度</li>
+              <li>v<sub>vertical</sub> = 1 m/s：垂直下落速度</li>
+              <li>V ~ N(5, 3)：水平风速</li>
+              <li>θ ~ N(μ<sub>dir</sub>, σ<sub>dir</sub>)：风向，单位弧度（可手动调整方向范围）</li>
+            </ul>
+            <p class="mt-2"><strong>核心变量：</strong></p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>T = h / v<sub>vertical</sub> = 5 s：下落时间</li>
+              <li>X = V · T · cos(θ)：落点 x 坐标</li>
+              <li>Y = V · T · sin(θ)：落点 y 坐标</li>
+              <li>R = √(X² + Y²)：落点与树干的水平距离</li>
+            </ul>
+            <p class="mt-2"><strong>扩展：</strong>通过调整 μ<sub>dir</sub> 和 σ<sub>dir</sub>，可以模拟"主要从东边吹来但有一定扩散"的风。</p>
+          </div>
+          <div class="p-3 bg-green-50 rounded-lg text-sm text-green-800">
+            <strong> takeaway：</strong>一个简单的随机输入（风速）乘以一个确定的时间，就得到随机输出（落点）。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
 
-    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Monte Carlo：产品上线风险（PERT / 关键路径）</h2>
+# Fix the random seed for reproducible results.
+np.random.seed(42)
+# Number of simulated leaves.
+n = 10000
+
+# --- Physical parameters ---
+h = 5.0                    # Initial falling height in meters.
+v_vert = 1.0               # Constant vertical falling speed in m/s.
+mu_v = 5.0                 # Mean horizontal wind speed in m/s.
+sigma_v = 3.0              # Standard deviation of wind speed in m/s.
+# Wind direction: mean direction (radians) and angular spread (radians).
+# 0 radians = positive x-axis; π/2 radians = positive y-axis.
+mu_dir = np.pi / 6         # Mean wind direction: 30 degrees.
+sigma_dir = np.pi / 4      # Direction spread: ±45 degrees.
+
+# --- Monte Carlo sampling ---
+# Fall time is deterministic because vertical speed is constant.
+T = h / v_vert
+# Sample wind speed and direction for each leaf.
+V = np.random.normal(mu_v, sigma_v, n)
+theta = np.random.normal(mu_dir, sigma_dir, n)
+# Convert polar (speed, direction) to Cartesian landing coordinates (X, Y).
+X = V * T * np.cos(theta)
+Y = V * T * np.sin(theta)
+# Total horizontal displacement from the drop point.
+R = np.sqrt(X**2 + Y**2)
+
+# --- Summary statistics ---
+print(f'Fall time: {T:.1f} s')
+print(f'Mean landing X: {X.mean():.2f} m')
+print(f'Mean landing Y: {Y.mean():.2f} m')
+print(f'Mean horizontal distance: {R.mean():.2f} m')
+print(f'P(landing within 40 m): {(R <= 40).mean():.2%}')
+
+# --- Visualizations ---
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+# 1. Histogram of sampled wind speeds.
+axes[0, 0].hist(V, bins=40, color='skyblue', edgecolor='white')
+axes[0, 0].set_title('Wind Speed Distribution V ~ N(5, 3)')
+axes[0, 0].set_xlabel('Wind speed (m/s)')
+axes[0, 0].set_ylabel('Count')
+
+# 2. Histogram of total horizontal landing distance.
+axes[0, 1].hist(R, bins=40, color='seagreen', edgecolor='white')
+axes[0, 1].axvline(R.mean(), color='red', linestyle='--', label=f'Mean={R.mean():.1f}m')
+axes[0, 1].set_title('Landing Distance Distribution')
+axes[0, 1].set_xlabel('Horizontal distance (m)')
+axes[0, 1].set_ylabel('Count')
+axes[0, 1].legend()
+
+# 3. Top-down scatter plot of landing positions.
+axes[1, 0].scatter(X, Y, s=5, alpha=0.3, c='green')
+axes[1, 0].scatter(0, 0, c='red', s=100, marker='x', label='Tree base')
+axes[1, 0].set_aspect('equal')
+axes[1, 0].set_title('Top-Down View of Landing Positions')
+axes[1, 0].set_xlabel('X (m)')
+axes[1, 0].set_ylabel('Y (m)')
+axes[1, 0].legend()
+
+# 4. 2D density heatmap of landing positions.
+axes[1, 1].hist2d(X, Y, bins=40, cmap='Greens')
+axes[1, 1].scatter(0, 0, c='red', s=100, marker='x')
+axes[1, 1].set_aspect('equal')
+axes[1, 1].set_title('Landing Density Heatmap')
+axes[1, 1].set_xlabel('X (m)')
+axes[1, 1].set_ylabel('Y (m)')
+
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section><section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Monte Carlo：估算 π</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>思想：</strong>向边长为 2 的正方形内随机撒点，其中落在内切圆内的比例 ≈ 圆面积 / 正方形面积 = π/4。</p>
+          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-purple-900 mb-2">数学表达</div>
+            <p><strong>随机变量：</strong>(X, Y) ~ Uniform(-1, 1) × Uniform(-1, 1)</p>
+            <p class="mt-2"><strong>指示变量：</strong></p>
+            <p class="math text-center my-2">I = 1 if X² + Y² ≤ 1, else 0</p>
+            <p class="mt-2"><strong>估计量：</strong></p>
+            <p class="math text-center my-2">π̂ = 4 · (ΣI) / N</p>
+            <p class="mt-2"><strong>收敛：</strong>当 N → ∞，π̂ → π（大数定律）。</p>
+          </div>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
+            <strong> takeaway：</strong>用随机实验估算确定值，是 Monte Carlo 最直观的演示。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# Fix the random seed for reproducibility.
+np.random.seed(42)
+# Total number of random points thrown inside the square.
+N = 5000
+# Sample (X, Y) uniformly from the square [-1, 1] x [-1, 1].
+x = np.random.uniform(-1, 1, N)
+y = np.random.uniform(-1, 1, N)
+# Indicator: point falls inside the unit circle.
+inside = x**2 + y**2 <= 1
+
+# Estimate π as 4 * (fraction of points inside the circle).
+pi_est = 4 * inside.sum() / N
+print(f'Estimated π with N={N}: {pi_est:.5f}')
+print(f'Error: {abs(np.pi - pi_est):.5f}')
+
+# --- Visualizations ---
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+# 1. Scatter plot showing which points land inside vs outside the circle.
+axes[0].scatter(x[inside], y[inside], c='blue', s=5, alpha=0.5, label='Inside circle')
+axes[0].scatter(x[~inside], y[~inside], c='orange', s=5, alpha=0.5, label='Outside circle')
+theta = np.linspace(0, 2*np.pi, 100)
+axes[0].plot(np.cos(theta), np.sin(theta), 'r-', linewidth=2)
+axes[0].set_aspect('equal')
+axes[0].set_title(f'Estimate π ≈ {pi_est:.4f}')
+axes[0].legend()
+
+# 2. Convergence curve: estimate π with increasing sample sizes.
+Ns = np.logspace(2, 5, 50, dtype=int)
+ests = []
+# Loop: iterate over Ns
+for n in Ns:
+    xx = np.random.uniform(-1, 1, n)
+    yy = np.random.uniform(-1, 1, n)
+    ests.append(4 * (xx**2 + yy**2 <= 1).sum() / n)
+axes[1].plot(Ns, ests, label='MC estimate')
+axes[1].axhline(np.pi, color='red', linestyle='--', label='True π')
+axes[1].set_xscale('log')
+axes[1].set_title('Convergence of π Estimate')
+axes[1].set_xlabel('Number of samples')
+axes[1].set_ylabel('π estimate')
+axes[1].legend()
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section><section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Monte Carlo：产品上线风险（PERT / 关键路径）</h2>
       <p class="text-slate-700 mb-6">一个科技初创公司要发布产品。8 项任务有依赖关系，每项任务持续时间是随机变量。CEO 想知道：平均工期、30 天内上线概率、哪些任务最可能拖后腿。</p>
 
       <div class="text-sm text-slate-600 mb-4 text-center">任务依赖网络示意（箭头表示前置关系）</div>
@@ -608,10 +779,8 @@ plt.tight_layout(); plt.show()
           <p><strong>3. 资源约束：</strong>当前模型假设任务只要前置完成就能开始。若同一团队不能并行做多件事，关键路径可能完全不同。</p>
         </div>
       </div>
-    </section>
-
-    <section id="m3" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Agent-Based Simulation：单车道交通流</h2>
+    </section><section id="m5" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：单车道交通流</h2>
       <p class="text-slate-700 mb-6">从“每辆车的简单规则”出发，观察道路上拥堵如何自发形成。这里把车辆当作 agent，道路当作环境，规则包括：匀速前进、保持安全距离、入口按 Poisson 到达。</p>
 
       <!-- Block 1 -->
@@ -839,10 +1008,8 @@ plt.tight_layout(); plt.show()
           <p><strong>3. 到达分布：</strong>我们用 Poisson 描述随机到达。若高峰时段到达率随时间变化（非齐次 Poisson），队列会如何波动？</p>
         </div>
       </div>
-    </section>
-
-    <section id="m4" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Agent-Based Simulation：谣言 / 八卦传播</h2>
+    </section><section id="m6" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Agent-Based Simulation：谣言 / 八卦传播</h2>
       <p class="text-slate-700 mb-6">一个小社区里有若干居民。每个人每天决定“宅家”或“去公共场所”；在公共场所遇到人时，有一定概率交换彼此知道的信息。微观上的“见面聊聊”如何导致宏观上的“谣言爆发”？</p>
 
       <!-- Block 1 -->
@@ -1012,10 +1179,8 @@ plt.tight_layout(); plt.show()
           <p><strong>3. 多谣言竞争：</strong>若同时有多个谣言在传播，资源（注意力）有限时，哪种谣言更容易占据主流？</p>
         </div>
       </div>
-    </section>
-
-    <section id="m5" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：森林大火</h2>
+    </section><section id="m7" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Agent-Based Simulation：森林大火</h2>
       <p class="text-slate-700 mb-6">森林大火是经典的元胞自动机 / ABS 模型。树木是环境细胞，火是“活性 agent”。从最简单的确定性蔓延开始，逐步加入概率、再生和长期演化。</p>
 
       <!-- Block 1 -->
@@ -1236,10 +1401,8 @@ plt.tight_layout(); plt.show()
           <p><strong>3. 风速与地形：</strong>实际火灾中风向会让蔓延呈各向异性。如何用 p_spread 的方向差异来建模？</p>
         </div>
       </div>
-    </section>
-
-    <section id="m6" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Agent-Based Simulation：Schelling 隔离模型</h2>
+    </section><section id="m8" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. Agent-Based Simulation：Schelling 隔离模型</h2>
       <p class="text-slate-700 mb-6">即使每个人只要求“同类邻居占一定比例”，整个社区也会自发走向高度隔离。Schelling 模型揭示了“微观偏好 → 宏观隔离”的涌现机制。</p>
 
       <!-- Block 1 -->
@@ -1593,10 +1756,8 @@ plt.tight_layout(); plt.show()
           <p><strong>3. 邻居定义：</strong>这里用 8 邻域。如果改用更大半径的“社会网络”，隔离程度会增强还是减弱？</p>
         </div>
       </div>
-    </section>
-
-    <section id="m7" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. 概率优化：模拟退火（Simulated Annealing）</h2>
+    </section><section id="m9" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 概率优化：模拟退火（Simulated Annealing）</h2>
       <p class="text-slate-700 mb-6">模拟退火是一种“带随机扰动的贪心搜索”：以一定概率接受更差的解，从而跳出局部最优。它常用于组合优化，如选址、调度、路径规划。</p>
 
       <!-- Block 1 -->
@@ -1795,10 +1956,8 @@ plt.legend(); plt.tight_layout(); plt.show()
           <p><strong>3. 最优性：</strong>模拟退火不保证全局最优。对小型问题可对比动态规划或穷举，验证解的质量。</p>
         </div>
       </div>
-    </section>
-
-    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 仿真模型选择与建模起手式</h2>
+    </section><section id="m10" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">10. 仿真模型选择与建模起手式</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm border">
           <thead class="bg-slate-100">
