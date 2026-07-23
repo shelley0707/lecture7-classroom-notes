@@ -26,16 +26,17 @@
       <p class="text-sm text-slate-500 mt-2">每节左侧 = 模型设定与方程，右侧 = Python Demo + 可视化</p>
     </header>
 
-    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+        <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
       <div class="flex flex-wrap gap-3 justify-center text-sm">
         <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. Distributions</a>
         <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Wandering Leaf</a>
         <a href="#m3" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">3. Estimate π</a>
-        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. Product Launch</a>
-        <a href="#m5" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">5. Wolf-Sheep-Grass</a>
-        <a href="#m6" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">6. Bike Sharing</a>
-        <a href="#m7" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">7. Weather MC</a>
-        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. Summary</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">4. MC Structure</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">5. Product Launch</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">6. ABS: Fire & Schelling</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">7. Bike Sharing</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">8. Weather MC</a>
+        <a href="#m9" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">9. Summary</a>
       </div>
     </nav>
 
@@ -97,10 +98,7 @@ plt.show()
 </code></pre>
         </div>
       </div>
-    </section>
-
-    <!-- Module 2: Wandering Leaf -->
-    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+    </section><section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Monte Carlo 案例：飘落的叶子</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
@@ -204,10 +202,7 @@ plt.show()
 </code></pre>
         </div>
       </div>
-    </section>
-
-    <!-- Module 3: Estimate Pi -->
-    <section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+    </section><section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Monte Carlo 案例：估算 π</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
@@ -275,11 +270,92 @@ plt.show()
 </code></pre>
         </div>
       </div>
-    </section>
+    </section>    <!-- Module 4: Monte Carlo Basic Structure -->
+    <section id="m4" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Monte Carlo Simulation 的基本结构</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>Monte Carlo 不是“随机硬试”，而是一种数值实验：</strong>把不确定输入交给概率分布，通过大量重复抽样，让统计结果逼近真实答案。只要能把问题写成“输入 → 模型 → 输出”的形式，就可以用 Monte Carlo。</p>
 
-    <!-- Module 4: Product Launch -->
-    <section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Monte Carlo 案例：产品上线时间风险（CPM / PERT）</h2>
+          <div class="p-4 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-rose-900 mb-2">四步骨架</div>
+            <ol class="list-decimal pl-5 space-y-2">
+              <li><strong>定义映射 y = g(X)：</strong>明确输入 X 和要估计的输出 y。例如 π 估计中，X = (x, y) 是随机点，y = 1<sub>圆内</sub>。</li>
+              <li><strong>给随机输入选分布 X ~ F：</strong>根据实际背景选择 Normal、Uniform、Poisson 等，并确定参数。</li>
+              <li><strong>重复 N 次试验：</strong>每次抽样 Xᵢ，计算 yᵢ = g(Xᵢ)，把结果记录下来。</li>
+              <li><strong>汇总与诊断：</strong>算均值、概率、分位数、置信区间，并观察随 N 增大的收敛曲线。</li>
+            </ol>
+          </div>
+
+          <div class="p-4 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-rose-900 mb-2">核心公式</div>
+            <p class="math text-center my-1">μ̂ = (1/N) Σᵢ g(Xᵢ)</p>
+            <p class="math text-center my-1">σ̂² = (1/(N−1)) Σᵢ (g(Xᵢ) − μ̂)²</p>
+            <p class="math text-center my-1">95% CI ≈ μ̂ ± 1.96 · σ̂ / √N</p>
+            <p class="math text-center my-1">相对误差 ≈ 1 / √N（方差减半 → 误差只降 √2 倍）</p>
+            <p class="mt-2 text-xs"><strong>大数定律</strong>保证 N → ∞ 时 μ̂ → μ；<strong>中心极限定理</strong>说明估计误差近似正态分布，从而能算置信区间。</p>
+          </div>
+
+          <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-800">
+            <strong> takeaway：</strong>Monte Carlo 的强大之处在于：不关心 g(·) 多复杂，只要会抽样、会计算，就能得到带置信区间的近似解。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Generic Monte Carlo skeleton ---
+def monte_carlo_estimate(sampler, model, N, seed=None):
+    """
+    sampler: callable that returns one random input X.
+    model:   callable that maps X -> scalar output y.
+    N:       number of Monte Carlo trials.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+    results = np.empty(N)
+    for i in range(N):
+        X = sampler()
+        results[i] = model(X)
+    mean = results.mean()
+    std = results.std(ddof=1)
+    se = std / np.sqrt(N)
+    ci_low, ci_high = mean - 1.96*se, mean + 1.96*se
+    return mean, std, (ci_low, ci_high), results
+
+# --- Example: estimate E[max(U1, U2)] where U ~ Uniform(0,1) ---
+# Analytic answer = 2/3.
+sampler = lambda: np.random.uniform(0, 1, size=2)
+model   = lambda U: np.max(U)
+
+N = 10000
+est, std, (lo, hi), _ = monte_carlo_estimate(sampler, model, N, seed=42)
+print(f'Estimate: {est:.5f}  (true = {2/3:.5f})')
+print(f'Std dev : {std:.5f}')
+print(f'95% CI  : [{lo:.5f}, {hi:.5f}]')
+
+# --- Convergence check: estimate with increasing N ---
+Ns = np.logspace(2, 4, 30, dtype=int)
+means = []
+for n in Ns:
+    _, _, _, res = monte_carlo_estimate(sampler, model, n, seed=42)
+    means.append(res.mean())
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(Ns, means, label='MC estimate')
+ax.axhline(2/3, color='red', linestyle='--', label='True 2/3')
+ax.set_xscale('log')
+ax.set_xlabel('Number of trials N')
+ax.set_ylabel('Estimate')
+ax.set_title('Monte Carlo Convergence: E[max(U1,U2)]')
+ax.legend(); plt.tight_layout(); plt.show()
+</code></pre>
+        </div>
+      </div>
+    </section>
+<section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Monte Carlo 案例：产品上线时间风险（CPM / PERT）</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate">
           <p class="text-slate-700 mb-4"><strong>场景：</strong>一个科技初创公司准备发布旗舰产品。各任务持续时间是随机变量，需要估计总完成时间、30 天内上线概率、关键风险点。</p>
@@ -455,297 +531,484 @@ plt.show()
 </code></pre>
         </div>
       </div>
-    </section>
+    </section>    <!-- Module 6: Agent-Based Simulation - Forest Fire & Schelling -->
+    <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Agent-Based Simulation：森林大火与 Schelling 隔离模型（由浅入深）</h2>
+      <p class="text-slate-700 mb-6"><strong>核心思想：</strong>Agent-Based Simulation（ABS）从“局部规则”出发，让大量个体（或细胞）按规则演化，观察宏观层面的<strong>涌现现象</strong>。下面用森林大火和 Schelling 种族隔离模型两个经典场景，逐步加深场景与参数难度；每个场景都配静态帧、参数扫描和动画代码。</p>
 
-    <!-- Module 5: Wolf-Sheep-Grass -->
-    <section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：狼-羊-草生态系统（由浅入深）</h2>
-      <p class="text-slate-700 mb-6"><strong>核心思想：</strong>从个体（agent）的简单规则出发，观察群体层面的涌现行为。下面分 5 个 Block 逐步增加复杂因素，看看模型如何演化。</p>
+      <!-- ========== Forest Fire ========== -->
+      <h3 class="text-xl font-bold text-slate-800 mb-4 mt-2">6.1 森林大火模型（Forest Fire）</h3>
 
-      <!-- Block 1 -->
+      <!-- Fire Block 1 -->
       <div class="mb-8 border rounded-lg p-5 bg-slate-50">
-        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：确定性 Lotka-Volterra 基础模型</h3>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：确定性火源扩散</h3>
         <div class="grid lg:grid-cols-2 gap-6">
           <div class="prose prose-slate text-sm">
-            <p><strong>假设：</strong>羊按固定速率繁殖，狼按固定速率捕食羊并繁殖，狼有固定死亡率。不考虑随机性、空间、资源限制。</p>
-            <div class="p-3 bg-pink-50 rounded-lg mb-3">
-              <p><strong>方程：</strong></p>
-              <p class="math text-center my-1">dS/dt = αS - βSW</p>
-              <p class="math text-center my-1">dW/dt = δβSW - γW</p>
-              <p class="mt-2 text-xs">S = 羊数量，W = 狼数量，α = 羊增长率，β = 捕食率，δ = 转化效率，γ = 狼死亡率。</p>
-            </div>
-            <p><strong>启发问题：</strong>这个模型为什么会出现周期振荡？现实中种群会一直周期性波动吗？</p>
-          </div>
-          <div class="relative">
-            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-            <pre><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-
-# Number of time steps for the deterministic simulation.
-n_steps = 200
-# Arrays to store population counts over time.
-sheep = np.zeros(n_steps)
-wolves = np.zeros(n_steps)
-# Initial populations.
-sheep[0], wolves[0] = 40, 9
-
-# Lotka-Volterra parameters.
-alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
-
-# Deterministic update loop.
-for t in range(n_steps - 1):
-    ds = alpha * sheep[t] - beta * sheep[t] * wolves[t]
-    dw = delta * sheep[t] * wolves[t] - gamma * wolves[t]
-    sheep[t+1] = max(0, sheep[t] + ds)
-    wolves[t+1] = max(0, wolves[t] + dw)
-
-# --- Visualizations ---
-fig, axes = plt.subplots(1, 2, figsize=(13, 4))
-axes[0].plot(sheep, label='Sheep', color='green')
-axes[0].plot(wolves, label='Wolves', color='red')
-axes[0].set_title('Deterministic Lotka-Volterra')
-axes[0].legend()
-axes[1].plot(sheep, wolves, color='purple')
-axes[1].set_title('Phase Space')
-axes[1].set_xlabel('Sheep'); axes[1].set_ylabel('Wolves')
-plt.tight_layout(); plt.show()
-</code></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Block 2 -->
-      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
-        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：加入环境随机性</h3>
-        <div class="grid lg:grid-cols-2 gap-6">
-          <div class="prose prose-slate text-sm">
-            <p><strong>复杂化：</strong>真实生态系统中，出生、死亡、相遇都是随机事件。用 Poisson 分布替代确定性增量，模拟个体层面的离散事件。</p>
-            <div class="p-3 bg-pink-50 rounded-lg mb-3">
-              <p><strong>调整：</strong></p>
-              <p class="math text-center my-1">S<sub>t+1</sub> ~ Poisson( S<sub>t</sub> + αS<sub>t</sub> - βS<sub>t</sub>W<sub>t</sub> )</p>
-              <p class="math text-center my-1">W<sub>t+1</sub> ~ Poisson( W<sub>t</sub> + δβS<sub>t</sub>W<sub>t</sub> - γW<sub>t</sub> )</p>
-            </div>
-            <p><strong>可视化说明：</strong>左图显示 200 次运行的<strong>平均值 ± 标准差</strong>，中间图展示 5 条代表性单一路径，右图是某一次运行的相空间轨迹。这样比叠加 20 条透明线更容易看清随机性的整体影响。</p>
-            <p><strong>启发问题：</strong>随机性会让种群灭绝吗？多次运行结果差异大吗？什么情况下波动会被放大？</p>
-          </div>
-          <div class="relative">
-            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-            <pre><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-
-# Fix seed and set simulation parameters.
-np.random.seed(42)
-n_steps, n_runs = 100, 200
-alpha, beta, gamma, delta = 0.1, 0.02, 0.1, 0.01
-
-# Store all trajectories to compute mean and standard deviation.
-S_runs = np.zeros((n_runs, n_steps))
-W_runs = np.zeros((n_runs, n_steps))
-
-for run in range(n_runs):
-    S, W = np.zeros(n_steps), np.zeros(n_steps)
-    S[0], W[0] = 40, 9
-    for t in range(n_steps - 1):
-        # Poisson-distributed next states, using max to avoid negative means.
-        mean_s = max(0, S[t] + alpha*S[t] - beta*S[t]*W[t])
-        mean_w = max(0, W[t] + delta*beta*S[t]*W[t] - gamma*W[t])
-        S[t+1] = np.random.poisson(mean_s)
-        W[t+1] = np.random.poisson(mean_w)
-    S_runs[run] = S
-    W_runs[run] = W
-
-# Compute ensemble statistics across all stochastic runs.
-S_mean, S_std = S_runs.mean(axis=0), S_runs.std(axis=0)
-W_mean, W_std = W_runs.mean(axis=0), W_runs.std(axis=0)
-
-# --- Visualizations ---
-fig, axes = plt.subplots(1, 3, figsize=(18, 4))
-t = np.arange(n_steps)
-
-# 1. Mean trajectory with shaded standard deviation across runs.
-axes[0].plot(t, S_mean, color='green', label='Sheep mean')
-axes[0].fill_between(t, S_mean - S_std, S_mean + S_std, color='green', alpha=0.2)
-axes[0].plot(t, W_mean, color='red', label='Wolves mean')
-axes[0].fill_between(t, W_mean - W_std, W_mean + W_std, color='red', alpha=0.2)
-axes[0].set_title('Mean ± Std Across Stochastic Runs')
-axes[0].set_xlabel('Time step')
-axes[0].set_ylabel('Population')
-axes[0].legend()
-
-# 2. A few representative individual runs.
-for i in range(5):
-    axes[1].plot(S_runs[i], color='green', alpha=0.5)
-    axes[1].plot(W_runs[i], color='red', alpha=0.5)
-axes[1].set_title('Five Individual Stochastic Runs')
-axes[1].set_xlabel('Time step')
-axes[1].set_ylabel('Population')
-
-# 3. Phase space of the last run.
-axes[2].plot(S_runs[-1], W_runs[-1], color='purple', alpha=0.7)
-axes[2].scatter(S_runs[-1, 0], W_runs[-1, 0], color='green', s=80, label='Start')
-axes[2].scatter(S_runs[-1, -1], W_runs[-1, -1], color='red', s=80, label='End')
-axes[2].set_title('Phase Space (one run)')
-axes[2].set_xlabel('Sheep')
-axes[2].set_ylabel('Wolves')
-axes[2].legend()
-
-plt.tight_layout(); plt.show()
-</code></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Block 3 -->
-      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
-        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：加入空间结构与相遇概率</h3>
-        <div class="grid lg:grid-cols-2 gap-6">
-          <div class="prose prose-slate text-sm">
-            <p><strong>复杂化：</strong>狼必须和羊在同一格才能捕食。把种群放到 10×10 网格上，每步随机移动，只在同格发生捕食。</p>
-            <div class="p-3 bg-pink-50 rounded-lg mb-3">
-              <p><strong>新规则：</strong></p>
+            <p><strong>场景：</strong>在网格森林里，中心一棵树立刻着火；只要某个树的 8 邻域有火，下一时间步它必定被点燃。没有新树生长，也没有随机起火。</p>
+            <div class="p-3 bg-orange-50 rounded-lg mb-3">
+              <p><strong>细胞状态：</strong>EMPTY = 0, TREE = 1, BURNING = 2, ASH = 3</p>
+              <p><strong>规则：</strong></p>
               <ul class="list-disc pl-5 space-y-1">
-                <li>每个 agent 有 (x, y) 坐标</li>
-                <li>每步随机移动到相邻格</li>
-                <li>狼在同格遇到羊时按概率 p 捕食</li>
+                <li>BURNING → ASH</li>
+                <li>TREE 且邻居有 BURNING → BURNING</li>
+                <li>其他状态不变</li>
               </ul>
             </div>
-            <p><strong>启发问题：</strong>空间结构会让捕食更难还是更容易？种群波动幅度会变小吗？</p>
+            <p><strong>观察目标：</strong>火向外传播的“波前”是什么形状？边界碰到网格边缘后会怎样？</p>
           </div>
           <div class="relative">
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
-# Fix seed and set grid size.
-np.random.seed(42)
-grid, n_steps = 10, 100
-n_sheep, n_wolves = 40, 9
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+CMAP = ListedColormap(['white', 'green', 'red', 'black'])
 
-# Initialize agent positions uniformly on the grid.
-sheep_x = np.random.randint(0, grid, n_sheep)
-sheep_y = np.random.randint(0, grid, n_sheep)
-wolf_x = np.random.randint(0, grid, n_wolves)
-wolf_y = np.random.randint(0, grid, n_wolves)
+def init_forest(grid_size, density):
+    forest = np.zeros((grid_size, grid_size), dtype=int)
+    forest[np.random.rand(grid_size, grid_size) < density] = TREE
+    forest[grid_size//2, grid_size//2] = BURNING
+    return forest
 
-# Track population counts over time.
-history_s, history_w = [n_sheep], [n_wolves]
+def step_fire_deterministic(forest):
+    new = forest.copy()
+    burn = (forest == BURNING)
+    new[burn] = ASH
+    # any TREE next to a burning cell catches fire
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0:
+                continue
+            shifted = np.roll(burn, (dr, dc), axis=(0, 1))
+            new[(forest == TREE) & shifted] = BURNING
+    return new
 
-for _ in range(n_steps):
-    # Each agent moves one step in a random direction (with wrap-around).
-    sheep_x = (sheep_x + np.random.randint(-1, 2, len(sheep_x))) % grid
-    sheep_y = (sheep_y + np.random.randint(-1, 2, len(sheep_y))) % grid
-    wolf_x = (wolf_x + np.random.randint(-1, 2, len(wolf_x))) % grid
-    wolf_y = (wolf_y + np.random.randint(-1, 2, len(wolf_y))) % grid
+np.random.seed(1)
+grid_size, density, steps = 21, 0.6, 10
+forest = init_forest(grid_size, density)
+frames = [forest.copy()]
+for _ in range(steps):
+    forest = step_fire_deterministic(forest)
+    frames.append(forest.copy())
 
-    # Predation: each wolf checks for sheep on the same cell.
-    alive_s = np.ones(len(sheep_x), dtype=bool)
-    for i in range(len(wolf_x)):
-        same = (sheep_x == wolf_x[i]) & (sheep_y == wolf_y[i]) & alive_s
-        if same.any() and np.random.rand() < 0.3:
-            victim = np.where(same)[0][0]
-            alive_s[victim] = False
-    sheep_x, sheep_y = sheep_x[alive_s], sheep_y[alive_s]
+# Plot 4 representative frames
+fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+for ax, idx in zip(axes, [0, 3, 6, 10]):
+    ax.imshow(frames[idx], cmap=CMAP, vmin=0, vmax=3)
+    ax.set_title(f'Step {idx}')
+    ax.axis('off')
+plt.suptitle('Deterministic Fire Spread')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
 
-    # Reproduction: a small fraction of agents produce offspring.
-    mask_s = np.random.rand(len(sheep_x)) < 0.05
-    sheep_x = np.concatenate([sheep_x, sheep_x[mask_s]])
-    sheep_y = np.concatenate([sheep_y, sheep_y[mask_s]])
-    mask_w = np.random.rand(len(wolf_x)) < 0.02
-    wolf_x = np.concatenate([wolf_x, wolf_x[mask_w]])
-    wolf_y = np.concatenate([wolf_y, wolf_y[mask_w]])
+      <!-- Fire Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：加入概率蔓延与随机起火</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>现实中火苗不一定每次都能引燃相邻树木（受湿度、风力、距离影响），而且闪电等也会随机起火。我们引入：</p>
+            <div class="p-3 bg-orange-50 rounded-lg mb-3">
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>p_spread</strong>：树被着火的邻居点燃的概率</li>
+                <li><strong>p_ignite</strong>：每棵树每步自发燃烧的概率</li>
+              </ul>
+            </div>
+            <p><strong>动检：</strong>改变初始树密度，重复多次实验，画出“平均烧毁比例 vs 密度”曲线。你会看到类似逾渗（percolation）的相变：密度超过临界值后，烧毁比例急剧上升。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
-    history_s.append(len(sheep_x))
-    history_w.append(len(wolf_x))
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+CMAP = ListedColormap(['white', 'green', 'red', 'black'])
 
-# --- Visualizations ---
-fig, axes = plt.subplots(1, 2, figsize=(13, 4))
-axes[0].plot(history_s, label='Sheep', color='green')
-axes[0].plot(history_w, label='Wolves', color='red')
-axes[0].set_title('Spatial ABS')
-axes[0].legend()
-axes[1].scatter(sheep_x, sheep_y, c='green', s=20, alpha=0.6, label='Sheep')
-axes[1].scatter(wolf_x, wolf_y, c='red', s=40, alpha=0.8, label='Wolves')
-axes[1].set_title('Final Spatial Distribution')
-axes[1].set_xlim(0, grid); axes[1].set_ylim(0, grid)
+def init_forest(grid_size, density, p_ignite):
+    forest = np.zeros((grid_size, grid_size), dtype=int)
+    forest[np.random.rand(grid_size, grid_size) < density] = TREE
+    ignite = np.random.rand(grid_size, grid_size) < p_ignite * 10
+    forest[(forest == TREE) & ignite] = BURNING
+    return forest
+
+def step_fire_prob(forest, p_spread, p_ignite):
+    new = forest.copy()
+    burn = (forest == BURNING)
+    new[burn] = ASH
+    # probabilistic spread from burning neighbors
+    spread_risk = np.zeros_like(forest, dtype=float)
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0:
+                continue
+            spread_risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
+    catch = (np.random.rand(*forest.shape) < 1 - (1 - p_spread)**spread_risk)
+    new[(forest == TREE) & catch] = BURNING
+    # spontaneous ignition
+    new[(forest == TREE) & (np.random.rand(*forest.shape) < p_ignite)] = BURNING
+    return new
+
+def run_fire(density, grid_size, p_spread, p_ignite, steps):
+    forest = init_forest(grid_size, density, p_ignite)
+    for _ in range(steps):
+        forest = step_fire_prob(forest, p_spread, p_ignite)
+    return (forest == ASH).sum() / forest.size
+
+np.random.seed(2)
+grid_size, steps, reps = 41, 30, 10
+p_spread, p_ignite = 0.7, 0.001
+densities = np.arange(0.1, 0.9, 0.03)
+avg_burned = []
+for d in densities:
+    burned = [run_fire(d, grid_size, p_spread, p_ignite, steps) for _ in range(reps)]
+    avg_burned.append(np.mean(burned))
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(densities, avg_burned, marker='o', color='firebrick')
+ax.set_xlabel('Initial tree density')
+ax.set_ylabel('Average burned fraction')
+ax.set_title('Burned Fraction vs. Tree Density')
+ax.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fire Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：完整动态森林——生长、火灾与长期演化</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>树被烧掉后会变成空地，空地以一定概率重新长树；闪电随机点燃成熟森林。这样系统会进入“生长—火灾—再生”的循环，类似真实森林演替。</p>
+            <div class="p-3 bg-orange-50 rounded-lg mb-3">
+              <p><strong>新增规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>EMPTY 每步以概率 p_grow 长成 TREE</li>
+                <li> TREE 每步以概率 p_ignite 自燃</li>
+                <li>火灾蔓延概率 p_spread 控制火势凶猛程度</li>
+              </ul>
+            </div>
+            <p><strong>分析：</strong>长时间运行后，森林面积会呈现剧烈振荡。可以画出 TREE / BURNING / ASH 三类细胞的数量时间序列，并观察不同 p_spread 下振幅与周期的变化。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from matplotlib.animation import FuncAnimation
+
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+CMAP = ListedColormap(['white', 'green', 'red', 'black'])
+
+def init_full_forest(grid_size, density):
+    forest = np.zeros((grid_size, grid_size), dtype=int)
+    forest[np.random.rand(grid_size, grid_size) < density] = TREE
+    return forest
+
+def step_full_fire(forest, p_grow, p_spread, p_ignite):
+    new = forest.copy()
+    burn = (forest == BURNING)
+    new[burn] = ASH
+    # spread
+    risk = np.zeros_like(forest, dtype=float)
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0:
+                continue
+            risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
+    catch = (np.random.rand(*forest.shape) < 1 - (1 - p_spread)**risk)
+    new[(forest == TREE) & catch] = BURNING
+    # spontaneous ignition
+    new[(forest == TREE) & (np.random.rand(*forest.shape) < p_ignite)] = BURNING
+    # regrowth
+    new[(forest == EMPTY) & (np.random.rand(*forest.shape) < p_grow)] = TREE
+    return new
+
+np.random.seed(3)
+grid_size, steps = 80, 200
+forest = init_full_forest(grid_size, 0.6)
+# ignite a few cells at the center
+forest[grid_size//2-2:grid_size//2+2, grid_size//2-2:grid_size//2+2] = BURNING
+p_grow, p_spread, p_ignite = 0.02, 0.8, 0.0005
+
+counts = {'tree': [], 'burning': [], 'ash': []}
+frames = [forest.copy()]
+for _ in range(steps):
+    forest = step_full_fire(forest, p_grow, p_spread, p_ignite)
+    counts['tree'].append((forest == TREE).sum())
+    counts['burning'].append((forest == BURNING).sum())
+    counts['ash'].append((forest == ASH).sum())
+    frames.append(forest.copy())
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+axes[0].imshow(frames[-1], cmap=CMAP, vmin=0, vmax=3)
+axes[0].set_title('Final State')
+axes[0].axis('off')
+t = np.arange(len(counts['tree']))
+axes[1].plot(t, counts['tree'], label='Tree', color='green')
+axes[1].plot(t, counts['burning'], label='Burning', color='red')
+axes[1].plot(t, counts['ash'], label='Ash', color='black')
+axes[1].set_xlabel('Step')
+axes[1].set_ylabel('Cell count')
+axes[1].set_title('Forest Composition Over Time')
 axes[1].legend()
 plt.tight_layout(); plt.show()
+
+# To produce an actual animation, uncomment below:
+# fig_anim, ax_anim = plt.subplots(figsize=(6, 6))
+# im = ax_anim.imshow(frames[0], cmap=CMAP, vmin=0, vmax=3)
+# ax_anim.axis('off')
+# def update(i):
+#     im.set_array(frames[i])
+#     ax_anim.set_title(f'Step {i}')
+#     return [im]
+# anim = FuncAnimation(fig_anim, update, frames=len(frames), interval=100, blit=True)
+# anim.save('forest_fire.mp4')  # or use HTML(anim.to_jshtml()) in Jupyter
 </code></pre>
           </div>
         </div>
       </div>
 
-      <!-- Block 4 -->
+      <!-- ========== Schelling ========== -->
+      <h3 class="text-xl font-bold text-slate-800 mb-4 mt-8">6.2 Schelling 隔离模型（Schelling's Segregation Model）</h3>
+
+      <!-- Schelling Block 1 -->
       <div class="mb-8 border rounded-lg p-5 bg-slate-50">
-        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：加入资源限制与承载能力</h3>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：基础两类型隔离</h3>
         <div class="grid lg:grid-cols-2 gap-6">
           <div class="prose prose-slate text-sm">
-            <p><strong>复杂化：</strong>草不是无限的。羊需要吃草才能生存和繁殖，草被吃完后按 logistic 方式恢复。</p>
+            <p><strong>场景：</strong>两种“居民”随机住在棋盘上。每个居民希望周围非空邻居中至少有比例 T 与自己同类；不满足时会搬到任意一个空房。即使 T 并不高（例如 30%），系统也会自发形成高度隔离的社区。</p>
             <div class="p-3 bg-pink-50 rounded-lg mb-3">
-              <p><strong>新增变量：</strong></p>
+              <p><strong>规则：</strong></p>
               <ul class="list-disc pl-5 space-y-1">
-                <li>G<sub>t</sub>：草量，范围 [0, K]</li>
-                <li>K：环境承载能力</li>
-                <li>羊有效繁殖率受草量影响：α' = α · G/K</li>
+                <li>遍历所有居民，判断是否“满意”：同类邻居 / 非空邻居 ≥ T</li>
+                <li>不满意者随机搬到空房</li>
+                <li>重复直到无人搬家或达到最大迭代次数</li>
               </ul>
             </div>
-            <p><strong>启发问题：</strong>如果草恢复很慢，羊和狼会怎样？承载能力如何改变长期平衡？</p>
+            <p><strong>关键指标：</strong>平均相似度 = 所有居民同类邻居占全部邻居比例的平均。数值越高，隔离越明显。</p>
           </div>
           <div class="relative">
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
+import random
 
-# Fix seed and initialize arrays for sheep, wolves, and grass.
-np.random.seed(42)
-n_steps = 200
-S, W, G = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
-S[0], W[0], G[0] = 40, 9, 100
+EMPTY = 0
 
-# Parameters for reproduction, predation, death, and grass regrowth.
-alpha, beta, gamma, delta = 0.15, 0.02, 0.1, 0.01
-K, grass_growth = 100, 0.3
+def init_grid(grid_size, empty_ratio, type_ratios):
+    total = grid_size * grid_size
+    n_empty = int(total * empty_ratio)
+    counts = [int(total * r) for r in type_ratios]
+    # adjust rounding so total matches
+    diff = total - n_empty - sum(counts)
+    if diff > 0:
+        n_empty += diff
+    elif diff < 0:
+        counts[-1] += diff
+    cells = [EMPTY]*n_empty
+    for t, n in enumerate(counts, start=1):
+        cells += [t]*n
+    random.shuffle(cells)
+    return np.array(cells).reshape(grid_size, grid_size)
 
-for t in range(n_steps - 1):
-    # Sheep reproduction rate depends on available grass (carrying-capacity effect).
-    effective_alpha = alpha * (G[t] / K)
-    ds = effective_alpha * S[t] - beta * S[t] * W[t]
-    dw = delta * beta * S[t] * W[t] - gamma * W[t]
-    # Grass regrows logistically and is consumed by sheep.
-    dG = grass_growth * (K - G[t]) - 0.5 * S[t]
-    S[t+1] = max(0, S[t] + ds)
-    W[t+1] = max(0, W[t] + dw)
-    G[t+1] = np.clip(G[t] + dG, 0, K)
+def avg_similarity(grid):
+    size = grid.shape[0]
+    total, n = 0.0, 0
+    for r in range(size):
+        for c in range(size):
+            a = grid[r, c]
+            if a == EMPTY:
+                continue
+            n += 1
+            neighbors = []
+            for dr in (-1,0,1):
+                for dc in (-1,0,1):
+                    if dr==0 and dc==0: continue
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < size and 0 <= nc < size:
+                        neighbors.append(grid[nr, nc])
+            if neighbors:
+                total += neighbors.count(a) / len(neighbors)
+    return 100 * total / n if n else 0
 
-# --- Visualizations ---
-fig, axes = plt.subplots(1, 2, figsize=(13, 4))
-axes[0].plot(S, label='Sheep', color='green')
-axes[0].plot(W, label='Wolves', color='red')
-axes[0].plot(G, label='Grass', color='lime')
-axes[0].set_title('With Resource Limitation')
-axes[0].legend()
-axes[1].plot(S, W, color='purple')
-axes[1].set_title('Phase Space')
-axes[1].set_xlabel('Sheep'); axes[1].set_ylabel('Wolves')
+def schelling_step(grid, tolerance):
+    size = grid.shape[0]
+    unhappy = [(r,c) for r in range(size) for c in range(size)
+               if grid[r,c]!=EMPTY and not is_happy(grid,r,c,tolerance)]
+    empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==EMPTY]
+    random.shuffle(unhappy); random.shuffle(empty)
+    moves = 0
+    for r,c in unhappy:
+        if not empty: break
+        nr, nc = empty.pop()
+        empty.append((r,c))
+        agent = grid[r,c]
+        grid[nr,nc] = agent
+        grid[r,c] = EMPTY
+        moves += 1
+    return grid, moves
+
+def is_happy(grid,r,c,T):
+    a = grid[r,c]
+    if a == EMPTY: return True
+    size = grid.shape[0]
+    relevant = []
+    for dr in (-1,0,1):
+        for dc in (-1,0,1):
+            if dr==0 and dc==0: continue
+            nr,nc = r+dr, c+dc
+            if 0 <= nr < size and 0 <= nc < size and grid[nr,nc] != EMPTY:
+                relevant.append(grid[nr,nc])
+    if not relevant: return True
+    return relevant.count(a) / len(relevant) >= T
+
+random.seed(4); np.random.seed(4)
+grid_size, empty_ratio, T = 40, 0.2, 0.3
+grid = init_grid(grid_size, empty_ratio, [0.4, 0.4])
+print(f'Initial similarity: {avg_similarity(grid):.1f}%')
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(grid, cmap='viridis', vmin=0, vmax=2)
+axes[0].set_title('Initial Random Mixing')
+axes[0].axis('off')
+
+for _ in range(50):
+    grid, moves = schelling_step(grid, T)
+    if moves == 0: break
+
+axes[1].imshow(grid, cmap='viridis', vmin=0, vmax=2)
+axes[1].set_title(f'Final Segregation (T={T})')
+axes[1].axis('off')
+print(f'Final similarity: {avg_similarity(grid):.1f}%')
 plt.tight_layout(); plt.show()
 </code></pre>
           </div>
         </div>
       </div>
 
-      <!-- Block 5 -->
+      <!-- Schelling Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：多类型与空房比例的影响</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>现实世界不止两种群体，空房比例也影响居民能否找到满意住所。我们比较 2 类型与 3 类型、以及不同空房比例下的最终格局。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>参数设计：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>type_ratios = [0.35, 0.35, 0.1] 表示三类居民</li>
+                <li>empty_ratio 从 0.05 到 0.30，观察流动性对隔离的“润滑”作用</li>
+              </ul>
+            </div>
+            <p><strong>分析：</strong>空房越多，居民越容易搬家，隔离形成越快、也越彻底；空房太少时系统可能卡在不满意状态。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+# reuse init_grid, schelling_step, avg_similarity from Block 1
+random.seed(5); np.random.seed(5)
+grid_size, T = 40, 0.4
+empty_ratios = [0.05, 0.15, 0.30]
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+for ax, er in zip(axes, empty_ratios):
+    grid = init_grid(grid_size, er, [0.35, 0.35, 0.1])
+    for _ in range(60):
+        grid, moves = schelling_step(grid, T)
+        if moves == 0: break
+    ax.imshow(grid, cmap='viridis', vmin=0, vmax=3)
+    ax.set_title(f'empty={er:.0%}, sim={avg_similarity(grid):.0f}%')
+    ax.axis('off')
+plt.suptitle('Effect of Empty Ratio on Segregation')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schelling Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：容忍阈值与相变</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>把 T 从 0.1 扫描到 0.9，记录最终平均相似度与达到均衡所需迭代次数。Schelling 模型的惊人发现在于：即使个体只要求“不想成为少数”，宏观上仍会走向高度隔离。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>输出：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>蓝色曲线：最终平均相似度随 T 上升而上升</li>
+                <li>红色曲线：T 越高，搬家次数越多、收敛越慢</li>
+              </ul>
+            </div>
+            <p><strong>启发问题：</strong>如果政策希望降低隔离，应该提高还是降低居民对异类的容忍度？增加空房供应会有帮助吗？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+# reuse functions from Block 1
+random.seed(6); np.random.seed(6)
+grid_size, empty_ratio = 40, 0.2
+tolerances = np.arange(0.1, 1.0, 0.02)
+similarities = []
+iterations = []
+
+for T in tolerances:
+    grid = init_grid(grid_size, empty_ratio, [0.4, 0.4])
+    iters = 0
+    for k in range(100):
+        grid, moves = schelling_step(grid, T)
+        iters += 1
+        if moves == 0:
+            break
+    similarities.append(avg_similarity(grid))
+    iterations.append(iters)
+
+fig, ax1 = plt.subplots(figsize=(10, 5))
+color = 'tab:blue'
+ax1.set_xlabel('Tolerance threshold T')
+ax1.set_ylabel('Final average similarity (%)', color=color)
+ax1.plot(tolerances, similarities, color=color, marker='o', label='Similarity')
+ax1.tick_params(axis='y', labelcolor=color)
+ax1.set_ylim(0, 105)
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+ax2 = ax1.twinx()
+color = 'tab:red'
+ax2.set_ylabel('Iterations to equilibrium', color=color)
+ax2.plot(tolerances, iterations, color=color, marker='x', linestyle='--', label='Iterations')
+ax2.tick_params(axis='y', labelcolor=color)
+
+fig.legend(loc='upper left', bbox_to_anchor=(0.12, 0.92))
+plt.title('Schelling Model: Tolerance vs. Segregation')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discussion Block -->
       <div class="border rounded-lg p-5 bg-pink-50">
-        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 5：启发式讨论</h3>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 4：启发式讨论</h3>
         <div class="text-sm text-slate-700 space-y-2">
-          <p><strong>1. 参数敏感性：</strong>改变 α（羊增长率）或 β（捕食率），周期会发生什么变化？哪个参数更容易导致灭绝？</p>
-          <p><strong>2. 模型选择：</strong>什么时候用确定性微分方程足够？什么时候必须上 ABS？</p>
-          <p><strong>3. 管理策略：</strong>如果你是保护区管理员，想避免羊灭绝，应该控制狼数量还是增加草量？</p>
-          <p><strong>4. 进一步复杂化：</strong>还可以加入年龄结构、疾病传播、人类捕猎、气候变化等因素。如何用模型验证你的假设？</p>
+          <p><strong>1. 涌现 vs 意图：</strong>Schelling 隔离是个体“不讨厌异类、只是不想当少数”的结果；森林大火的周期性是局部引燃规则在全局上的涌现。ABS 的价值在于把宏观现象追溯到微观规则。</p>
+          <p><strong>2. 参数敏感性：</strong>森林大火中哪个参数最影响烧毁面积？Schelling 中 T 超过多少后相似度陡增？做参数扫描才能回答。</p>
+          <p><strong>3. 模型选择：</strong>什么时候用连续微分方程、什么时候用 ABS？当个体异质性、空间交互或非线性阈值重要时，ABS 更直观。</p>
+          <p><strong>4. 扩展方向：</strong>给森林加风向/防火带；给 Schelling 加“搬家成本”或“政府补贴 mixed neighborhood”。这些政策如何用 ABS 快速试错？</p>
         </div>
       </div>
     </section>
-    <!-- Module 6: Bike Sharing -->
-    <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Markov Chain 案例：共享单车分布（由浅入深）</h2>
+<section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Markov Chain 案例：共享单车分布（由浅入深）</h2>
       <p class="text-slate-700 mb-6"><strong>核心思想：</strong>Markov 链的核心是"无记忆性"——下一状态只取决于当前状态。下面从最简单的两状态模型开始，逐步加入站点、车辆约束、调度、时间非齐次等复杂因素。</p>
 
       <!-- Block 1 -->
@@ -998,10 +1261,8 @@ plt.tight_layout(); plt.show()
           <p><strong>4. 运营优化：</strong>如果调度成本很高，能否通过动态定价（高峰期高价）来引导用户自然平衡车辆？</p>
         </div>
       </div>
-    </section>
-    <!-- Module 7: Weather Markov Chain -->
-    <section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. Markov Chain 案例：天气预测（由浅入深）</h2>
+    </section><section id="m8" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. Markov Chain 案例：天气预测（由浅入深）</h2>
       <p class="text-slate-700 mb-6"><strong>核心思想：</strong>用 Markov 链把"明天天气会是什么"变成矩阵乘法。下面从最简单的两状态开始，逐步加入更多状态、季节性、历史记忆等因素。</p>
 
       <!-- Block 1 -->
@@ -1237,11 +1498,8 @@ plt.tight_layout(); plt.show()
           <p><strong>4. 预测极限：</strong>Markov 链适合 1-3 天预测。对于 7 天以上，应该考虑什么其他方法？</p>
         </div>
       </div>
-    </section>
-
-    <!-- Module 8: Summary -->
-    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 三种随机建模视角对比</h2>
+    </section><section id="m9" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 三种随机建模视角对比</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm border">
           <thead class="bg-slate-100">
