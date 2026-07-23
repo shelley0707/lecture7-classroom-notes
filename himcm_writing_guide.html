@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HiMCM 获奖论文写作指南 | From Sample Papers to O-worthy Writing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .serif { font-family: 'Noto Serif SC', serif; }
+    .paper-card { border-left: 4px solid #3b82f6; }
+    .paper-card.gold { border-left-color: #f59e0b; }
+    .paper-card.green { border-left-color: #10b981; }
+    .paper-card.rose { border-left-color: #f43f5e; }
+    .paper-card.purple { border-left-color: #8b5cf6; }
+    .example-good { background: #f0fdf4; border-left: 4px solid #22c55e; }
+    .example-bad { background: #fef2f2; border-left: 4px solid #ef4444; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-5xl mx-auto px-6 py-10">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-4 serif">HiMCM 获奖论文写作指南</h1>
+      <p class="text-lg text-slate-600">从 145 篇 O 奖论文中提炼的写作结构、句式与避坑清单</p>
+      <p class="text-sm text-slate-500 mt-2">核心原则：用模型讲故事，而不是用故事装饰模型。</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-10">
+      <div class="flex flex-wrap gap-2 justify-center text-sm">
+        <a href="#structure" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">论文结构</a>
+        <a href="#tense" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">时态</a>
+        <a href="#modeling-philosophy" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">模型选择</a>
+        <a href="#sensitivity" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">敏感性分析</a>
+        <a href="#conclusion" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">结论</a>
+        <a href="#ai-report" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">AI Report</a>
+        <a href="#sentences" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">20 个精彩句式</a>
+        <a href="#checklist" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">检查清单</a>
+      </div>
+    </nav>
+
+    <section id="structure" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">一、HiMCM 论文的标准结构</h2>
+      <p class="text-slate-700 mb-6">O 奖论文的章节安排并不完全一致，但 145 篇论文中反复出现一套“可预测的节奏”。下面的结构按出现频率排序，括号内标注了该部分在评委眼中的核心作用。</p>
+
+      <div class="space-y-4">
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">1. Summary / Abstract（摘要）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>这是评委读的第一段，也是唯一一段可能被单独打印的段落。O 奖论文的摘要通常先给“任务拆解”，再给“核心结果”，最后给“关键方法”。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>篇幅建议：</strong>250–350 词；不超过半页。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>时态：</strong>研究背景用现在时，本文工作用过去时，结论/发现用现在时。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">2. Contents（目录）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>让 20 页论文“可被检索”。O 奖论文常见二级目录，甚至三级目录，帮助评委快速定位模型、结果和敏感性分析。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">3. Introduction / Problem Restatement（引言与问题重述）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>不是复制赛题，而是用自己的语言“翻译”问题。好的引言会点明：为什么这个问题重要、我们要回答哪几个子问题、我们的方法有何不同。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>时态：</strong>背景事实用现在时，本文计划用将来时/现在时。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">4. Assumptions and Justifications（假设与合理性说明）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>每一个假设都是一次“建模选择”。O 奖论文不会只列假设，而是解释：为什么这个简化合理、如果不简化会怎样、对结果的影响方向是什么。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>时态：</strong>普遍真理用现在时，本文采用的简化用过去时或现在时。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">5. Variables and Notation（符号说明）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>让评委不用翻页就能理解公式。好的符号表会按“输入参数 / 状态变量 / 输出指标”分组。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">6. Model Design / Model Construction（模型构建）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>全文核心。O 奖论文的模型章节不是“公式陈列馆”，而是“决策故事线”：从最简单的 baseline 开始，逐步添加现实约束，每一步都解释“为什么需要这一步”。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>时态：</strong>模型推导用现在时，本文具体实现用过去时。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">7. Model Testing / Validation（模型检验）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>证明你的模型“不是乱编的”。常见方法：极端值测试、与历史数据对比、与文献结果对比、退化情形验证。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">8. Results and Discussion（结果与讨论）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>不要只给数字。O 奖论文会解释：结果意味着什么、哪个变量主导了结果、结果对决策者有什么用。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">9. Sensitivity Analysis（敏感性分析）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>体现对模型不确定性的理解。详见后文专节。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">10. Strengths and Weaknesses（优缺点）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>展示批判性思维。好的优缺点分析会提出未来改进方向，而不是简单罗列。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">11. Conclusion（结论）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>回答赛题的“原始问题”，并把数学结果翻译成给决策者的建议。详见后文专节。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">12. Letter / Memo to Stakeholders（给利益相关方的信/备忘录）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>HiMCM 强调“现实决策对象”。这封信是把模型翻译成非技术语言的关键机会，也是很多 O 奖论文的加分项。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>时态：</strong>建议用现在时和将来时。</p>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">13. References & Appendix（参考文献与附录）</div>
+          <p class="text-slate-600 text-sm mt-1"><strong>重要性：</strong>参考文献体现数据和方法来源；附录存放代码、推导、额外图表，避免正文臃肿。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tense" class="paper-card green bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">二、时态：让论文“听起来像科学写作”</h2>
+      <p class="text-slate-700 mb-4">时态混乱是 HiMCM 论文最常见的失分点之一。下面是基于获奖论文的通用规则。</p>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left border rounded-lg">
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="px-4 py-2 border-b">场景</th>
+              <th class="px-4 py-2 border-b">推荐时态</th>
+              <th class="px-4 py-2 border-b">示例</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr>
+              <td class="px-4 py-2 border-b">公认的数学事实、物理规律</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">一般现在时</td>
+              <td class="px-4 py-2 border-b">Newton's second law states that F = ma.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">本文建立的模型、公式、定义</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">一般现在时</td>
+              <td class="px-4 py-2 border-b">Let S(t) denote the number of susceptible individuals at time t.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">本文具体完成的计算、模拟、实现</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">一般过去时</td>
+              <td class="px-4 py-2 border-b">We solved the model numerically using Python's scipy.integrate.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">本文得到的结果、发现</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">一般过去时或现在时</td>
+              <td class="px-4 py-2 border-b">The simulation showed that the peak infection occurs on day 23.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">结果的含义、结论、建议</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">一般现在时</td>
+              <td class="px-4 py-2 border-b">This suggests that early intervention significantly reduces total cases.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">计划、未来工作</td>
+              <td class="px-4 py-2 border-b font-semibold text-green-700">将来时</td>
+              <td class="px-4 py-2 border-b">Future work will incorporate spatial heterogeneity.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded">
+        <p class="text-slate-700 text-sm"><strong>常见错误：</strong>在描述“我们做了什么”时误用现在时，例如 "We solve the model numerically"（应为 solved）；或在解释模型意义时误用过去时，例如 "The result suggested that intervention is important"（如果这是普遍结论，建议用 suggests）。</p>
+      </div>
+    </section>
+
+    <section id="modeling-philosophy" class="paper-card purple bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">三、模型选择：解释“为什么”比展示“有多复杂”更重要</h2>
+      <p class="text-slate-700 mb-4">O 奖论文不是用最复杂的模型，而是用最合适的模型。评委想看的是：你理解了问题，并且你的模型是为这个问题量身定做的。</p>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="example-good p-4 rounded-lg">
+          <div class="font-bold text-green-800 mb-2">好的写法</div>
+          <p class="text-slate-700 text-sm">"We begin with a logistic growth model as a baseline because the problem explicitly mentions a carrying capacity. While an exponential model would be simpler, it would ignore the resource constraint and overestimate long-term population."</p>
+          <p class="text-slate-500 text-xs mt-2">点评：解释了选择逻辑，对比了替代方案。</p>
+        </div>
+        <div class="example-bad p-4 rounded-lg">
+          <div class="font-bold text-red-800 mb-2">不好的写法</div>
+          <p class="text-slate-700 text-sm">"We use a neural network because it is a powerful machine learning model."</p>
+          <p class="text-slate-500 text-xs mt-2">点评：只说模型很强，没说为什么适合这个问题。</p>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-bold text-slate-900 mb-3">模型解释的三层结构</h3>
+      <div class="space-y-3">
+        <div class="p-4 bg-violet-50 rounded-lg">
+          <div class="font-semibold text-violet-900">1. 问题层：这个问题需要什么？</div>
+          <p class="text-slate-700 text-sm mt-1">例如：需要预测、需要优化、需要分类、需要模拟传播过程、需要考虑不确定性。</p>
+        </div>
+        <div class="p-4 bg-violet-50 rounded-lg">
+          <div class="font-semibold text-violet-900">2. 模型层：这个模型能提供什么？</div>
+          <p class="text-slate-700 text-sm mt-1">例如：SIR 能分离易感/感染/康复人群；线性规划能在约束下求最优解；蒙特卡洛能估计不确定范围。</p>
+        </div>
+        <div class="p-4 bg-violet-50 rounded-lg">
+          <div class="font-semibold text-violet-900">3. 适配层：为什么是这个模型而不是别的？</div>
+          <p class="text-slate-700 text-sm mt-1">例如：我们尝试了指数增长，但数据在后期明显偏离；Logistic 模型能自然引入 K，且只需要一个额外参数。</p>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded">
+        <p class="text-slate-700 text-sm"><strong>核心提醒：</strong>如果一个复杂模型没有带来更合理的结论，不如用简单模型加上充分的解释。O 奖论文中常见的不是“模型堆叠”，而是“模型演进”：从一个简单模型出发，逐步添加现实因素，每一步都说明动机。</p>
+      </div>
+    </section>
+
+    <section id="sensitivity" class="paper-card rose bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">四、敏感性分析：思路与可视化</h2>
+      <p class="text-slate-700 mb-4">敏感性分析不是“可有可无的附录”，而是证明模型稳健性的关键。O 奖论文通常会在专门一节讨论敏感性，并配以清晰的图表。</p>
+
+      <h3 class="text-lg font-bold text-slate-900 mb-3">四类常见思路</h3>
+      <div class="space-y-4 mb-6">
+        <div class="p-4 bg-rose-50 rounded-lg">
+          <div class="font-semibold text-rose-900">1. 单参数扫描（One-at-a-time）</div>
+          <p class="text-slate-700 text-sm mt-1">固定其他参数，只改变一个关键参数，观察输出如何变化。适合快速识别“哪些参数最需要精确数据”。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>可视化：</strong>折线图，x 轴为参数值，y 轴为输出指标。</p>
+        </div>
+        <div class="p-4 bg-rose-50 rounded-lg">
+          <div class="font-semibold text-rose-900">2. 极端值测试（Extreme-value / Stress test）</div>
+          <p class="text-slate-700 text-sm mt-1">把参数推到物理上可能的边界，检查模型是否出现不合理行为。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>可视化：</strong>表格对比 baseline、上限、下限三种情形。</p>
+        </div>
+        <div class="p-4 bg-rose-50 rounded-lg">
+          <div class="font-semibold text-rose-900">3. 初始条件扰动</div>
+          <p class="text-slate-700 text-sm mt-1">改变初始值（如初始感染人数、初始种群比例），观察长期行为是否收敛到类似结论。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>可视化：</strong>多条曲线叠加的时间序列图。</p>
+        </div>
+        <div class="p-4 bg-rose-50 rounded-lg">
+          <div class="font-semibold text-rose-900">4. 模型结构敏感性（Model comparison）</div>
+          <p class="text-slate-700 text-sm mt-1">用不同模型处理同一问题，比较结论是否一致。例如：分别用 Logistic 回归和随机森林预测，看关键变量是否相同。</p>
+          <p class="text-slate-600 text-sm mt-1"><strong>可视化：</strong>并排柱状图或热力图。</p>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-bold text-slate-900 mb-3">敏感性分析的写作模板</h3>
+      <div class="example-good p-4 rounded-lg mb-4">
+        <p class="text-slate-700 text-sm">"We tested the sensitivity of the optimal solution to the estimated cost parameter c. Figure 5 shows that the recommended strategy remains unchanged when c varies by ±20%, but shifts dramatically when c exceeds 1.5 times its baseline value. This indicates that our primary recommendation is robust under reasonable estimation error, though accurate measurement of c remains critical."</p>
+      </div>
+
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-400 rounded">
+        <p class="text-slate-700 text-sm"><strong>避坑：</strong>不要只画一张图而不解释。评委需要知道：哪个参数敏感、敏感到什么程度、对决策有什么影响。</p>
+      </div>
+    </section>
+
+    <section id="conclusion" class="paper-card gold bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">五、结论：回答原问题，而不是复述结果</h2>
+      <p class="text-slate-700 mb-4">很多队伍把结论写成“我们做了什么”的清单，但 O 奖论文的结论会回到赛题的原始问题，并给出可操作的洞察。</p>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="example-good p-4 rounded-lg">
+          <div class="font-bold text-green-800 mb-2">好的结论</div>
+          <p class="text-slate-700 text-sm">"Our model indicates that a 15% reduction in water consumption during the first three months of drought would delay reservoir depletion by approximately 8 weeks. For city planners, this suggests that moderate early restrictions are more effective than severe late-stage cuts."</p>
+          <p class="text-slate-500 text-xs mt-2">点评：直接回答了“该怎么做”，并给出了具体数字。</p>
+        </div>
+        <div class="example-bad p-4 rounded-lg">
+          <div class="font-bold text-red-800 mb-2">不好的结论</div>
+          <p class="text-slate-700 text-sm">"In this paper, we built a model, did simulation, and got some results. The results show that water is important."</p>
+          <p class="text-slate-500 text-xs mt-2">点评：空泛，没有回答具体问题。</p>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-bold text-slate-900 mb-3">结论的三要素</h3>
+      <div class="space-y-3">
+        <div class="p-4 bg-amber-50 rounded-lg">
+          <div class="font-semibold text-amber-900">1. 直接回答</div>
+          <p class="text-slate-700 text-sm mt-1">明确回答赛题提出的每一个问题或子问题。</p>
+        </div>
+        <div class="p-4 bg-amber-50 rounded-lg">
+          <div class="font-semibold text-amber-900">2. 关键数字</div>
+          <p class="text-slate-700 text-sm mt-1">给出最重要的定量结果，通常不超过 3 个数字。</p>
+        </div>
+        <div class="p-4 bg-amber-50 rounded-lg">
+          <div class="font-semibold text-amber-900">3. 决策含义</div>
+          <p class="text-slate-700 text-sm mt-1">解释结果对决策者、利益相关方或未来研究的意义。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="ai-report" class="paper-card purple bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">六、AI Report：诚实、具体、可核查</h2>
+      <p class="text-slate-700 mb-4">HiMCM 要求提交 AI Use Report。评委不反对使用 AI，但反对隐瞒或滥用。一个稳妥的 AI Report 应该包括：使用了什么工具、用在了什么环节、如何验证 AI 输出、哪些部分完全由团队完成。</p>
+
+      <div class="overflow-x-auto mb-6">
+        <table class="min-w-full text-sm text-left border rounded-lg">
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="px-4 py-2 border-b">环节</th>
+              <th class="px-4 py-2 border-b">可接受的 AI 使用</th>
+              <th class="px-4 py-2 border-b">需要声明并核查</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr>
+              <td class="px-4 py-2 border-b">文献与数据查找</td>
+              <td class="px-4 py-2 border-b">用 AI 快速定位资料方向</td>
+              <td class="px-4 py-2 border-b">必须人工核实来源、数据、引用</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">代码辅助</td>
+              <td class="px-4 py-2 border-b">生成代码片段、调试</td>
+              <td class="px-4 py-2 border-b">必须理解代码含义并自行测试</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">语言润色</td>
+              <td class="px-4 py-2 border-b">改进语法和表达</td>
+              <td class="px-4 py-2 border-b">不能改变原意或添加未经验证的事实</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border-b">模型与推导</td>
+              <td class="px-4 py-2 border-b">获取灵感、学习概念</td>
+              <td class="px-4 py-2 border-b">核心数学推导和建模决策必须由团队完成</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="example-good p-4 rounded-lg">
+        <div class="font-bold text-green-800 mb-2">AI Report 示例</div>
+        <p class="text-slate-700 text-sm">"We used ChatGPT and GitHub Copilot to assist with code debugging and grammar checking. All mathematical models, assumptions, interpretations, and final conclusions were developed and verified by the team. We manually checked all data sources and ran every simulation independently."</p>
+      </div>
+    </section>
+
+    <section id="sentences" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">七、20 个获奖范文精彩句式与点评</h2>
+      <p class="text-slate-700 mb-6">下面的句式基于 O 奖论文常见表达提炼而成。每个句式都附有“可以用在哪里”和“为什么好”，以及一个对应的反面教材。</p>
+
+      <div class="space-y-6">
+        <!-- 1 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">摘要</span>
+            <span class="font-bold text-slate-900">句式 1</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"We develop a [model name] to address [problem], yielding [key result] under [main condition]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>一句话交代模型、问题和核心结果，信息密度高，符合 O 奖摘要“先给结果”的风格。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"This paper studies a problem and uses some models."（没有具体模型、没有结果。）</p>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded text-xs font-bold">引言</span>
+            <span class="font-bold text-slate-900">句式 2</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"While previous studies have focused on [X], the trade-off between [Y] and [Z] remains underexplored in the context of [specific scenario]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用“文献缺口”定位自己的贡献，显得研究有依据、有动机。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"This problem is very important and many people care about it."（空话，没有学术定位。）</p>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">假设</span>
+            <span class="font-bold text-slate-900">句式 3</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"We assume [A]. This simplification is reasonable because [justification], and it leads to [consequence]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>假设不是被扔出来的，而是被“论证”出来的。说明合理性和后果是关键。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We assume the population is constant."（没有解释为什么合理、会有什么影响。）</p>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">模型选择</span>
+            <span class="font-bold text-slate-900">句式 4</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Rather than adopting a black-box approach, we choose [model] because its parameters have direct physical interpretations."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>强调可解释性，呼应 HiMCM 对“理解模型”的重视。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We use a neural network because it is very accurate."（没有解释可解释性和适用性。）</p>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">模型演进</span>
+            <span class="font-bold text-slate-900">句式 5</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Starting from a baseline [simple model], we progressively incorporate [factor 1] and [factor 2] to better capture reality."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>展示建模思路的层次感，说明复杂度的增加是必要的。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model has 20 equations and 50 parameters."（复杂度本身不是优点。）</p>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">变量定义</span>
+            <span class="font-bold text-slate-900">句式 6</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Let [symbol] denote [quantity], measured in [unit], at time [t]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>定义清楚、单位明确，避免符号歧义。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"x is something we care about."（不专业，无量纲无单位。）</p>
+          </div>
+        </div>
+
+        <!-- 7 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">推导</span>
+            <span class="font-bold text-slate-900">句式 7</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Combining [Equation 1] and [Equation 2], we obtain the governing equation for [variable]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用“Combining...”自然连接推导步骤，逻辑清晰。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Then we get the equation."（跳跃，读者不知道方程从哪里来。）</p>
+          </div>
+        </div>
+
+        <!-- 8 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">求解</span>
+            <span class="font-bold text-slate-900">句式 8</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"The system is solved numerically using [method] with [software], ensuring [accuracy/stability criterion]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>说明方法、工具和精度标准，体现专业性。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We used Python to solve it."（太笼统。）</p>
+          </div>
+        </div>
+
+        <!-- 9 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">结果</span>
+            <span class="font-bold text-slate-900">句式 9</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"As shown in Figure [N], the model predicts [result], which is consistent with [data/expectation]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>图文结合，并把结果与预期或数据做对比。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"The figure shows the result."（没有说明结果是什么、意味着什么。）</p>
+          </div>
+        </div>
+
+        <!-- 10 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">结果解释</span>
+            <span class="font-bold text-slate-900">句式 10</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"This seemingly counterintuitive outcome arises because [mechanism], highlighting the importance of [factor]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>解释反直觉结果，展示对模型机制的深刻理解。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"The result is strange and we don't know why."（显得模型不可控。）</p>
+          </div>
+        </div>
+
+        <!-- 11 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">敏感性</span>
+            <span class="font-bold text-slate-900">句式 11</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"A ±20% variation in [parameter] alters [output] by less than [X]%, suggesting that our recommendation is robust."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用具体数字量化稳健性，并链接到决策建议。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We did sensitivity analysis and the model is stable."（没有具体参数和数字。）</p>
+          </div>
+        </div>
+
+        <!-- 12 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">敏感性</span>
+            <span class="font-bold text-slate-900">句式 12</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"The model is most sensitive to [parameter], which implies that future data collection should prioritize this quantity."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把敏感性分析转化为行动建议，体现应用价值。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Parameter A is sensitive."（没有说明对决策的影响。）</p>
+          </div>
+        </div>
+
+        <!-- 13 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">验证</span>
+            <span class="font-bold text-slate-900">句式 13</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"To validate the model, we compare its predictions with [data source]; the relative error remains below [Y]% across all test cases."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>明确验证方法、数据来源和误差标准。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model is correct because the results look reasonable."（主观判断，缺乏数据支撑。）</p>
+          </div>
+        </div>
+
+        <!-- 14 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">优缺点</span>
+            <span class="font-bold text-slate-900">句式 14</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"A key limitation of our approach is [limitation]. However, this is partially mitigated by [mitigation strategy]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>不仅承认弱点，还说明如何缓解，展示批判性思维。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model has no weaknesses."（不诚实，评委不会相信。）</p>
+          </div>
+        </div>
+
+        <!-- 15 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">结论</span>
+            <span class="font-bold text-slate-900">句式 15</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Taken together, our results suggest that [policy/action] is the most effective strategy under [condition]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把多个结果综合成一个明确的决策建议。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We made a model and got results."（没有结论。）</p>
+          </div>
+        </div>
+
+        <!-- 16 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">利益相关方</span>
+            <span class="font-bold text-slate-900">句式 16</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"For [stakeholder], the primary implication is [specific impact], which calls for [specific action]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把模型结果翻译成不同主体的行动建议，体现现实关怀。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our result is good for everyone."（过于笼统。）</p>
+          </div>
+        </div>
+
+        <!-- 17 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">未来工作</span>
+            <span class="font-bold text-slate-900">句式 17</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Future work could relax [assumption] by incorporating [extension], potentially improving [aspect] of the model."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>具体的未来方向比空泛的“more data”更有说服力。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"We need more data in the future."（没有说明什么数据、为什么。）</p>
+          </div>
+        </div>
+
+        <!-- 18 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">图表描述</span>
+            <span class="font-bold text-slate-900">句式 18</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Figure [N] illustrates that [trend], with [feature] becoming pronounced as [variable] increases."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>描述图表时指出趋势和关键特征，而不是复述坐标轴。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Figure 1 shows x on the x-axis and y on the y-axis."（没有解释趋势。）</p>
+          </div>
+        </div>
+
+        <!-- 19 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">比较</span>
+            <span class="font-bold text-slate-900">句式 19</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"Compared with [alternative], our model achieves [advantage] while requiring only [cost/trade-off]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>通过对比凸显模型优势，同时诚实地承认代价。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model is better than others."（没有具体比较维度。）</p>
+          </div>
+        </div>
+
+        <!-- 20 -->
+        <div class="p-5 border rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">总结</span>
+            <span class="font-bold text-slate-900">句式 20</span>
+          </div>
+          <div class="example-good p-3 rounded mb-3">
+            <p class="text-slate-800 italic">"In summary, we have presented a transparent, reproducible framework that transforms [data/assumptions] into actionable insights for [decision-maker]."</p>
+          </div>
+          <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>强调透明性、可复现性和行动价值，是高分论文的常见收尾。</p>
+          <div class="example-bad p-3 rounded">
+            <p class="text-slate-700 text-sm"><strong>反面：</strong>"In conclusion, we finished this paper."（无效结论。）</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="checklist" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">八、提交前检查清单</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-2">结构与内容</div>
+          <ul class="text-slate-700 text-sm space-y-1">
+            <li>摘要包含问题、方法、核心结果</li>
+            <li>每个假设都有合理性说明</li>
+            <li>模型选择解释了“为什么”</li>
+            <li>结果有数字、有解释、有图表</li>
+            <li>敏感性分析链接到决策影响</li>
+            <li>结论直接回答赛题问题</li>
+            <li>有给利益相关方的信/备忘录</li>
+          </ul>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900 mb-2">语言与格式</div>
+          <ul class="text-slate-700 text-sm space-y-1">
+            <li>时态一致（事实现在时，工作过去时）</li>
+            <li>符号表完整、单位明确</li>
+            <li>图表有编号、标题和引用</li>
+            <li>公式有编号，变量先定义后使用</li>
+            <li>避免口语化表达</li>
+            <li>参考文献格式统一</li>
+            <li>AI Use Report 已诚实填写</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8 border-t">
+      <p>Generated for HiMCM writing training · Based on structural analysis of 145 O-award papers</p>
+    </footer>
+  </div>
+</body>
+</html>
