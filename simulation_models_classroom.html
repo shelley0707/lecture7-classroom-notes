@@ -1,662 +1,1375 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simulation &amp; Stochastic Models</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulation Models — Classroom Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    code, pre { font-family: 'Fira Code', monospace; }
-    .example-card { break-inside: avoid; }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; }
-      .example-card { box-shadow: none; border: 1px solid #e5e7eb; }
-    }
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.formula { border-left-color: #10b981; }
+    .module-card.method { border-left-color: #8b5cf6; }
+    .module-card.example { border-left-color: #f59e0b; }
+    pre { max-height: 600px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">仿真模型与随机建模</h1>
+      <p class="text-lg text-slate-600">从假设到可运行代码：Monte Carlo · Agent-Based · 概率优化</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 模型设定、假设与用法，右侧 = Python Demo + 可视化</p>
+    </header>
 
-  <header class="bg-slate-900 text-white py-10 px-6">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-3xl md:text-4xl font-bold">Simulation &amp; Stochastic Models</h1>
-      <p class="mt-3 text-slate-300 text-lg">Classroom Notes: Embracing Uncertainty — From Random Sampling to Emergent Behavior</p>
-      <div class="mt-4 flex flex-wrap gap-2 text-sm">
-        <span class="bg-teal-600 px-3 py-1 rounded-full">Monte Carlo</span>
-        <span class="bg-emerald-600 px-3 py-1 rounded-full">Agent-Based</span>
-        <span class="bg-rose-600 px-3 py-1 rounded-full">Markov Chains</span>
-        <span class="bg-indigo-600 px-3 py-1 rounded-full">Parameter Insight</span>
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#m0" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">0. 统一框架</a>
+        <a href="#m1" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">1. MC：弹珠抽样</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. MC：产品上线</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">3. ABS：交通流</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">4. ABS：谣言传播</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200">5. ABS：森林大火</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">6. ABS：Schelling</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">7. 概率优化：模拟退火</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">8. 总结</a>
       </div>
-    </div>
-  </header>
+    </nav>
 
-  <main class="max-w-5xl mx-auto px-6 py-8">
-
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-      <p class="text-slate-600 leading-relaxed">
-        A <strong>deterministic</strong> model gives the same output for the same input (a cannonball&#x27;s trajectory). A <strong>stochastic</strong> model embraces uncertainty: it does not predict one fixed answer but the <strong>distribution</strong> of possible answers (a 60% chance of rain). This lecture builds three of the most useful stochastic tools. To keep every model as precise as a linear program, each example below is stated with the same four-part contract:
-      </p>
-      <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
-        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3"><strong class="text-sky-800">State &amp; Random Variables</strong><br><span class="text-slate-600">what the simulation tracks and what is drawn at random — the stochastic analog of <em>decision variables</em>.</span></div>
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3"><strong class="text-amber-800">Model Rules / Distributions</strong><br><span class="text-slate-600">the equations, update rules, or probability laws every variable must obey — the analog of <em>constraints</em>.</span></div>
-        <div class="bg-violet-50 border border-violet-200 rounded-lg p-3"><strong class="text-violet-800">Output Metric</strong><br><span class="text-slate-600">the quantity we estimate from many runs — the analog of the <em>objective function</em>.</span></div>
-        <div class="bg-green-50 border border-green-200 rounded-lg p-3"><strong class="text-green-800">Parameters (assumed)</strong><br><span class="text-slate-600">the fixed numbers we feed in and later vary to gain insight.</span></div>
-      </div>
-      <p class="text-slate-600 leading-relaxed mt-4">Every block is copy-paste-ready and uses <strong>numpy</strong> and <strong>matplotlib</strong>. Click <strong>Copy</strong> to grab any block.</p>
-    </div>
-
-    <!-- ============ PART A: MONTE CARLO ============ -->
-    <div class="flex items-center gap-3 mb-4 mt-10">
-      <div class="h-px flex-1 bg-teal-300"></div>
-      <h2 class="text-lg font-bold text-teal-700 uppercase tracking-wide">Part A &nbsp;&middot;&nbsp; Monte Carlo Simulation</h2>
-      <div class="h-px flex-1 bg-teal-300"></div>
-    </div>
-    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
-      <strong>Core idea (top-down):</strong> no complicated formula needed. Define the probability distribution for each uncertain input, then let a computer &quot;roll the dice&quot; thousands of times. The frequency of outcomes across all trials approximates the true probability — using <em>quantitative</em> change (many trials) to produce <em>qualitative</em> insight (the answer). The four steps: (1) define the problem, (2) build a probability model, (3) run many random trials, (4) analyze the results.
-    </p>
-
-    <!-- Example 1: Pi -->
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
-        <h2 class="text-xl font-bold">Example 1 — Estimating &pi; by Throwing Darts</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">Throw darts blindly at a 2&times;2 square with an inscribed circle of radius 1. The fraction landing inside the circle equals the ratio of areas, &pi;/4. Counting hits therefore estimates &pi; — the &quot;hello world&quot; of Monte Carlo.</p>
-
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>(x, y) = coordinates of one dart, each drawn at random</li>
-          <li>hit = 1 if the dart lands inside the circle, else 0</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>x ~ Uniform(-1, 1), y ~ Uniform(-1, 1) — every spot equally likely</li>
-          <li>inside the circle when x&sup2; + y&sup2; &le; 1</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">&pi; &asymp; 4 &times; (darts inside circle / total darts)</p>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Number of darts (trials): swept over 10 to 100,000</li>
-        </ul>
-      </div>
-
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+    <section id="m0" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">0. 仿真模型是什么？一个统一的四步框架</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <p class="text-slate-700 mb-4"><strong>确定性模型</strong>对同样的输入永远给出同样的输出；<strong>仿真模型</strong>则把不确定性直接写进模型里，回答的是“结果会怎么分布、风险有多大”。</p>
+          <p class="text-slate-700 mb-4">无论 Monte Carlo、Agent-Based 还是概率优化，构造一个仿真模型都可以归为四步：</p>
+          <ol class="list-decimal pl-5 space-y-2 text-slate-700 text-sm">
+            <li><strong>状态与随机变量：</strong>模型追踪什么？哪些是随机抽取的？</li>
+            <li><strong>规则 / 分布：</strong>变量服从什么分布？agent 按什么规则更新？</li>
+            <li><strong>输出指标：</strong>我们想估计的数值是什么？</li>
+            <li><strong>参数与假设：</strong>哪些数是暂时固定的？改变它们会产生什么洞察？</li>
+          </ol>
+          <div class="mt-4 p-4 bg-violet-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-violet-900 mb-2">探究假设的过程</div>
+            <p>仿真的价值不在于“跑一次”，而在于<strong>改变参数再跑</strong>。每次改动一个假设（例如把到达率 λ 变大、把传播概率降低、把冷却速度加快），观察输出指标如何移动，就能判断哪些假设对结论最敏感。</p>
+          </div>
+          <div class="p-3 bg-violet-50 rounded-lg text-sm text-violet-800 mt-4">
+            <strong> takeaway：</strong>好的仿真模型 = 清晰的假设 + 可重复的代码 + 对参数的系统性扫描。
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
-N = 100000
-x = np.random.uniform(-1, 1, N)
-y = np.random.uniform(-1, 1, N)
-inside = x**2 + y**2 &lt;= 1
+# 通用 Monte Carlo 骨架：也适用于绝大多数仿真模型的“核心循环”
+def simulate_once(params):
+    """单次仿真：根据参数生成随机输入并计算输出。"""
+    x = np.random.normal(params['mu'], params['sigma'])
+    return max(0, x)            # 例如：风速不能为负
 
-pi_estimate = 4 * inside.mean()
-print(&quot;Estimate of pi with {} darts: {:.5f}&quot;.format(N, pi_estimate))
+def run_simulation(params, n_runs=10000):
+    """重复 n_runs 次，返回输出分布。"""
+    results = [simulate_once(params) for _ in range(n_runs)]
+    return np.array(results)
 
-# --- Convergence: accuracy grows with the number of trials ---
-trials = np.logspace(1, 5, 30).astype(int)
-estimates = [4 * (np.random.uniform(-1, 1, n)**2 + np.random.uniform(-1, 1, n)**2 &lt;= 1).mean()
-             for n in trials]
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
-ax1.scatter(x[:3000][inside[:3000]], y[:3000][inside[:3000]], s=4, color=&quot;teal&quot;)
-ax1.scatter(x[:3000][~inside[:3000]], y[:3000][~inside[:3000]], s=4, color=&quot;lightcoral&quot;)
-ax1.set_aspect(&quot;equal&quot;); ax1.set_title(&quot;Darts: inside vs outside the circle&quot;)
-ax2.semilogx(trials, estimates, marker=&quot;o&quot;)
-ax2.axhline(np.pi, color=&quot;red&quot;, ls=&quot;--&quot;, label=&quot;true pi&quot;)
-ax2.set_xlabel(&quot;Number of trials&quot;); ax2.set_ylabel(&quot;Estimate&quot;)
-ax2.set_title(&quot;Law of Large Numbers: convergence to pi&quot;); ax2.legend()
-plt.tight_layout(); plt.show()</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the only knob is the trial count N. Watch the estimate jitter wildly for small N and tighten around &pi; as N grows — this is the Law of Large Numbers in action. The error shrinks like 1/&radic;N, so to gain one more decimal place of accuracy you need about 100&times; more darts. Ask yourself: why does quadrupling N only halve the error, and what does that imply about the cost of a &quot;very precise&quot; Monte Carlo answer?</p>
+params = {'mu': 5, 'sigma': 2}
+out = run_simulation(params)
+print(f"Mean={out.mean():.2f}, Std={out.std():.2f}, P>7={np.mean(out>7):.2%}")
+</code></pre>
+        </div>
       </div>
     </section>
 
-    <!-- Example 2: Wandering leaf -->
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
-        <h2 class="text-xl font-bold">Example 2 — The Wandering Leaf</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A leaf detaches 5 m above the ground and drifts down at a steady 1 m/s. A gusty horizontal wind pushes it sideways with a random speed. Where does it land? A single answer is meaningless — we want the <em>distribution</em> of landing spots so a groundskeeper knows where leaves tend to gather.</p>
+    <section id="m1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. Monte Carlo：弹珠抽样与大数定律</h2>
+      <p class="text-slate-700 mb-6">袋子里有 10% 红、30% 黄、60% 蓝弹珠。我们无法一次性清点整袋，于是不断随机抽取，用样本比例逼近真实比例。这是 Monte Carlo 最直观的形态。</p>
 
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>V = horizontal wind speed (m/s), the random input</li>
-          <li>X = final horizontal landing position (m), the output of each trial</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>V ~ Normal(&mu; = 5, &sigma; = 3) — natural phenomena cluster around a mean</li>
-          <li>fall time t = height / descent speed = 5 / 1 = 5 s (deterministic)</li>
-          <li>landing position X = V &times; t (physics rule linking random input to output)</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">The full distribution of X: its mean, spread, and the probability the leaf drifts past a chosen distance (e.g. P(X &gt; 20 m)).</p>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Initial height H = 5 m, descent speed = 1 m/s</li>
-          <li>Wind mean &mu; = 5 m/s, wind std &sigma; = 3 m/s</li>
-          <li>Trials = 20,000</li>
-        </ul>
-      </div>
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：构建总体并单次抽样</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态与随机变量：</strong>每颗弹珠的颜色是离散的随机变量；总体比例已知，样本比例未知。</p>
+            <div class="p-3 bg-teal-50 rounded-lg mb-3">
+              <p><strong>模型规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>总体：red=0.10, yellow=0.30, blue=0.60</li>
+                <li>每次从袋中不放回地抽取 n 颗</li>
+                <li>计算样本中各颜色占比</li>
+              </ul>
+            </div>
+            <p><strong>假设：</strong>袋子足够大（100 000 颗），单次抽样的 n 远小于总体，因此可近似看作独立同分布抽样。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+from collections import Counter
 
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+np.random.seed(0)
+# 构建总体
+total = 100000
+marbles = (
+    ['red'] * int(total * 0.10) +
+    ['yellow'] * int(total * 0.30) +
+    ['blue'] * int(total * 0.60)
+)
+np.random.shuffle(marbles)
+
+def draw_and_report(n):
+    drawn = np.random.choice(marbles, size=n, replace=False)
+    counts = Counter(drawn)
+    for color, true_p in [('red', 10), ('yellow', 30), ('blue', 60)]:
+        pct = counts.get(color, 0) / n * 100
+        print(f"{color:6}: {counts.get(color, 0):4d} ({pct:5.2f}%)  true={true_p}%")
+
+print("--- Draw n=30 ---")
+draw_and_report(30)
+print("\n--- Draw n=5000 ---")
+draw_and_report(5000)
+</code></pre>
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：样本比例随抽样量收敛</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>输出指标：</strong>不同抽样量 n 下，各颜色样本比例与真实比例的差距。</p>
+            <p><strong>探究假设：</strong>如果把总体中的蓝色比例从 60% 改成 90%，收敛曲线会更快还是更慢？如果袋子里只有 100 颗弹珠，“不放回”会带来什么偏差？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
 np.random.seed(1)
-H, descent = 5.0, 1.0        # height (m), vertical speed (m/s)
-t_fall = H / descent         # 5 seconds in the air
-N = 20000
+sizes = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+red_err, blue_err = [], []
 
-# Compare how the SPREAD of wind changes where leaves pile up
-plt.figure(figsize=(10, 5))
-for sigma in [1, 3, 6]:
-    V = np.random.normal(5, sigma, N)   # random wind speed
-    X = V * t_fall                      # landing position
-    plt.hist(X, bins=60, alpha=0.5, density=True,
-             label=&quot;wind std = {}  ->  P(X&gt;20m) = {:.2f}&quot;.format(sigma, np.mean(X &gt; 20)))
+for n in sizes:
+    drawn = np.random.choice(marbles, size=n, replace=False)
+    red_err.append(abs((drawn == 'red').mean() - 0.10))
+    blue_err.append(abs((drawn == 'blue').mean() - 0.60))
 
-plt.axvline(25, color=&quot;black&quot;, ls=&quot;--&quot;, label=&quot;mean landing = 25 m&quot;)
-plt.xlabel(&quot;Horizontal landing position X (m)&quot;)
-plt.ylabel(&quot;Probability density&quot;)
-plt.title(&quot;Where the Leaf Lands: more wind variability = wider spread&quot;)
-plt.legend(); plt.grid(True, alpha=0.3)
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(sizes, red_err, marker='o', label='|red - 10%|')
+ax.plot(sizes, blue_err, marker='s', label='|blue - 60%|')
+ax.set_xscale('log'); ax.set_yscale('log')
+ax.set_xlabel('Sample size n'); ax.set_ylabel('Absolute error')
+ax.set_title('Sample proportion converges to true proportion')
+ax.legend(); ax.grid(True, alpha=0.3)
 plt.tight_layout(); plt.show()
-
-V = np.random.normal(5, 3, N)
-X = V * t_fall
-print(&quot;Mean landing: {:.1f} m&quot;.format(X.mean()))
-print(&quot;Std of landing: {:.1f} m&quot;.format(X.std()))
-print(&quot;P(leaf drifts past 20 m): {:.1%}&quot;.format(np.mean(X &gt; 20)))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the mean landing spot (25 m) is fixed by the average wind, but the <em>risk</em> of a leaf drifting far depends entirely on &sigma;. Larger &sigma; flattens and widens the histogram, raising P(X&gt;20m). This separates the <em>expected</em> outcome from its <em>uncertainty</em> — the whole point of stochastic modeling. Then think deeper: what if the initial height were also random, or the descent were not a straight line? Each added random variable is one more input to sample, and the Monte Carlo recipe never changes.</p>
-      </div>
-
-      <h3 class="font-semibold text-slate-900 mb-2 mt-6">Extension: A 2-D Wind Field &amp; a Bird&#x27;s-Eye Map of 10,000 Leaves</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">The 1-D model only let the leaf drift left or right. Reality is 2-D: wind has both a <strong>speed</strong> and a <strong>direction</strong>, and leaves drop from a range of <strong>heights</strong>. We promote all three to random variables, place the tree at the origin (0, 0), and simulate where 10,000 leaves settle on the ground — then look straight down from above.</p>
-
-      <div class="bg-slate-100 border border-slate-300 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-slate-800 mb-2 text-sm uppercase tracking-wide">How to define a random variable with a given distribution</h3>
-        <p class="text-slate-600 text-sm mb-2">The pattern is always <code>np.random.&lt;distribution&gt;(parameters, size=N)</code>. Pick the distribution that matches the <em>nature</em> of the quantity:</p>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li><strong>Normal(&mu;, &sigma;)</strong> &mdash; <code>np.random.normal(mu, sigma, N)</code> &mdash; natural quantities that cluster around an average (wind speed, direction).</li>
-          <li><strong>Uniform(a, b)</strong> &mdash; <code>np.random.uniform(a, b, N)</code> &mdash; any value in a range equally likely (drop height between two branches).</li>
-          <li><strong>Exponential(scale)</strong> &mdash; <code>np.random.exponential(scale, N)</code> &mdash; waiting times or &quot;mostly small, occasionally large&quot; gusts.</li>
-          <li><strong>Poisson(&lambda;)</strong> &mdash; <code>np.random.poisson(lam, N)</code> &mdash; counts of events in a fixed window.</li>
-        </ul>
-      </div>
-
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables (now three)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>wind_speed = how fast the wind pushes (m/s)</li>
-          <li>wind_angle = which compass direction the wind blows toward (radians)</li>
-          <li>height = the branch height the leaf falls from (m)</li>
-          <li>(x, y) = the leaf&#x27;s final position on the ground, seen from above</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>wind_speed ~ Normal(&mu;=5, &sigma;=2), clipped at 0 (speed can&#x27;t be negative)</li>
-          <li>wind_angle ~ Normal(0, 0.5) &mdash; a prevailing wind blowing east, with some wobble</li>
-          <li>height ~ Uniform(4, 6) &mdash; leaves hang between 4 m and 6 m</li>
-          <li>fall time t = height / descent; drift distance r = wind_speed &times; t</li>
-          <li>convert polar drift to map coordinates: x = r&middot;cos(angle), y = r&middot;sin(angle)</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">The 2-D landing map of 10,000 leaves: where they pile up, the mean drift distance, and the probability a leaf lands more than 15 m from the trunk.</p>
-      </div>
-
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+</code></pre>
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：用二项分布刻画“抽到蓝球”</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>模型规则：</strong>每次只关心“是否抽到蓝球”，则 n 次独立抽取中蓝球数量 X ~ Binomial(n, p=0.6)。</p>
+            <p><strong>输出指标：</strong>模拟频率与理论概率质量函数 PMF 的对比。</p>
+            <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mt-3">
+              <strong>假设再探：</strong>当 n 很小或总体很小时，应该用超几何分布而非二项分布。这里的“独立同分布”假设来自“大总体、小样本”。
+            </div>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
-
-np.random.seed(7)
-N = 10000                       # simulate 10,000 leaves
-descent = 1.0                   # vertical fall speed (m/s), fixed
-
-# ---------------------------------------------------------------
-# Define EACH random variable with its own distribution.
-# Template:  variable = np.random.<distribution>(params, size=N)
-# ---------------------------------------------------------------
-wind_speed = np.random.normal(5, 2, N)      # Normal: clusters near 5 m/s
-wind_speed = np.clip(wind_speed, 0, None)   # a speed cannot be negative
-wind_angle = np.random.normal(0.0, 0.5, N)  # Normal: prevailing wind blows east (0 rad)
-height     = np.random.uniform(4, 6, N)     # Uniform: any branch 4-6 m is equally likely
-
-# ---------------------------------------------------------------
-# Physics: turn the random inputs into a landing position (x, y)
-# ---------------------------------------------------------------
-t_fall = height / descent          # time in the air
-r      = wind_speed * t_fall       # how far the wind carries it (radial)
-x      = r * np.cos(wind_angle)    # east-west landing coordinate
-y      = r * np.sin(wind_angle)    # north-south landing coordinate
-
-# ---------------------------------------------------------------
-# Bird's-eye view: look straight down at the ground
-# ---------------------------------------------------------------
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-ax1.scatter(x, y, s=3, alpha=0.15, color=&quot;saddlebrown&quot;)
-ax1.plot(0, 0, marker=&quot;*&quot;, color=&quot;green&quot;, markersize=18, label=&quot;tree trunk&quot;)
-ax1.set_aspect(&quot;equal&quot;); ax1.set_xlabel(&quot;East-West (m)&quot;); ax1.set_ylabel(&quot;North-South (m)&quot;)
-ax1.set_title(&quot;Bird's-eye view: where 10,000 leaves land&quot;); ax1.legend()
-
-hb = ax2.hexbin(x, y, gridsize=45, cmap=&quot;YlOrBr&quot;, mincnt=1)
-ax2.plot(0, 0, marker=&quot;*&quot;, color=&quot;green&quot;, markersize=18)
-ax2.set_aspect(&quot;equal&quot;); ax2.set_xlabel(&quot;East-West (m)&quot;); ax2.set_ylabel(&quot;North-South (m)&quot;)
-ax2.set_title(&quot;Leaf density (where they pile up)&quot;)
-fig.colorbar(hb, ax=ax2, label=&quot;leaves per cell&quot;)
-plt.tight_layout(); plt.show()
-
-dist = np.sqrt(x**2 + y**2)
-print(&quot;Mean drift distance from trunk: {:.1f} m&quot;.format(dist.mean()))
-print(&quot;Leaves settle around x = {:.1f} m (downwind), y ~ {:.1f} m&quot;.format(x.mean(), y.mean()))
-print(&quot;P(leaf lands more than 15 m away): {:.1%}&quot;.format(np.mean(dist &gt; 15)))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> the map is a cigar shape stretched east — the prevailing wind direction sets <em>where</em> the pile forms, while the angle spread &sigma; sets how much it fans out sideways. Turn the angle into <code>np.random.uniform(0, 2*np.pi, N)</code> and the leaves scatter in a full ring around the trunk; shrink the angle&#x27;s &sigma; toward 0 and they collapse back to the 1-D line from before. This is the key lesson: <strong>each extra random variable adds a new dimension of realism, but the recipe never changes</strong> — define a distribution, sample N times, push the samples through the physics, and read the resulting map. If you were a city planner deciding where to place leaf-collection bins, which single parameter would you measure most carefully?</p>
-      </div>
-    </section>
-
-    <!-- Example 3: Product launch -->
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-teal-100 text-teal-700 font-bold px-3 py-1 rounded-lg text-sm">Monte Carlo</span>
-        <h2 class="text-xl font-bold">Example 3 — Product Launch Timeline &amp; Risk</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A startup must ship its flagship product. Eight tasks (A&ndash;H) run partly in parallel and partly in sequence, but each task&#x27;s duration is uncertain. The CEO wants the probability of launching within the critical 30-day window and needs to know which task is the real bottleneck.</p>
-
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State &amp; Random Variables</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>d_A &hellip; d_H = the random duration of each of the eight tasks</li>
-          <li>finish_i = the time task i completes, given its predecessors</li>
-          <li>T = total project time = finish time of the final task H</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules / Distributions</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Durations: A~N(10,2), B~N(7,1.5), C~N(8,2), D~N(6,1), E~U(5,10), F~N(12,3), G~U(3,7), H=1</li>
-          <li>Dependencies: C after A; D after B; E after C &amp; D; G after A &amp; B; H after E, F &amp; G</li>
-          <li>A task starts only when <em>all</em> its predecessors finish: finish = max(predecessor finishes) + duration</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">Distribution of total time T; P(T &le; 30 days); and the correlation of each task with T to reveal the bottleneck.</p>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Task means / spreads as above; launch deadline = 30 days</li>
-          <li>Trials = 10,000</li>
-        </ul>
-      </div>
-
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
-import matplotlib.pyplot as plt
+from scipy.stats import binom
 
 np.random.seed(2)
-N = 10000
-durations = {k: np.zeros(N) for k in &quot;ABCDEFG&quot;}
-durations[&quot;A&quot;] = np.random.normal(10, 2, N)
-durations[&quot;B&quot;] = np.random.normal(7, 1.5, N)
-durations[&quot;C&quot;] = np.random.normal(8, 2, N)
-durations[&quot;D&quot;] = np.random.normal(6, 1, N)
-durations[&quot;E&quot;] = np.random.uniform(5, 10, N)
-durations[&quot;F&quot;] = np.random.normal(12, 3, N)
-durations[&quot;G&quot;] = np.random.uniform(3, 7, N)
+n, p = 10, 0.60
+n_sim = 10000
 
-# Finish times follow the dependency network (a task waits for its predecessors)
-fA, fB = durations[&quot;A&quot;], durations[&quot;B&quot;]
-fC = fA + durations[&quot;C&quot;]
-fD = fB + durations[&quot;D&quot;]
-fE = np.maximum(fC, fD) + durations[&quot;E&quot;]
-fG = np.maximum(fA, fB) + durations[&quot;G&quot;]
-fF = durations[&quot;F&quot;]
-T = np.maximum.reduce([fE, fF, fG]) + 1   # + H (constant 1 day)
+# 模拟：每次抽 10 颗（有放回近似），记录蓝球数
+blue_counts = []
+for _ in range(n_sim):
+    drawn = np.random.choice(marbles, size=n, replace=True)
+    blue_counts.append(np.sum(drawn == 'blue'))
 
-print(&quot;Mean completion time: {:.1f} days&quot;.format(T.mean()))
-print(&quot;P(launch within 30 days): {:.1%}&quot;.format(np.mean(T &lt;= 30)))
-print(&quot;90th percentile (plan-for-this): {:.1f} days&quot;.format(np.percentile(T, 90)))
+k_vals = np.arange(0, n + 1)
+theory = binom.pmf(k_vals, n, p)
 
-# Which task drives the total? Correlate each duration with T.
-print(&quot;\nBottleneck ranking (correlation of task duration with total time):&quot;)
-for k in sorted(durations, key=lambda k: -np.corrcoef(durations[k], T)[0, 1]):
-    print(&quot;  Task {}: {:+.2f}&quot;.format(k, np.corrcoef(durations[k], T)[0, 1]))
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
-ax1.hist(T, bins=50, color=&quot;teal&quot;, alpha=0.7)
-ax1.axvline(30, color=&quot;red&quot;, ls=&quot;--&quot;, label=&quot;30-day deadline&quot;)
-ax1.set_xlabel(&quot;Total project time (days)&quot;); ax1.set_ylabel(&quot;Frequency&quot;)
-ax1.set_title(&quot;Distribution of Launch Time&quot;); ax1.legend()
-corrs = {k: np.corrcoef(durations[k], T)[0, 1] for k in durations}
-ax2.barh(list(corrs), list(corrs.values()), color=&quot;slateblue&quot;)
-ax2.set_xlabel(&quot;Correlation with total time&quot;)
-ax2.set_title(&quot;Bottleneck: which task controls the schedule?&quot;)
-plt.tight_layout(); plt.show()</code></pre>
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(blue_counts, bins=np.arange(-0.5, n + 1.5, 1),
+        density=True, alpha=0.6, color='skyblue', label='Simulated')
+ax.bar(k_vals + 0.2, theory, width=0.35, color='red', alpha=0.5, label='Binomial PMF')
+ax.set_xlabel('Number of blue marbles in 10 draws')
+ax.set_ylabel('Probability')
+ax.set_title(f'Simulated vs theoretical Binomial(n={n}, p={p})')
+ax.legend(); plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
       </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> a single-point estimate (&quot;about 27 days&quot;) hides the risk — the simulation shows only ~87% of runs finish by day 30. The correlation chart is the payoff: the task most correlated with T is the true bottleneck, so shortening <em>it</em> (not a random task) buys the most schedule safety. Try halving the std of the top task versus the bottom task and re-run: which actually raises P(T&le;30)? This is how a modeler turns &quot;work harder&quot; into &quot;work on the right thing.&quot;</p>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 抽样方式：</strong>“有放回”让每次抽取独立，适合用二项分布；“不放回”在总体有限时更准确，但计算复杂。你的场景更接近哪一种？</p>
+          <p><strong>2. 样本量：</strong>大数定律保证 n 越大越准确，但成本也越高。如何在精度与计算量之间权衡？</p>
+          <p><strong>3. 总体比例未知：</strong>真实问题中总体比例常常未知，我们只能用样本比例估计它，并给出置信区间。</p>
+        </div>
       </div>
     </section>
 
-    <!-- ============ PART B: AGENT-BASED ============ -->
-    <div class="flex items-center gap-3 mb-4 mt-10">
-      <div class="h-px flex-1 bg-emerald-300"></div>
-      <h2 class="text-lg font-bold text-emerald-700 uppercase tracking-wide">Part B &nbsp;&middot;&nbsp; Agent-Based Simulation</h2>
-      <div class="h-px flex-1 bg-emerald-300"></div>
-    </div>
-    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
-      <strong>Core idea (bottom-up):</strong> instead of one equation for the whole system, define simple rules for <em>individual</em> agents and let global patterns <em>emerge</em> from their local interactions — like a stadium &quot;Mexican wave&quot; that nobody choreographs. The three pillars are <strong>Agents</strong> (autonomous individuals with their own state), the <strong>Environment</strong> (the stage and its resources), and <strong>Rules</strong> (how agents act and interact). This is the natural counterpart to the Lotka-Volterra differential equations: here each animal is its own decision-maker.
-    </p>
+    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. Monte Carlo：产品上线风险（PERT / 关键路径）</h2>
+      <p class="text-slate-700 mb-6">一个科技初创公司要发布产品。8 项任务有依赖关系，每项任务持续时间是随机变量。CEO 想知道：平均工期、30 天内上线概率、哪些任务最可能拖后腿。</p>
 
-    <!-- Example 4: Wolf-Sheep-Grass -->
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-sm">Agent-Based</span>
-        <h2 class="text-xl font-bold">Example 4 — The Wolf-Sheep-Grass Ecosystem</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A grid world holds three kinds of agents: grass (regrows), sheep (eat grass), and wolves (eat sheep). Nobody programs the population curves — the predator-prey oscillations <em>emerge</em> from four simple local rules. This is the agent-level story behind the smooth Lotka-Volterra curves.</p>
-
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">Agents &amp; State (the &quot;variables&quot;)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Each sheep &amp; wolf: position (x, y) on the grid and an energy level</li>
-          <li>Environment: a grid cell is either grass = 1 (grown) or 0 (eaten)</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Rules (the &quot;constraints&quot;)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li><strong>Move:</strong> every agent takes one random step and loses 1 energy (living costs energy)</li>
-          <li><strong>Eat:</strong> a sheep on a grass cell eats it (+energy, grass&rarr;0); a wolf on a sheep&#x27;s cell eats it (+energy)</li>
-          <li><strong>Reproduce:</strong> an agent with energy above a threshold splits, sharing energy with its offspring</li>
-          <li><strong>Die:</strong> any agent whose energy hits 0 is removed; grass regrows at a fixed probability</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">The three population counts (grass, sheep, wolves) over time, and whether they settle into stable oscillations or one species collapses.</p>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Grid 30&times;30; start 60 sheep, 20 wolves</li>
-          <li>Energy from grass = +4, from sheep = +20; grass regrowth prob = 0.03</li>
-          <li>Reproduce thresholds: sheep &gt; 15, wolf &gt; 40; run for 200 steps</li>
-        </ul>
-      </div>
-
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
-        </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
-import matplotlib.pyplot as plt
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：定义任务、分布与依赖</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态与随机变量：</strong>每项任务的持续时间 d_A … d_H 是随机变量；任务的开始时间取决于其所有前置任务的最大完成时间。</p>
+            <div class="p-3 bg-green-50 rounded-lg mb-3">
+              <p><strong>规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>分布类型：Normal、Uniform、Constant</li>
+                <li>start_i = max{finish_j | j ∈ predecessors(i)}</li>
+                <li>finish_i = start_i + duration_i</li>
+                <li>总工期 T = finish_H</li>
+              </ul>
+            </div>
+            <p><strong>关键假设：</strong>任务持续时间彼此独立；前置关系固定不变；资源无限（可同时并行）。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
 
 np.random.seed(3)
 
-class Ecosystem:
-    def __init__(self, size=30, n_sheep=60, n_wolves=20, regrow=0.03):
-        self.size, self.regrow = size, regrow
-        rand_pos = lambda: [np.random.randint(0, size), np.random.randint(0, size)]
-        self.sheep  = [rand_pos() + [5]  for _ in range(n_sheep)]   # [x, y, energy]
-        self.wolves = [rand_pos() + [20] for _ in range(n_wolves)]
-        self.grass  = np.random.randint(0, 2, (size, size))
+# 任务：id, 名称, 前置任务, 持续时间的分布参数
+tasks_data = [
+    {"id":"A", "name":"Feature Development",   "predecessors":[],       "dist":{"type":"normal",  "mean":10, "std_dev":2}},
+    {"id":"B", "name":"UI/UX Design",          "predecessors":[],       "dist":{"type":"normal",  "mean":7,  "std_dev":1.5}},
+    {"id":"C", "name":"Backend Integration",   "predecessors":["A"],   "dist":{"type":"normal",  "mean":8,  "std_dev":2}},
+    {"id":"D", "name":"Frontend Development",  "predecessors":["B"],   "dist":{"type":"normal",  "mean":6,  "std_dev":1}},
+    {"id":"E", "name":"Testing & Bug Fixing",  "predecessors":["C","D"],"dist":{"type":"uniform", "min":5,  "max":10}},
+    {"id":"F", "name":"Marketing Campaign",    "predecessors":[],       "dist":{"type":"normal",  "mean":12, "std_dev":3}},
+    {"id":"G", "name":"Legal Review",          "predecessors":["A","B"],"dist":{"type":"uniform", "min":3,  "max":7}},
+    {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
+]
 
-    def _move(self, a):
-        a[0] = (a[0] + np.random.randint(-1, 2)) % self.size
-        a[1] = (a[1] + np.random.randint(-1, 2)) % self.size
+def sample_duration(d):
+    t = d["type"]
+    if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
+    if t == "uniform":  return np.random.uniform(d["min"], d["max"])
+    if t == "constant": return d["value"]
 
-    def step(self):
-        # Environment: grass regrows on empty cells
-        regrow = (self.grass == 0) & (np.random.random(self.grass.shape) &lt; self.regrow)
-        self.grass = np.where(regrow, 1, self.grass)
-        # Sheep: move, graze, reproduce, die
-        survivors = []
-        for s in self.sheep:
-            self._move(s); s[2] -= 1
-            if self.grass[s[0], s[1]] == 1:
-                self.grass[s[0], s[1]] = 0; s[2] += 4
-            if s[2] &gt; 15:
-                s[2] //= 2; survivors.append([s[0], s[1], s[2]])
-            if s[2] &gt; 0: survivors.append(s)
-        self.sheep = survivors
-        # Wolves: move, hunt, reproduce, die
-        survivors = []
-        for w in self.wolves:
-            self._move(w); w[2] -= 1
-            for s in self.sheep:
-                if s[0] == w[0] and s[1] == w[1]:
-                    w[2] += 20; self.sheep.remove(s); break
-            if w[2] &gt; 40:
-                w[2] //= 2; survivors.append([w[0], w[1], w[2]])
-            if w[2] &gt; 0: survivors.append(w)
-        self.wolves = survivors
+def simulate_project(tasks):
+    """单次运行：返回总工期、各任务完成时间、关键路径任务集合。"""
+    tasks_dict = {t["id"]: t for t in tasks}
+    finish, sampled = {}, {}
+    pending = list(tasks)
+    processed = set()
+    while pending:
+        ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
+        pending = [t for t in pending if t not in ready]
+        for t in ready:
+            dur = sample_duration(t["dist"])
+            sampled[t["id"]] = dur
+            start = max((finish[p] for p in t["predecessors"]), default=0)
+            finish[t["id"]] = start + dur
+            processed.add(t["id"])
+    total = finish['H']
+    # 反向追踪关键路径
+    critical = set(['H'])
+    to_trace = ['H']
+    tol = 0.001
+    while to_trace:
+        tid = to_trace.pop()
+        start = finish[tid] - sampled[tid]
+        for p in tasks_dict[tid]["predecessors"]:
+            if abs(finish[p] - start) < tol:
+                critical.add(p)
+                to_trace.append(p)
+    return total, finish, critical
 
-eco = Ecosystem()
-sheep_hist, wolf_hist, grass_hist = [], [], []
-for _ in range(200):
-    eco.step()
-    sheep_hist.append(len(eco.sheep))
-    wolf_hist.append(len(eco.wolves))
-    grass_hist.append(int(eco.grass.sum()))
-
-plt.figure(figsize=(11, 5))
-plt.plot(sheep_hist, label=&quot;Sheep&quot;, color=&quot;seagreen&quot;)
-plt.plot(wolf_hist, label=&quot;Wolves&quot;, color=&quot;firebrick&quot;)
-plt.plot(np.array(grass_hist) / 10, label=&quot;Grass / 10&quot;, color=&quot;goldenrod&quot;, alpha=0.6)
-plt.xlabel(&quot;Time step&quot;); plt.ylabel(&quot;Population&quot;)
-plt.title(&quot;Emergent Predator-Prey Cycles from Simple Local Rules&quot;)
-plt.legend(); plt.grid(True, alpha=0.3)
-plt.tight_layout(); plt.show()
-
-print(&quot;Final -> sheep: {}, wolves: {}, grass cells: {}&quot;.format(
-    sheep_hist[-1], wolf_hist[-1], grass_hist[-1]))</code></pre>
-      </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> no equation dictated the cycles — they <em>emerged</em>. Now experiment like an ecologist. Raise the grass regrowth rate: do sheep explode and then crash the wolves, or does the system find a new balance? Increase the wolves&#x27; energy gain (hunting efficiency): does a &quot;better&quot; predator win, or does it eat itself into starvation by wiping out its own food? What happens if wolves start too few? These are the deck&#x27;s discussion questions, and each is answered by changing one number and watching the emergent result — the bottom-up mirror of the sensitivity analysis you did on the Lotka-Volterra equations.</p>
-      </div>
-    </section>
-
-    <!-- ============ PART C: MARKOV CHAINS ============ -->
-    <div class="flex items-center gap-3 mb-4 mt-10">
-      <div class="h-px flex-1 bg-rose-300"></div>
-      <h2 class="text-lg font-bold text-rose-700 uppercase tracking-wide">Part C &nbsp;&middot;&nbsp; Markov Chains</h2>
-      <div class="h-px flex-1 bg-rose-300"></div>
-    </div>
-    <p class="text-slate-600 text-sm leading-relaxed mb-6 bg-white rounded-xl border border-slate-200 p-4">
-      <strong>Core idea (memoryless):</strong> the future depends only on the <em>present</em> state, not the path taken to get there — like deciding your next chess move from the current board alone. Formally P(X&#8345;&#8321; | X&#8345;, &hellip;, X&#8321;) = P(X&#8345;&#8321; | X&#8345;). A single <strong>transition matrix</strong> P encodes all behavior, and repeatedly applying it reveals the long-run <strong>stationary distribution</strong> &pi; = &pi;P — where the system settles regardless of where it started.
-    </p>
-
-    <!-- Example 5: Bike sharing -->
-    <section class="example-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-lg text-sm">Markov Chain</span>
-        <h2 class="text-xl font-bold">Example 5 — Bike-Sharing Station Balance</h2>
-      </div>
-      <h3 class="font-semibold text-slate-900 mb-2 mt-4">Scenario</h3>
-      <p class="text-slate-600 text-sm leading-relaxed mb-4">A district has three bike stations A, B, C. Each trip a bike takes moves it between stations with fixed, historically-measured probabilities. Operators want to know the long-run distribution of bikes — which stations fill up and which run dry — so they can rebalance efficiently.</p>
-
-      <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-sky-800 mb-1 text-sm uppercase tracking-wide">State Space (the &quot;variables&quot;)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>State = the station a bike currently sits at: S = {A, B, C}</li>
-          <li>&pi;&#8348; = distribution vector = fraction of bikes at each station at time t</li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-amber-800 mb-1 text-sm uppercase tracking-wide">Model Rules (the &quot;constraints&quot;)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>Transition matrix P: entry P[i][j] = probability a bike at station i moves to j</li>
-          <li>Each row sums to 1 (a bike must go somewhere)</li>
-          <li>Markov property: next station depends only on the current station</li>
-          <li>Evolution rule: &pi;&#8348;&#8330;&#8321; = &pi;&#8348; &middot; P</li>
-        </ul>
-      </div>
-      <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-3">
-        <h3 class="font-semibold text-violet-800 mb-1 text-sm uppercase tracking-wide">Output Metric</h3>
-        <p class="text-slate-700 text-sm">The stationary distribution &pi; satisfying &pi; = &pi;P — the long-run share of bikes per station, independent of the starting arrangement.</p>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-        <h3 class="font-semibold text-green-800 mb-1 text-sm uppercase tracking-wide">Parameters (assumed)</h3>
-        <ul class="text-slate-700 text-sm list-disc pl-5 space-y-1">
-          <li>P = [[0.6, 0.3, 0.1], [0.2, 0.5, 0.3], [0.3, 0.2, 0.5]]</li>
-          <li>Start: all bikes at station A; iterate 30 steps</li>
-        </ul>
-      </div>
-
-      <div class="relative mt-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase">Python Demo</span>
-          <button onclick="copyCode(this)" class="no-print bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded transition">Copy</button>
+print("单次示例运行：")
+dur, fin, cp = simulate_project(tasks_data)
+print(f"总工期 = {dur:.1f} 天，关键路径任务 = {sorted(cp)}")
+</code></pre>
+          </div>
         </div>
-        <pre class="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code>import numpy as np
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：Monte Carlo 跑 10 000 次</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>输出指标：</strong>总工期分布、平均工期、30 天内完成概率、累积平均收敛曲线。</p>
+            <p><strong>探究：</strong>如果只给出“平均工期”，CEO 会低估风险。分布尾部告诉我们“最差情况下可能多久”。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# Transition matrix: row i -> probabilities of moving to A, B, C
-P = np.array([[0.6, 0.3, 0.1],
-              [0.2, 0.5, 0.3],
-              [0.3, 0.2, 0.5]])
-stations = [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]
+np.random.seed(4)
+N = 10000
+durations = []
+for _ in range(N):
+    dur, _, _ = simulate_project(tasks_data)
+    durations.append(dur)
+durations = np.array(durations)
 
-# --- Iterate the evolution rule pi_{t+1} = pi_t * P ---
-pi = np.array([1.0, 0.0, 0.0])   # start: every bike at A
-history = [pi]
-for _ in range(30):
-    pi = pi @ P
-    history.append(pi)
-history = np.array(history)
+mean_dur = durations.mean()
+print(f"平均工期：{mean_dur:.1f} 天")
+print(f"P(T <= 30) = {(durations <= 30).mean():.1%}")
+print(f"90% 分位数 = {np.percentile(durations, 90):.1f} 天")
 
-# --- Verify with the eigenvector of P^T for eigenvalue 1 ---
-vals, vecs = np.linalg.eig(P.T)
-stationary = np.real(vecs[:, np.argmin(np.abs(vals - 1))])
-stationary /= stationary.sum()
+fig, axes = plt.subplots(1, 2, figsize=(14, 4))
+axes[0].hist(durations, bins=50, color='teal', alpha=0.7, edgecolor='white')
+axes[0].axvline(30, color='red', ls='--', label='30-day deadline')
+axes[0].axvline(mean_dur, color='black', ls='-', label=f'mean={mean_dur:.1f}')
+axes[0].set_xlabel('Project duration (days)')
+axes[0].set_ylabel('Frequency')
+axes[0].set_title('Distribution of total project duration')
+axes[0].legend()
 
-for s, p in zip(stations, stationary):
-    print(&quot;Station {}: long-run share = {:.1%}&quot;.format(s, p))
-
-plt.figure(figsize=(10, 5))
-for i, s in enumerate(stations):
-    plt.plot(history[:, i], marker=&quot;o&quot;, label=&quot;Station &quot; + s)
-    plt.axhline(stationary[i], color=&quot;gray&quot;, ls=&quot;:&quot;, alpha=0.5)
-plt.xlabel(&quot;Time step&quot;); plt.ylabel(&quot;Share of bikes&quot;)
-plt.title(&quot;Convergence to the Stationary Distribution (starts all at A)&quot;)
-plt.legend(); plt.grid(True, alpha=0.3)
-plt.tight_layout(); plt.show()</code></pre>
+cum_avg = np.cumsum(durations) / np.arange(1, N + 1)
+axes[1].plot(cum_avg, color='darkorange')
+axes[1].axhline(mean_dur, color='red', ls='--', label='final mean')
+axes[1].set_xscale('log')
+axes[1].set_xlabel('Number of simulations')
+axes[1].set_ylabel('Cumulative average duration')
+axes[1].set_title('Convergence of Monte Carlo estimate')
+axes[1].legend(); plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
       </div>
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 rounded">
-        <p class="text-slate-700 text-sm leading-relaxed"><strong>Gaining insight by changing parameters:</strong> notice the curves forget their start — begin with every bike at A and they still settle to the same 38% / 34% / 28% split. That is the stationary distribution, and it tells operators station A quietly accumulates bikes while C runs dry, so trucks should carry bikes C&rarr;A each night. Now change one row of P (say users increasingly ride <em>to</em> C) and re-run: how does the steady state shift, and how many steps until it re-stabilizes? Try making a station &quot;sticky&quot; (raise its self-transition): does the whole network slow to equilibrium? This is exactly how Google&#x27;s PageRank ranks web pages — states are pages, transitions are links, and the stationary distribution is importance.</p>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：关键路径概率与敏感性</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>输出指标：</strong>每项任务出现在关键路径上的频率；改变某任务均值后总工期的变化。</p>
+            <p><strong>探究：</strong>“最关键”的任务不一定是耗时最长的，而是最经常决定总工期的。把资源投入到这些任务上才能最有效降低风险。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(5)
+N = 10000
+critical_counts = {t["id"]: 0 for t in tasks_data}
+for _ in range(N):
+    _, _, cp = simulate_project(tasks_data)
+    for tid in cp:
+        critical_counts[tid] += 1
+
+probs = {k: v / N * 100 for k, v in critical_counts.items()}
+print("关键路径概率：")
+for k, v in sorted(probs.items(), key=lambda x: -x[1]):
+    print(f"  {k}: {v:.1f}%")
+
+# 敏感性：把任务 A 的 mean 分别 -10% 和 +10%，看平均工期变化
+base_mean = tasks_data[0]["dist"]["mean"]
+sens = {}
+for delta in [-0.1, 0, 0.1]:
+    tasks_data[0]["dist"]["mean"] = base_mean * (1 + delta)
+    durs = [simulate_project(tasks_data)[0] for _ in range(2000)]
+    sens[f"A mean {delta:+.0%}"] = np.mean(durs)
+tasks_data[0]["dist"]["mean"] = base_mean  # restore
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 4))
+axes[0].barh(list(probs), list(probs.values()), color='slateblue')
+axes[0].set_xlabel('Probability of being on critical path (%)')
+axes[0].set_title('Task criticality from Monte Carlo')
+axes[1].bar(sens.keys(), sens.values(), color='coral')
+axes[1].set_ylabel('Average project duration (days)')
+axes[1].set_title('Sensitivity to task A mean duration')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 分布选择：</strong>为什么用 Normal 而不是 Uniform？Normal 更适合“经验均值 ± 波动”；Uniform 适合“只知道上下界”。如果任务时间有尾部风险，可考虑 log-normal。</p>
+          <p><strong>2. 任务独立性：</strong>现实中某些任务会同时受同一外部因素影响（如团队士气）。若引入相关性，总工期方差会如何变化？</p>
+          <p><strong>3. 资源约束：</strong>当前模型假设任务只要前置完成就能开始。若同一团队不能并行做多件事，关键路径可能完全不同。</p>
+        </div>
       </div>
     </section>
 
-    <!-- Wrap up -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-      <h2 class="text-xl font-bold mb-3">Choosing Your Stochastic Tool</h2>
+    <section id="m3" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. Agent-Based Simulation：单车道交通流</h2>
+      <p class="text-slate-700 mb-6">从“每辆车的简单规则”出发，观察道路上拥堵如何自发形成。这里把车辆当作 agent，道路当作环境，规则包括：匀速前进、保持安全距离、入口按 Poisson 到达。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：最简模型——匀速前进并驶出</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态与随机变量：</strong>每辆车的位置 x；初始时刻道路上没有车。</p>
+            <div class="p-3 bg-amber-50 rounded-lg mb-3">
+              <p><strong>规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>每辆车以恒定速度 v 前进</li>
+                <li>若位置超过道路长度 L，则离开系统</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>任意时刻道路上的车辆数、驶出车辆数。</p>
+            <p><strong>假设：</strong>没有新车进入，所有车速度相同，不超车。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(6)
+L = 1000          # 路段长度 (m)
+v = 20            # 车速 (m/s)
+dt = 1            # 时间步长 (s)
+steps = 60
+
+# 初始化：路上有 10 辆车，均匀分布
+cars = [{'x': i * 80, 'v': v} for i in range(10)]
+n_on_road = []
+
+for t in range(steps):
+    # 更新位置
+    for c in cars:
+        c['x'] += c['v'] * dt
+    # 移除驶出车辆
+    cars = [c for c in cars if c['x'] < L]
+    n_on_road.append(len(cars))
+
+plt.figure(figsize=(8, 3))
+plt.plot(n_on_road, marker='o')
+plt.xlabel('Time step (s)')
+plt.ylabel('Cars on segment')
+plt.title('Basic traffic: cars exit at constant speed')
+plt.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：加入 Poisson 到达与安全跟车</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>入口处按 Poisson(λ) 产生新车；每辆车根据前车距离调整速度，保持安全车距。</p>
+            <div class="p-3 bg-amber-50 rounded-lg mb-3">
+              <p><strong>新增规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>新车在 x=0 处生成，但需保证与入口最近车辆的距离 ≥ 安全车距</li>
+                <li>每步速度 = min(期望速度, 到前车距离 - 安全车距)</li>
+                <li>安全车距 = 车长 + 最小间隙</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>平均通行时间、最大排队长度、吞吐量。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(7)
+L, v, car_len, min_gap = 1000, 20, 5, 10
+safe_dist = car_len + min_gap
+dt, steps = 1, 300
+lam = 0.4         # 每秒平均到达车辆数
+
+cars = []         # 每辆车：{'x':位置, 'entry_t':进入时间}
+travel_times = []
+queue = 0         # 入口排队计数（简化为到达但被阻塞的车辆数）
+max_queue = 0
+n_on_road = []
+
+for t in range(steps):
+    # 1) 按 Poisson 到达新车
+    arrivals = np.random.poisson(lam)
+    blocked = 0
+    for _ in range(arrivals):
+        if not cars or cars[-1]['x'] >= safe_dist:
+            cars.append({'x': 0, 'entry_t': t})
+        else:
+            blocked += 1
+    queue += blocked
+    max_queue = max(max_queue, queue)
+
+    # 2) 从尾到头更新速度（避免碰撞）
+    # 按位置从大到小排序，先更新前车
+    cars.sort(key=lambda c: c['x'], reverse=True)
+    for i, c in enumerate(cars):
+        leader = cars[i-1] if i > 0 else None
+        if leader is None:
+            target_speed = v
+        else:
+            gap = leader['x'] - c['x'] - car_len
+            target_speed = min(v, max(0, gap - min_gap) / dt)
+        c['x'] += target_speed * dt
+
+    # 3) 移除驶出车辆并记录通行时间
+    cars_new = []
+    for c in cars:
+        if c['x'] >= L:
+            travel_times.append(t - c['entry_t'])
+        else:
+            cars_new.append(c)
+    cars = cars_new
+    n_on_road.append(len(cars))
+
+print(f"平均通行时间：{np.mean(travel_times):.1f} s")
+print(f"最大排队车辆数（入口阻塞）：{max_queue}")
+print(f"总吞吐量：{len(travel_times)} 辆")
+
+fig, ax = plt.subplots(figsize=(8, 3))
+ax.plot(n_on_road, color='steelblue')
+ax.set_xlabel('Time step (s)')
+ax.set_ylabel('Cars on segment')
+ax.set_title('Traffic with Poisson arrivals and car-following')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：参数扫描——到达率如何影响拥堵</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>探究：</strong>固定道路长度和车速，只改变到达率 λ，观察平均通行时间和吞吐量。当 λ 超过道路容量时，会出现相变：车辆开始堆积，通行时间激增。</p>
+            <p><strong>输出指标：</strong>不同 λ 下的平均通行时间、总吞吐量、最大排队长度。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+def run_traffic(lam, seed=8):
+    np.random.seed(seed)
+    L, v, car_len, min_gap = 1000, 20, 5, 10
+    safe_dist = car_len + min_gap
+    dt, steps = 1, 300
+    cars, travel_times, max_queue = [], [], 0
+    for t in range(steps):
+        arrivals = np.random.poisson(lam)
+        blocked = 0
+        for _ in range(arrivals):
+            if not cars or cars[-1]['x'] >= safe_dist:
+                cars.append({'x': 0, 'entry_t': t})
+            else:
+                blocked += 1
+        max_queue = max(max_queue, blocked)
+        cars.sort(key=lambda c: c['x'], reverse=True)
+        for i, c in enumerate(cars):
+            leader = cars[i-1] if i > 0 else None
+            gap = (leader['x'] - c['x'] - car_len) if leader else 1e9
+            target = min(v, max(0, gap - min_gap) / dt)
+            c['x'] += target * dt
+        cars_new = []
+        for c in cars:
+            if c['x'] >= L:
+                travel_times.append(t - c['entry_t'])
+            else:
+                cars_new.append(c)
+        cars = cars_new
+    avg_travel = np.mean(travel_times) if travel_times else np.nan
+    return avg_travel, len(travel_times), max_queue
+
+lambdas = np.linspace(0.1, 0.8, 15)
+results = [run_traffic(l) for l in lambdas]
+avg_times = [r[0] for r in results]
+throughputs = [r[1] for r in results]
+queues = [r[2] for r in results]
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 3.5))
+axes[0].plot(lambdas, avg_times, marker='o'); axes[0].set_title('Avg travel time')
+axes[0].set_xlabel('Arrival rate λ'); axes[0].set_ylabel('Seconds')
+axes[1].plot(lambdas, throughputs, marker='s', color='green'); axes[1].set_title('Throughput')
+axes[1].set_xlabel('Arrival rate λ'); axes[1].set_ylabel('Cars exited')
+axes[2].plot(lambdas, queues, marker='^', color='red'); axes[2].set_title('Max queue')
+axes[2].set_xlabel('Arrival rate λ'); axes[2].set_ylabel('Cars')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 同质车辆：</strong>所有车速度和长度相同。引入快车道/慢车道或不同车型，会形成什么样的涌现行为？</p>
+          <p><strong>2. 无超车：</strong>单车道无法超车，一辆慢车会挡住后面所有车。多车道模型如何缓解？</p>
+          <p><strong>3. 到达分布：</strong>我们用 Poisson 描述随机到达。若高峰时段到达率随时间变化（非齐次 Poisson），队列会如何波动？</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="m4" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Agent-Based Simulation：谣言 / 八卦传播</h2>
+      <p class="text-slate-700 mb-6">一个小社区里有若干居民。每个人每天决定“宅家”或“去公共场所”；在公共场所遇到人时，有一定概率交换彼此知道的信息。微观上的“见面聊聊”如何导致宏观上的“谣言爆发”？</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：单个谣言的单次传播</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态与随机变量：</strong>每个 agent 的位置（家或公共场所）、已知的谣言集合。</p>
+            <div class="p-3 bg-pink-50 rounded-lg mb-3">
+              <p><strong>规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>每个人以概率 stay_home 决定留在家中</li>
+                <li>出门者随机选择一个公共场所</li>
+                <li>同一场所的人 pairwise 以概率 meet_prob 交谈</li>
+                <li>交谈时以 spread_prob × receive_prob 的概率交换未知谣言</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>知道谣言的人数随时间变化。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+np.random.seed(9); random.seed(9)
+
+num_agents = 30
+num_places = 4
+grid_size = 10
+steps = 60
+meet_prob = 0.7
+spread_prob = 0.8
+receive_prob = 0.9
+
+class Agent:
+    def __init__(self, aid):
+        self.id = aid
+        self.home = tuple(np.random.randint(0, grid_size, 2))
+        self.loc = self.home
+        self.gossip = set()
+        self.stay_home = random.uniform(0.3, 0.7)
+
+agents = [Agent(i) for i in range(num_agents)]
+public_places = [tuple(np.random.randint(0, grid_size, 2)) for _ in range(num_places)]
+
+# 初始只有 1 人知道谣言
+source = random.choice(agents)
+source.gossip.add(1)
+
+history = []
+for t in range(steps):
+    for a in agents:
+        a.loc = a.home if random.random() < a.stay_home else random.choice(public_places)
+    # 按位置分组
+    locs = {}
+    for a in agents:
+        locs.setdefault(a.loc, []).append(a)
+    for group in locs.values():
+        if len(group) < 2: continue
+        for i in range(len(group)):
+            for j in range(i+1, len(group)):
+                if random.random() < meet_prob:
+                    a1, a2 = group[i], group[j]
+                    for g in a1.gossip:
+                        if g not in a2.gossip and random.random() < spread_prob * receive_prob:
+                            a2.gossip.add(g)
+                    for g in a2.gossip:
+                        if g not in a1.gossip and random.random() < spread_prob * receive_prob:
+                            a1.gossip.add(g)
+    history.append(sum(1 for a in agents if 1 in a.gossip))
+
+plt.figure(figsize=(8, 4))
+plt.plot(range(1, steps+1), history, marker='o', color='purple')
+plt.xlabel('Time step'); plt.ylabel('Agents knowing gossip')
+plt.title('Gossip spread in a small community')
+plt.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：传播概率对扩散速度的影响</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>探究：</strong>改变“见面即交谈”的概率 meet_prob，观察谣言达到 80% 人群所需时间。即使 meet_prob 不高，只要时间足够，谣言仍可能传遍社区。</p>
+            <p><strong>输出指标：</strong>不同 meet_prob 下的“知道人数–时间”曲线。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+def run_gossip(meet_prob, seed=10):
+    np.random.seed(seed); random.seed(seed)
+    num_agents, num_places, grid_size, steps = 30, 4, 10, 80
+    spread_prob, receive_prob = 0.8, 0.9
+    agents = [{'home': tuple(np.random.randint(0, grid_size, 2)),
+               'loc': None, 'gossip': set(), 'stay_home': random.uniform(0.3, 0.7)}
+              for _ in range(num_agents)]
+    places = [tuple(np.random.randint(0, grid_size, 2)) for _ in range(num_places)]
+    agents[0]['gossip'].add(1)
+    hist = []
+    for t in range(steps):
+        for a in agents:
+            a['loc'] = a['home'] if random.random() < a['stay_home'] else random.choice(places)
+        locs = {}
+        for a in agents:
+            locs.setdefault(a['loc'], []).append(a)
+        for group in locs.values():
+            for i in range(len(group)):
+                for j in range(i+1, len(group)):
+                    if random.random() < meet_prob:
+                        a1, a2 = group[i], group[j]
+                        if 1 in a1['gossip'] and 1 not in a2['gossip'] and random.random() < spread_prob * receive_prob:
+                            a2['gossip'].add(1)
+                        if 1 in a2['gossip'] and 1 not in a1['gossip'] and random.random() < spread_prob * receive_prob:
+                            a1['gossip'].add(1)
+        hist.append(sum(1 for a in agents if 1 in a['gossip']))
+    return hist
+
+fig, ax = plt.subplots(figsize=(8, 4))
+for mp in [0.3, 0.5, 0.7, 0.9]:
+    ax.plot(run_gossip(mp), label=f'meet_prob={mp}')
+ax.set_xlabel('Time step'); ax.set_ylabel('Agents knowing gossip')
+ax.set_title('Effect of meeting probability on gossip spread')
+ax.legend(); ax.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 社交结构：</strong>当前模型中每个人随机见面。如果引入“朋友圈”或“学校/公司”等小世界网络，传播速度会如何变化？</p>
+          <p><strong>2. 遗忘机制：</strong>若人们会以一定概率忘记谣言，谣言能否达到稳定状态？</p>
+          <p><strong>3. 多谣言竞争：</strong>若同时有多个谣言在传播，资源（注意力）有限时，哪种谣言更容易占据主流？</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="m5" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. Agent-Based Simulation：森林大火</h2>
+      <p class="text-slate-700 mb-6">森林大火是经典的元胞自动机 / ABS 模型。树木是环境细胞，火是“活性 agent”。从最简单的确定性蔓延开始，逐步加入概率、再生和长期演化。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：确定性火源扩散</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态：</strong>EMPTY=0, TREE=1, BURNING=2, ASH=3。</p>
+            <div class="p-3 bg-orange-50 rounded-lg mb-3">
+              <p><strong>规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>BURNING → ASH</li>
+                <li>TREE 且 8 邻域有 BURNING → BURNING</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>若干时间步后的空间格局。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+np.random.seed(11)
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+CMAP = ListedColormap(['white', 'green', 'red', 'black'])
+
+def init_forest(size, density):
+    f = np.zeros((size, size), dtype=int)
+    f[np.random.rand(size, size) < density] = TREE
+    f[size//2, size//2] = BURNING
+    return f
+
+def step_det(f):
+    new = f.copy()
+    burn = (f == BURNING)
+    new[burn] = ASH
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0: continue
+            new[(f == TREE) & np.roll(burn, (dr, dc), axis=(0, 1))] = BURNING
+    return new
+
+size, density, steps = 21, 0.6, 10
+f = init_forest(size, density)
+frames = [f.copy()]
+for _ in range(steps):
+    f = step_det(f); frames.append(f.copy())
+
+fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+for ax, idx in zip(axes, [0, 3, 6, 10]):
+    ax.imshow(frames[idx], cmap=CMAP, vmin=0, vmax=3)
+    ax.set_title(f'Step {idx}'); ax.axis('off')
+plt.suptitle('Deterministic fire spread')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：概率蔓延与随机起火</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>引入 p_spread（被邻居点燃的概率）和 p_ignite（每棵树自发燃烧的概率）。</p>
+            <p><strong>输出指标：</strong>不同初始树密度下的平均烧毁比例。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(12)
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+
+def init_f(size, d, p_ignite):
+    f = (np.random.rand(size, size) < d).astype(int)
+    ignite = np.random.rand(size, size) < p_ignite * 10
+    f[(f == TREE) & ignite] = BURNING
+    return f
+
+def step_prob(f, p_spread, p_ignite):
+    new = f.copy()
+    burn = (f == BURNING)
+    new[burn] = ASH
+    risk = np.zeros_like(f, dtype=float)
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0: continue
+            risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
+    catch = np.random.rand(*f.shape) < 1 - (1 - p_spread)**risk
+    new[(f == TREE) & catch] = BURNING
+    new[(f == TREE) & (np.random.rand(*f.shape) < p_ignite)] = BURNING
+    return new
+
+def burned_frac(d, size=41, steps=30, reps=10):
+    vals = []
+    for _ in range(reps):
+        f = init_f(size, d, 0.001)
+        for _ in range(steps): f = step_prob(f, 0.7, 0.001)
+        vals.append((f == ASH).sum() / f.size)
+    return np.mean(vals)
+
+densities = np.arange(0.1, 0.9, 0.03)
+ys = [burned_frac(d) for d in densities]
+
+plt.figure(figsize=(8, 4))
+plt.plot(densities, ys, marker='o', color='firebrick')
+plt.xlabel('Initial tree density'); plt.ylabel('Average burned fraction')
+plt.title('Burned fraction vs. tree density')
+plt.grid(True, ls='--', alpha=0.5)
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：完整动态森林——生长、火灾与再生</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>复杂化：</strong>空地以概率 p_grow 长出新树，树木以概率 p_ignite 自燃。系统进入“生长—火灾—再生”循环。</p>
+            <p><strong>输出指标：</strong>树、火、灰烬数量随时间演化；长期是否呈现周期性振荡？</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
+np.random.seed(13)
+EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
+CMAP = ListedColormap(['white', 'green', 'red', 'black'])
+
+def step_full(f, p_grow, p_spread, p_ignite):
+    new = f.copy()
+    burn = (f == BURNING)
+    new[burn] = ASH
+    risk = np.zeros_like(f, dtype=float)
+    for dr in (-1, 0, 1):
+        for dc in (-1, 0, 1):
+            if dr == 0 and dc == 0: continue
+            risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
+    catch = np.random.rand(*f.shape) < 1 - (1 - p_spread)**risk
+    new[(f == TREE) & catch] = BURNING
+    new[(f == TREE) & (np.random.rand(*f.shape) < p_ignite)] = BURNING
+    new[(f == EMPTY) & (np.random.rand(*f.shape) < p_grow)] = TREE
+    return new
+
+size, steps = 80, 200
+f = (np.random.rand(size, size) < 0.6).astype(int)
+f[size//2-2:size//2+2, size//2-2:size//2+2] = BURNING
+
+tree, burning, ash = [], [], []
+for _ in range(steps):
+    f = step_full(f, p_grow=0.02, p_spread=0.8, p_ignite=0.0005)
+    tree.append((f == TREE).sum())
+    burning.append((f == BURNING).sum())
+    ash.append((f == ASH).sum())
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+axes[0].imshow(f, cmap=CMAP, vmin=0, vmax=3)
+axes[0].set_title('Final state'); axes[0].axis('off')
+axes[1].plot(tree, label='Tree', color='green')
+axes[1].plot(burning, label='Burning', color='red')
+axes[1].plot(ash, label='Ash', color='black')
+axes[1].set_xlabel('Step'); axes[1].set_ylabel('Cell count')
+axes[1].set_title('Forest composition over time')
+axes[1].legend()
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 邻域结构：</strong>这里用 8 邻域。如果只用 4 邻域（上下左右），火势蔓延速度会怎么变？</p>
+          <p><strong>2. 边界条件：</strong>我们用卷积 roll 实现环面边界。若改为固定边界（火到边缘消失），长期行为有何不同？</p>
+          <p><strong>3. 风速与地形：</strong>实际火灾中风向会让蔓延呈各向异性。如何用 p_spread 的方向差异来建模？</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="m6" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. Agent-Based Simulation：Schelling 隔离模型</h2>
+      <p class="text-slate-700 mb-6">即使每个人只要求“同类邻居占一定比例”，整个社区也会自发走向高度隔离。Schelling 模型揭示了“微观偏好 → 宏观隔离”的涌现机制。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：基础两类型隔离</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>状态：</strong>每个格子为空或属于 A/B 两类居民。</p>
+            <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+              <p><strong>规则：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>每个居民检查 8 邻域中同类占非空邻居的比例</li>
+                <li>若比例低于容忍阈值 T，则随机搬到空房</li>
+                <li>重复直到无人搬家或达到最大迭代次数</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>平均相似度 = 所有居民同类邻居比例的均值。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+np.random.seed(14); random.seed(14)
+EMPTY = 0
+
+def init_grid(size, empty_ratio, ratios):
+    total = size * size
+    n_empty = int(total * empty_ratio)
+    counts = [int(total * r) for r in ratios]
+    diff = total - n_empty - sum(counts)
+    if diff > 0: n_empty += diff
+    elif diff < 0: counts[-1] += diff
+    cells = [EMPTY]*n_empty
+    for t, n in enumerate(counts, start=1):
+        cells += [t]*n
+    random.shuffle(cells)
+    return np.array(cells).reshape(size, size)
+
+def similarity(grid):
+    size = grid.shape[0]
+    total, n = 0.0, 0
+    for r in range(size):
+        for c in range(size):
+            a = grid[r, c]
+            if a == EMPTY: continue
+            n += 1
+            neighbors = []
+            for dr in (-1,0,1):
+                for dc in (-1,0,1):
+                    if dr==0 and dc==0: continue
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < size and 0 <= nc < size:
+                        neighbors.append(grid[nr, nc])
+            if neighbors:
+                total += neighbors.count(a) / len(neighbors)
+    return 100 * total / n if n else 0
+
+def is_happy(grid, r, c, T):
+    a = grid[r, c]
+    if a == EMPTY: return True
+    size = grid.shape[0]
+    rel = [grid[nr, nc] for dr in (-1,0,1) for dc in (-1,0,1)
+           if not (dr==0 and dc==0) and 0 <= (nr:=r+dr) < size and 0 <= (nc:=c+dc) < size
+           and grid[nr, nc] != EMPTY]
+    if not rel: return True
+    return rel.count(a) / len(rel) >= T
+
+def step(grid, T):
+    size = grid.shape[0]
+    unhappy = [(r,c) for r in range(size) for c in range(size)
+               if grid[r,c]!=EMPTY and not is_happy(grid,r,c,T)]
+    empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==EMPTY]
+    random.shuffle(unhappy); random.shuffle(empty)
+    for r,c in unhappy:
+        if not empty: break
+        nr, nc = empty.pop()
+        empty.append((r,c))
+        grid[nr,nc] = grid[r,c]
+        grid[r,c] = EMPTY
+    return grid
+
+size, er, T = 40, 0.2, 0.3
+grid = init_grid(size, er, [0.4, 0.4])
+print(f"Initial similarity: {similarity(grid):.1f}%")
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+axes[0].imshow(grid, cmap='viridis', vmin=0, vmax=2)
+axes[0].set_title('Initial'); axes[0].axis('off')
+
+for _ in range(50):
+    grid = step(grid, T)
+
+axes[1].imshow(grid, cmap='viridis', vmin=0, vmax=2)
+axes[1].set_title(f'Final (T={T})'); axes[1].axis('off')
+print(f"Final similarity: {similarity(grid):.1f}%")
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：空房比例与多类型的影响</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>探究：</strong>空房越多，居民越容易找到满意住所，隔离形成越快也越彻底。加入第三类居民后，格局会更复杂。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+np.random.seed(15); random.seed(15)
+size, T = 40, 0.4
+empty_ratios = [0.05, 0.15, 0.30]
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+for ax, er in zip(axes, empty_ratios):
+    grid = init_grid(size, er, [0.35, 0.35, 0.1])
+    for _ in range(60):
+        grid = step(grid, T)
+    ax.imshow(grid, cmap='viridis', vmin=0, vmax=3)
+    ax.set_title(f'empty={er:.0%}, sim={similarity(grid):.0f}%')
+    ax.axis('off')
+plt.suptitle('Effect of empty ratio on segregation')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 3 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 3：容忍阈值与相变</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>探究：</strong>把 T 从 0.1 扫描到 0.9，记录最终平均相似度与收敛迭代次数。T 越高，搬家次数越多，隔离越严重。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+np.random.seed(16); random.seed(16)
+size, er = 40, 0.2
+tols = np.arange(0.1, 1.0, 0.02)
+sims, iters = [], []
+
+for T in tols:
+    grid = init_grid(size, er, [0.4, 0.4])
+    it = 0
+    for k in range(100):
+        grid = step(grid, T)
+        it += 1
+        # crude convergence check: if no one moved in last step (would require tracking moves)
+        # here simply run fixed iterations for illustration
+    sims.append(similarity(grid))
+    iters.append(it)
+
+fig, ax1 = plt.subplots(figsize=(10, 5))
+color = 'tab:blue'
+ax1.set_xlabel('Tolerance threshold T')
+ax1.set_ylabel('Final similarity (%)', color=color)
+ax1.plot(tols, sims, color=color, marker='o')
+ax1.tick_params(axis='y', labelcolor=color)
+ax1.set_ylim(0, 105)
+ax1.grid(True, ls='--', alpha=0.5)
+
+ax2 = ax1.twinx()
+color = 'tab:red'
+ax2.set_ylabel('Iterations used', color=color)
+ax2.plot(tols, iters, color=color, marker='x', ls='--')
+ax2.tick_params(axis='y', labelcolor=color)
+plt.title('Schelling: tolerance vs segregation')
+plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 容忍阈值：</strong>即使 T 只有 30%，系统也会出现明显隔离。这说明“不想当少数”的温和偏好足以产生极端的宏观结构。</p>
+          <p><strong>2. 空房数量：</strong>空房少时系统可能卡在不满意状态；空房多时隔离更彻底。城市规划中增加住房供给会如何影响社区结构？</p>
+          <p><strong>3. 邻居定义：</strong>这里用 8 邻域。如果改用更大半径的“社会网络”，隔离程度会增强还是减弱？</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="m7" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. 概率优化：模拟退火（Simulated Annealing）</h2>
+      <p class="text-slate-700 mb-6">模拟退火是一种“带随机扰动的贪心搜索”：以一定概率接受更差的解，从而跳出局部最优。它常用于组合优化，如选址、调度、路径规划。</p>
+
+      <!-- Block 1 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 1：公交站电气化选址</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>问题：</strong>有 30 个公交场站，每个场站电气化需要成本和带来收益。总预算有限，选择哪些场站才能最大化总收益？</p>
+            <div class="p-3 bg-rose-50 rounded-lg mb-3">
+              <p><strong>模拟退火要素：</strong></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>状态：</strong>长度为 30 的二进制向量，1 表示选中</li>
+                <li><strong>目标函数：</strong>选中场站收益之和（若超预算则 -∞）</li>
+                <li><strong>邻域：</strong>随机翻转一个比特，或交换选中/未选中</li>
+                <li><strong>温度 T：</strong>高温时容易接受差解，低温时趋于贪心</li>
+                <li><strong>接受概率：</strong>P = exp((new_obj - old_obj) / T)</li>
+              </ul>
+            </div>
+            <p><strong>输出指标：</strong>最优解、最优目标值、收敛曲线。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import random
+import math
+import matplotlib.pyplot as plt
+
+np.random.seed(17); random.seed(17)
+
+num_depots = 30
+budget = 1500
+costs = [random.randint(50, 150) for _ in range(num_depots)]
+benefits = [random.randint(30, 80) for _ in range(num_depots)]
+
+def objective(state):
+    c = sum(costs[i] for i, s in enumerate(state) if s)
+    b = sum(benefits[i] for i, s in enumerate(state) if s)
+    return -float('inf') if c > budget else b
+
+def neighbor(state):
+    s = list(state)
+    if random.random() < 0.7:
+        s[random.randint(0, num_depots-1)] ^= 1
+    else:
+        on = [i for i, v in enumerate(s) if v]
+        off = [i for i, v in enumerate(s) if not v]
+        if on and off:
+            s[random.choice(on)] = 0
+            s[random.choice(off)] = 1
+    return tuple(s)
+
+# 初始解：随机选约一半，若超预算则随机移除
+state = [0]*num_depots
+for _ in range(num_depots//2):
+    state[random.randint(0, num_depots-1)] = 1
+while sum(costs[i] for i, v in enumerate(state) if v) > budget and any(state):
+    on = [i for i, v in enumerate(state) if v]
+    state[random.choice(on)] = 0
+state = tuple(state)
+
+T = 5000
+cooling = 0.999
+best_state, best_obj = state, objective(state)
+current_state, current_obj = state, best_obj
+hist_current, hist_best = [], []
+
+for _ in range(20000):
+    nb = neighbor(current_state)
+    nb_obj = objective(nb)
+    if nb_obj > current_obj:
+        accept_prob = 1.0
+    elif T <= 0:
+        accept_prob = 0.0
+    else:
+        accept_prob = math.exp((nb_obj - current_obj) / T)
+    if random.random() < accept_prob:
+        current_state, current_obj = nb, nb_obj
+    if current_obj > best_obj:
+        best_state, best_obj = current_state, current_obj
+    T *= cooling
+    hist_current.append(current_obj)
+    hist_best.append(best_obj)
+    if T < 1: break
+
+print(f"Best benefit = {best_obj}, cost = {sum(costs[i] for i,v in enumerate(best_state) if v)}")
+
+plt.figure(figsize=(8, 4))
+plt.plot(hist_current, alpha=0.5, label='Current objective')
+plt.plot(hist_best, label='Best objective')
+plt.xlabel('Iteration'); plt.ylabel('Total benefit')
+plt.title('Simulated annealing convergence')
+plt.legend(); plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2 -->
+      <div class="mb-8 border rounded-lg p-5 bg-slate-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Block 2：冷却速度对收敛的影响</h3>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose prose-slate text-sm">
+            <p><strong>探究：</strong>冷却率 cooling_rate 决定温度下降快慢。冷却太快容易陷入局部最优；冷却太慢计算成本高。比较 0.99、0.995、0.999 三种冷却速度。</p>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import random
+import math
+import matplotlib.pyplot as plt
+
+np.random.seed(18); random.seed(18)
+
+def run_sa(cooling, max_iter=20000):
+    T = 5000
+    state = tuple([1 if random.random() < 0.5 else 0 for _ in range(num_depots)])
+    while sum(costs[i] for i, v in enumerate(state) if v) > budget and any(state):
+        on = [i for i, v in enumerate(state) if v]
+        lst = list(state); lst[random.choice(on)] = 0; state = tuple(lst)
+    cur, cur_obj = state, objective(state)
+    best, best_obj = cur, cur_obj
+    hist = [best_obj]
+    for _ in range(max_iter):
+        nb = neighbor(cur)
+        nb_obj = objective(nb)
+        if nb_obj > cur_obj or (T > 0 and random.random() < math.exp((nb_obj - cur_obj)/T)):
+            cur, cur_obj = nb, nb_obj
+        if cur_obj > best_obj:
+            best, best_obj = cur, cur_obj
+        T *= cooling
+        hist.append(best_obj)
+        if T < 1: break
+    return hist
+
+plt.figure(figsize=(8, 4))
+for cr in [0.99, 0.995, 0.999]:
+    hist = run_sa(cr)
+    plt.plot(hist, label=f'cooling={cr}')
+plt.xlabel('Iteration'); plt.ylabel('Best benefit')
+plt.title('Impact of cooling rate on SA convergence')
+plt.legend(); plt.tight_layout(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-5 bg-amber-50">
+        <h3 class="text-lg font-bold text-slate-800 mb-3">假设与探究</h3>
+        <div class="text-sm text-slate-700 space-y-2">
+          <p><strong>1. 邻域设计：</strong>只翻转单个比特 vs 交换选中/未选中，哪种更容易保持预算可行性？</p>
+          <p><strong>2. 初始温度：</strong>温度过高会浪费迭代，过低则失去跳出局部最优的能力。如何根据目标函数量级选择 T₀？</p>
+          <p><strong>3. 最优性：</strong>模拟退火不保证全局最优。对小型问题可对比动态规划或穷举，验证解的质量。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="m8" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 仿真模型选择与建模起手式</h2>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left border-collapse">
-          <thead>
-            <tr class="border-b-2 border-slate-300 text-slate-700">
-              <th class="py-2 pr-4">Model</th>
-              <th class="py-2 pr-4">Worldview</th>
-              <th class="py-2 pr-4">Best when&hellip;</th>
-              <th class="py-2">Key output</th>
+        <table class="min-w-full text-sm border">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="px-4 py-2 border text-left">方法</th>
+              <th class="px-4 py-2 border text-left">核心思想</th>
+              <th class="px-4 py-2 border text-left">适用场景</th>
+              <th class="px-4 py-2 border text-left">关键输出</th>
             </tr>
           </thead>
-          <tbody class="text-slate-600">
-            <tr class="border-b border-slate-200">
-              <td class="py-2 pr-4 font-semibold text-teal-700">Monte Carlo</td>
-              <td class="py-2 pr-4">Top-down: sample the whole system</td>
-              <td class="py-2 pr-4">inputs are uncertain and you want the distribution / risk of an outcome</td>
-              <td class="py-2">probability &amp; percentiles of a result</td>
-            </tr>
-            <tr class="border-b border-slate-200">
-              <td class="py-2 pr-4 font-semibold text-emerald-700">Agent-Based</td>
-              <td class="py-2 pr-4">Bottom-up: rules for individuals</td>
-              <td class="py-2 pr-4">system behavior emerges from many interacting, heterogeneous actors</td>
-              <td class="py-2">emergent global patterns over time</td>
+          <tbody class="text-slate-700">
+            <tr>
+              <td class="px-4 py-2 border font-semibold">Monte Carlo</td>
+              <td class="px-4 py-2 border">重复随机抽样，用频率逼近概率</td>
+              <td class="px-4 py-2 border">风险分析、工期、面积估计、比例推断</td>
+              <td class="px-4 py-2 border">分布、概率、置信区间、敏感性</td>
             </tr>
             <tr>
-              <td class="py-2 pr-4 font-semibold text-rose-700">Markov Chain</td>
-              <td class="py-2 pr-4">Memoryless state transitions</td>
-              <td class="py-2 pr-4">the next state depends only on the current one, with fixed probabilities</td>
-              <td class="py-2">long-run stationary distribution</td>
+              <td class="px-4 py-2 border font-semibold">Agent-Based</td>
+              <td class="px-4 py-2 border">个体规则 → 群体涌现行为</td>
+              <td class="px-4 py-2 border">交通、火灾、隔离、谣言、生态</td>
+              <td class="px-4 py-2 border">时序演化、空间模式、相变</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border font-semibold">概率优化（SA）</td>
+              <td class="px-4 py-2 border">带随机扰动的贪心搜索，跳出局部最优</td>
+              <td class="px-4 py-2 border">选址、调度、背包/预算约束优化</td>
+              <td class="px-4 py-2 border">近似最优解、收敛曲线</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-900">
-        <strong>Expert&#x27;s synthesis:</strong> every stochastic model answers &quot;what usually happens, and how uncertain is it?&quot; rather than &quot;what is the single answer?&quot; The modeling skill is matching the tool to the question: use Monte Carlo to quantify <em>risk</em>, agent-based models to explain <em>emergence</em>, and Markov chains to find <em>long-run equilibria</em>. In all three, insight comes not from a single run but from <strong>changing a parameter and watching how the distribution moves</strong>.
+      <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+        <strong>建模起手式：</strong>拿到带不确定性或涌现行为的题目，先问：
+        (1) 要估计的是概率/风险，还是寻找最优解？
+        (2) 个体之间是否有交互和空间结构？
+        (3) 状态转移是否只依赖当前状态？
+        (4) 哪些假设最容易影响结论？——把答案变成参数扫描。
       </div>
     </section>
 
-  </main>
-
-  <footer class="bg-slate-100 border-t border-slate-200 py-6 px-6 mt-8">
-    <div class="max-w-5xl mx-auto text-center text-slate-500 text-sm">
-      Generated for classroom use. Simulation demos use numpy and matplotlib.
-    </div>
-  </footer>
+    <footer class="text-center text-sm text-slate-500 mt-10">
+      Simulation Models Classroom Demo · Based on 仿真模型 teaching materials · Every demo includes visualization
+    </footer>
+  </div>
 
   <script>
     function copyCode(btn) {
-      const pre = btn.parentElement.nextElementSibling;
-      const code = pre.querySelector('code').innerText;
+      const pre = btn.parentElement.querySelector('pre');
+      const code = pre.innerText;
       navigator.clipboard.writeText(code).then(() => {
-        const original = btn.innerText;
+        const old = btn.innerText;
         btn.innerText = 'Copied!';
-        setTimeout(() => btn.innerText = original, 1500);
+        setTimeout(() => btn.innerText = old, 1500);
       });
     }
   </script>
