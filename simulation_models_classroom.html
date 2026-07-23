@@ -65,18 +65,24 @@
           <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# 通用 Monte Carlo 骨架：也适用于绝大多数仿真模型的“核心循环”
+# --- Parameters (user-tunable) ---
+params = {
+    'mu': 5.0,      # mean of the random input distribution
+    'sigma': 2.0,   # standard deviation of the random input distribution
+}
+N_RUNS = 10000     # number of Monte Carlo replications
+
+# --- Generic Monte Carlo skeleton ---
 def simulate_once(params):
     """单次仿真：根据参数生成随机输入并计算输出。"""
     x = np.random.normal(params['mu'], params['sigma'])
     return max(0, x)            # 例如：风速不能为负
 
-def run_simulation(params, n_runs=10000):
+def run_simulation(params, n_runs=N_RUNS):
     """重复 n_runs 次，返回输出分布。"""
     results = [simulate_once(params) for _ in range(n_runs)]
     return np.array(results)
 
-params = {'mu': 5, 'sigma': 2}
 out = run_simulation(params)
 print(f"Mean={out.mean():.2f}, Std={out.std():.2f}, P>7={np.mean(out>7):.2%}")
 </code></pre>
@@ -109,13 +115,20 @@ print(f"Mean={out.mean():.2f}, Std={out.std():.2f}, P>7={np.mean(out>7):.2%}")
             <pre><code class="language-python">import numpy as np
 from collections import Counter
 
+# --- Parameters (user-tunable) ---
+TOTAL_MARBLES = 100000   # total marbles in the bag
+RED_PCT = 0.10           # true proportion of red marbles
+YELLOW_PCT = 0.30        # true proportion of yellow marbles
+BLUE_PCT = 0.60          # true proportion of blue marbles
+DRAW_SMALL = 30          # small sample size for demonstration
+DRAW_LARGE = 5000        # large sample size for demonstration
+
 np.random.seed(0)
 # 构建总体
-total = 100000
 marbles = (
-    ['red'] * int(total * 0.10) +
-    ['yellow'] * int(total * 0.30) +
-    ['blue'] * int(total * 0.60)
+    ['red'] * int(TOTAL_MARBLES * RED_PCT) +
+    ['yellow'] * int(TOTAL_MARBLES * YELLOW_PCT) +
+    ['blue'] * int(TOTAL_MARBLES * BLUE_PCT)
 )
 np.random.shuffle(marbles)
 
@@ -127,9 +140,9 @@ def draw_and_report(n):
         print(f"{color:6}: {counts.get(color, 0):4d} ({pct:5.2f}%)  true={true_p}%")
 
 print("--- Draw n=30 ---")
-draw_and_report(30)
+draw_and_report(DRAW_SMALL)
 print("\n--- Draw n=5000 ---")
-draw_and_report(5000)
+draw_and_report(DRAW_LARGE)
 </code></pre>
           </div>
         </div>
@@ -148,18 +161,30 @@ draw_and_report(5000)
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(1)
-sizes = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-red_err, blue_err = [], []
+# --- Parameters (user-tunable) ---
+TOTAL_MARBLES = 100000
+RED_PCT = 0.10
+YELLOW_PCT = 0.30
+BLUE_PCT = 0.60
+SAMPLE_SIZES = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]  # sample sizes to test
 
-for n in sizes:
+np.random.seed(1)
+marbles = (
+    ['red'] * int(TOTAL_MARBLES * RED_PCT) +
+    ['yellow'] * int(TOTAL_MARBLES * YELLOW_PCT) +
+    ['blue'] * int(TOTAL_MARBLES * BLUE_PCT)
+)
+np.random.shuffle(marbles)
+
+red_err, blue_err = [], []
+for n in SAMPLE_SIZES:
     drawn = np.random.choice(marbles, size=n, replace=False)
-    red_err.append(abs((drawn == 'red').mean() - 0.10))
-    blue_err.append(abs((drawn == 'blue').mean() - 0.60))
+    red_err.append(abs((drawn == 'red').mean() - RED_PCT))
+    blue_err.append(abs((drawn == 'blue').mean() - BLUE_PCT))
 
 fig, ax = plt.subplots(figsize=(8, 4))
-ax.plot(sizes, red_err, marker='o', label='|red - 10%|')
-ax.plot(sizes, blue_err, marker='s', label='|blue - 60%|')
+ax.plot(SAMPLE_SIZES, red_err, marker='o', label='|red - 10%|')
+ax.plot(SAMPLE_SIZES, blue_err, marker='s', label='|blue - 60%|')
 ax.set_xscale('log'); ax.set_yscale('log')
 ax.set_xlabel('Sample size n'); ax.set_ylabel('Absolute error')
 ax.set_title('Sample proportion converges to true proportion')
@@ -187,26 +212,36 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 from scipy.stats import binom
 
-np.random.seed(2)
-n, p = 10, 0.60
-n_sim = 10000
+# --- Parameters (user-tunable) ---
+N_TRIALS = 10           # number of marbles drawn per experiment
+P_BLUE = 0.60           # true probability of drawing a blue marble
+N_SIMULATIONS = 10000   # number of repeated experiments
 
-# 模拟：每次抽 10 颗（有放回近似），记录蓝球数
+np.random.seed(2)
+TOTAL_MARBLES = 100000
+marbles = (
+    ['red'] * int(TOTAL_MARBLES * 0.10) +
+    ['yellow'] * int(TOTAL_MARBLES * 0.30) +
+    ['blue'] * int(TOTAL_MARBLES * P_BLUE)
+)
+np.random.shuffle(marbles)
+
+# 模拟：每次抽 N_TRIALS 颗，记录蓝球数
 blue_counts = []
-for _ in range(n_sim):
-    drawn = np.random.choice(marbles, size=n, replace=True)
+for _ in range(N_SIMULATIONS):
+    drawn = np.random.choice(marbles, size=N_TRIALS, replace=True)
     blue_counts.append(np.sum(drawn == 'blue'))
 
-k_vals = np.arange(0, n + 1)
-theory = binom.pmf(k_vals, n, p)
+k_vals = np.arange(0, N_TRIALS + 1)
+theory = binom.pmf(k_vals, N_TRIALS, P_BLUE)
 
 fig, ax = plt.subplots(figsize=(8, 4))
-ax.hist(blue_counts, bins=np.arange(-0.5, n + 1.5, 1),
+ax.hist(blue_counts, bins=np.arange(-0.5, N_TRIALS + 1.5, 1),
         density=True, alpha=0.6, color='skyblue', label='Simulated')
 ax.bar(k_vals + 0.2, theory, width=0.35, color='red', alpha=0.5, label='Binomial PMF')
-ax.set_xlabel('Number of blue marbles in 10 draws')
+ax.set_xlabel('Number of blue marbles in N_TRIALS draws')
 ax.set_ylabel('Probability')
-ax.set_title(f'Simulated vs theoretical Binomial(n={n}, p={p})')
+ax.set_title(f'Simulated vs theoretical Binomial(n={N_TRIALS}, p={P_BLUE})')
 ax.legend(); plt.tight_layout(); plt.show()
 </code></pre>
           </div>
@@ -247,12 +282,10 @@ ax.legend(); plt.tight_layout(); plt.show()
           <div class="relative">
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import numpy as np
-import pandas as pd
 
-np.random.seed(3)
-
-# 任务：id, 名称, 前置任务, 持续时间的分布参数
-tasks_data = [
+# --- Parameters (user-tunable) ---
+# Task definitions: id, name, predecessors, duration distribution
+TASKS_DATA = [
     {"id":"A", "name":"Feature Development",   "predecessors":[],       "dist":{"type":"normal",  "mean":10, "std_dev":2}},
     {"id":"B", "name":"UI/UX Design",          "predecessors":[],       "dist":{"type":"normal",  "mean":7,  "std_dev":1.5}},
     {"id":"C", "name":"Backend Integration",   "predecessors":["A"],   "dist":{"type":"normal",  "mean":8,  "std_dev":2}},
@@ -299,7 +332,7 @@ def simulate_project(tasks):
     return total, finish, critical
 
 print("单次示例运行：")
-dur, fin, cp = simulate_project(tasks_data)
+dur, fin, cp = simulate_project(TASKS_DATA)
 print(f"总工期 = {dur:.1f} 天，关键路径任务 = {sorted(cp)}")
 </code></pre>
           </div>
@@ -319,29 +352,78 @@ print(f"总工期 = {dur:.1f} 天，关键路径任务 = {sorted(cp)}")
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# --- Parameters (user-tunable) ---
+N_MONTE_CARLO_RUNS = 10000   # number of project simulations
+DEADLINE_DAYS = 30           # deadline for on-time probability
+PERCENTILE = 90              # percentile for tail risk
+
+# Reuse task definitions and simulator from Block 1
+TASKS_DATA = [
+    {"id":"A", "name":"Feature Development",   "predecessors":[],       "dist":{"type":"normal",  "mean":10, "std_dev":2}},
+    {"id":"B", "name":"UI/UX Design",          "predecessors":[],       "dist":{"type":"normal",  "mean":7,  "std_dev":1.5}},
+    {"id":"C", "name":"Backend Integration",   "predecessors":["A"],   "dist":{"type":"normal",  "mean":8,  "std_dev":2}},
+    {"id":"D", "name":"Frontend Development",  "predecessors":["B"],   "dist":{"type":"normal",  "mean":6,  "std_dev":1}},
+    {"id":"E", "name":"Testing & Bug Fixing",  "predecessors":["C","D"],"dist":{"type":"uniform", "min":5,  "max":10}},
+    {"id":"F", "name":"Marketing Campaign",    "predecessors":[],       "dist":{"type":"normal",  "mean":12, "std_dev":3}},
+    {"id":"G", "name":"Legal Review",          "predecessors":["A","B"],"dist":{"type":"uniform", "min":3,  "max":7}},
+    {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
+]
+
+def sample_duration(d):
+    t = d["type"]
+    if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
+    if t == "uniform":  return np.random.uniform(d["min"], d["max"])
+    if t == "constant": return d["value"]
+
+def simulate_project(tasks):
+    tasks_dict = {t["id"]: t for t in tasks}
+    finish, sampled = {}, {}
+    pending = list(tasks)
+    processed = set()
+    while pending:
+        ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
+        pending = [t for t in pending if t not in ready]
+        for t in ready:
+            dur = sample_duration(t["dist"])
+            sampled[t["id"]] = dur
+            start = max((finish[p] for p in t["predecessors"]), default=0)
+            finish[t["id"]] = start + dur
+            processed.add(t["id"])
+    total = finish['H']
+    critical = set(['H'])
+    to_trace = ['H']
+    tol = 0.001
+    while to_trace:
+        tid = to_trace.pop()
+        start = finish[tid] - sampled[tid]
+        for p in tasks_dict[tid]["predecessors"]:
+            if abs(finish[p] - start) < tol:
+                critical.add(p)
+                to_trace.append(p)
+    return total, finish, critical
+
 np.random.seed(4)
-N = 10000
 durations = []
-for _ in range(N):
-    dur, _, _ = simulate_project(tasks_data)
+for _ in range(N_MONTE_CARLO_RUNS):
+    dur, _, _ = simulate_project(TASKS_DATA)
     durations.append(dur)
 durations = np.array(durations)
 
 mean_dur = durations.mean()
 print(f"平均工期：{mean_dur:.1f} 天")
-print(f"P(T <= 30) = {(durations <= 30).mean():.1%}")
-print(f"90% 分位数 = {np.percentile(durations, 90):.1f} 天")
+print(f"P(T <= {DEADLINE_DAYS}) = {(durations <= DEADLINE_DAYS).mean():.1%}")
+print(f"{PERCENTILE}% 分位数 = {np.percentile(durations, PERCENTILE):.1f} 天")
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 4))
 axes[0].hist(durations, bins=50, color='teal', alpha=0.7, edgecolor='white')
-axes[0].axvline(30, color='red', ls='--', label='30-day deadline')
+axes[0].axvline(DEADLINE_DAYS, color='red', ls='--', label=f'{DEADLINE_DAYS}-day deadline')
 axes[0].axvline(mean_dur, color='black', ls='-', label=f'mean={mean_dur:.1f}')
 axes[0].set_xlabel('Project duration (days)')
 axes[0].set_ylabel('Frequency')
 axes[0].set_title('Distribution of total project duration')
 axes[0].legend()
 
-cum_avg = np.cumsum(durations) / np.arange(1, N + 1)
+cum_avg = np.cumsum(durations) / np.arange(1, N_MONTE_CARLO_RUNS + 1)
 axes[1].plot(cum_avg, color='darkorange')
 axes[1].axhline(mean_dur, color='red', ls='--', label='final mean')
 axes[1].set_xscale('log')
@@ -367,27 +449,76 @@ axes[1].legend(); plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# --- Parameters (user-tunable) ---
+N_CRITICAL_PATH_RUNS = 10000   # simulations for critical-path probability
+SENSITIVITY_DELTA = 0.10       # +/- fraction for sensitivity on task A mean
+N_SENSITIVITY_RUNS = 2000      # simulations per sensitivity scenario
+
+# Reuse task definitions and simulator from Block 1
+TASKS_DATA = [
+    {"id":"A", "name":"Feature Development",   "predecessors":[],       "dist":{"type":"normal",  "mean":10, "std_dev":2}},
+    {"id":"B", "name":"UI/UX Design",          "predecessors":[],       "dist":{"type":"normal",  "mean":7,  "std_dev":1.5}},
+    {"id":"C", "name":"Backend Integration",   "predecessors":["A"],   "dist":{"type":"normal",  "mean":8,  "std_dev":2}},
+    {"id":"D", "name":"Frontend Development",  "predecessors":["B"],   "dist":{"type":"normal",  "mean":6,  "std_dev":1}},
+    {"id":"E", "name":"Testing & Bug Fixing",  "predecessors":["C","D"],"dist":{"type":"uniform", "min":5,  "max":10}},
+    {"id":"F", "name":"Marketing Campaign",    "predecessors":[],       "dist":{"type":"normal",  "mean":12, "std_dev":3}},
+    {"id":"G", "name":"Legal Review",          "predecessors":["A","B"],"dist":{"type":"uniform", "min":3,  "max":7}},
+    {"id":"H", "name":"Product Launch (Final)","predecessors":["E","F","G"],"dist":{"type":"constant","value":1}},
+]
+
+def sample_duration(d):
+    t = d["type"]
+    if t == "normal":   return max(0.1, np.random.normal(d["mean"], d["std_dev"]))
+    if t == "uniform":  return np.random.uniform(d["min"], d["max"])
+    if t == "constant": return d["value"]
+
+def simulate_project(tasks):
+    tasks_dict = {t["id"]: t for t in tasks}
+    finish, sampled = {}, {}
+    pending = list(tasks)
+    processed = set()
+    while pending:
+        ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
+        pending = [t for t in pending if t not in ready]
+        for t in ready:
+            dur = sample_duration(t["dist"])
+            sampled[t["id"]] = dur
+            start = max((finish[p] for p in t["predecessors"]), default=0)
+            finish[t["id"]] = start + dur
+            processed.add(t["id"])
+    total = finish['H']
+    critical = set(['H'])
+    to_trace = ['H']
+    tol = 0.001
+    while to_trace:
+        tid = to_trace.pop()
+        start = finish[tid] - sampled[tid]
+        for p in tasks_dict[tid]["predecessors"]:
+            if abs(finish[p] - start) < tol:
+                critical.add(p)
+                to_trace.append(p)
+    return total, finish, critical
+
 np.random.seed(5)
-N = 10000
-critical_counts = {t["id"]: 0 for t in tasks_data}
-for _ in range(N):
-    _, _, cp = simulate_project(tasks_data)
+critical_counts = {t["id"]: 0 for t in TASKS_DATA}
+for _ in range(N_CRITICAL_PATH_RUNS):
+    _, _, cp = simulate_project(TASKS_DATA)
     for tid in cp:
         critical_counts[tid] += 1
 
-probs = {k: v / N * 100 for k, v in critical_counts.items()}
+probs = {k: v / N_CRITICAL_PATH_RUNS * 100 for k, v in critical_counts.items()}
 print("关键路径概率：")
 for k, v in sorted(probs.items(), key=lambda x: -x[1]):
     print(f"  {k}: {v:.1f}%")
 
 # 敏感性：把任务 A 的 mean 分别 -10% 和 +10%，看平均工期变化
-base_mean = tasks_data[0]["dist"]["mean"]
+base_mean = TASKS_DATA[0]["dist"]["mean"]
 sens = {}
-for delta in [-0.1, 0, 0.1]:
-    tasks_data[0]["dist"]["mean"] = base_mean * (1 + delta)
-    durs = [simulate_project(tasks_data)[0] for _ in range(2000)]
+for delta in [-SENSITIVITY_DELTA, 0, SENSITIVITY_DELTA]:
+    TASKS_DATA[0]["dist"]["mean"] = base_mean * (1 + delta)
+    durs = [simulate_project(TASKS_DATA)[0] for _ in range(N_SENSITIVITY_RUNS)]
     sens[f"A mean {delta:+.0%}"] = np.mean(durs)
-tasks_data[0]["dist"]["mean"] = base_mean  # restore
+TASKS_DATA[0]["dist"]["mean"] = base_mean  # restore
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 4))
 axes[0].barh(list(probs), list(probs.values()), color='slateblue')
@@ -437,22 +568,23 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(6)
-L = 1000          # 路段长度 (m)
-v = 20            # 车速 (m/s)
-dt = 1            # 时间步长 (s)
-steps = 60
+# --- Parameters (user-tunable) ---
+ROAD_LENGTH = 1000   # length of road segment (m)
+CAR_SPEED = 20       # car speed (m/s)
+TIME_STEP = 1        # simulation time step (s)
+N_STEPS = 60         # number of simulation steps
+INITIAL_CARS = 10    # number of cars initially on the road
+CAR_SPACING = 80     # initial spacing between cars (m)
 
-# 初始化：路上有 10 辆车，均匀分布
-cars = [{'x': i * 80, 'v': v} for i in range(10)]
+np.random.seed(6)
+# 初始化：路上有 INITIAL_CARS 辆车，均匀分布
+cars = [{'x': i * CAR_SPACING, 'v': CAR_SPEED} for i in range(INITIAL_CARS)]
 n_on_road = []
 
-for t in range(steps):
-    # 更新位置
+for t in range(N_STEPS):
     for c in cars:
-        c['x'] += c['v'] * dt
-    # 移除驶出车辆
-    cars = [c for c in cars if c['x'] < L]
+        c['x'] += c['v'] * TIME_STEP
+    cars = [c for c in cars if c['x'] < ROAD_LENGTH]
     n_on_road.append(len(cars))
 
 plt.figure(figsize=(8, 3))
@@ -488,46 +620,48 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(7)
-L, v, car_len, min_gap = 1000, 20, 5, 10
-safe_dist = car_len + min_gap
-dt, steps = 1, 300
-lam = 0.4         # 每秒平均到达车辆数
+# --- Parameters (user-tunable) ---
+ROAD_LENGTH = 1000     # length of road segment (m)
+CAR_SPEED = 20         # free-flow speed (m/s)
+CAR_LENGTH = 5         # physical length of each car (m)
+MIN_GAP = 10           # minimum gap between cars (m)
+SAFE_DISTANCE = CAR_LENGTH + MIN_GAP
+TIME_STEP = 1          # simulation time step (s)
+N_STEPS = 300          # total simulation steps
+ARRIVAL_RATE = 0.4     # Poisson arrival rate (cars per time step)
 
-cars = []         # 每辆车：{'x':位置, 'entry_t':进入时间}
+np.random.seed(7)
+cars = []
 travel_times = []
-queue = 0         # 入口排队计数（简化为到达但被阻塞的车辆数）
 max_queue = 0
 n_on_road = []
 
-for t in range(steps):
+for t in range(N_STEPS):
     # 1) 按 Poisson 到达新车
-    arrivals = np.random.poisson(lam)
+    arrivals = np.random.poisson(ARRIVAL_RATE)
     blocked = 0
     for _ in range(arrivals):
-        if not cars or cars[-1]['x'] >= safe_dist:
+        if not cars or cars[-1]['x'] >= SAFE_DISTANCE:
             cars.append({'x': 0, 'entry_t': t})
         else:
             blocked += 1
-    queue += blocked
-    max_queue = max(max_queue, queue)
+    max_queue = max(max_queue, blocked)
 
     # 2) 从尾到头更新速度（避免碰撞）
-    # 按位置从大到小排序，先更新前车
     cars.sort(key=lambda c: c['x'], reverse=True)
     for i, c in enumerate(cars):
         leader = cars[i-1] if i > 0 else None
         if leader is None:
-            target_speed = v
+            target_speed = CAR_SPEED
         else:
-            gap = leader['x'] - c['x'] - car_len
-            target_speed = min(v, max(0, gap - min_gap) / dt)
-        c['x'] += target_speed * dt
+            gap = leader['x'] - c['x'] - CAR_LENGTH
+            target_speed = min(CAR_SPEED, max(0, gap - MIN_GAP) / TIME_STEP)
+        c['x'] += target_speed * TIME_STEP
 
     # 3) 移除驶出车辆并记录通行时间
     cars_new = []
     for c in cars:
-        if c['x'] >= L:
+        if c['x'] >= ROAD_LENGTH:
             travel_times.append(t - c['entry_t'])
         else:
             cars_new.append(c)
@@ -562,17 +696,25 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-def run_traffic(lam, seed=8):
+# --- Parameters (user-tunable) ---
+ROAD_LENGTH = 1000
+CAR_SPEED = 20
+CAR_LENGTH = 5
+MIN_GAP = 10
+SAFE_DISTANCE = CAR_LENGTH + MIN_GAP
+TIME_STEP = 1
+N_STEPS = 300
+ARRIVAL_RATES = np.linspace(0.1, 0.8, 15)  # arrival rates to scan
+RANDOM_SEED = 8
+
+def run_traffic(lam, seed=RANDOM_SEED):
     np.random.seed(seed)
-    L, v, car_len, min_gap = 1000, 20, 5, 10
-    safe_dist = car_len + min_gap
-    dt, steps = 1, 300
     cars, travel_times, max_queue = [], [], 0
-    for t in range(steps):
+    for t in range(N_STEPS):
         arrivals = np.random.poisson(lam)
         blocked = 0
         for _ in range(arrivals):
-            if not cars or cars[-1]['x'] >= safe_dist:
+            if not cars or cars[-1]['x'] >= SAFE_DISTANCE:
                 cars.append({'x': 0, 'entry_t': t})
             else:
                 blocked += 1
@@ -580,12 +722,12 @@ def run_traffic(lam, seed=8):
         cars.sort(key=lambda c: c['x'], reverse=True)
         for i, c in enumerate(cars):
             leader = cars[i-1] if i > 0 else None
-            gap = (leader['x'] - c['x'] - car_len) if leader else 1e9
-            target = min(v, max(0, gap - min_gap) / dt)
-            c['x'] += target * dt
+            gap = (leader['x'] - c['x'] - CAR_LENGTH) if leader else 1e9
+            target = min(CAR_SPEED, max(0, gap - MIN_GAP) / TIME_STEP)
+            c['x'] += target * TIME_STEP
         cars_new = []
         for c in cars:
-            if c['x'] >= L:
+            if c['x'] >= ROAD_LENGTH:
                 travel_times.append(t - c['entry_t'])
             else:
                 cars_new.append(c)
@@ -593,18 +735,17 @@ def run_traffic(lam, seed=8):
     avg_travel = np.mean(travel_times) if travel_times else np.nan
     return avg_travel, len(travel_times), max_queue
 
-lambdas = np.linspace(0.1, 0.8, 15)
-results = [run_traffic(l) for l in lambdas]
+results = [run_traffic(l) for l in ARRIVAL_RATES]
 avg_times = [r[0] for r in results]
 throughputs = [r[1] for r in results]
 queues = [r[2] for r in results]
 
 fig, axes = plt.subplots(1, 3, figsize=(15, 3.5))
-axes[0].plot(lambdas, avg_times, marker='o'); axes[0].set_title('Avg travel time')
+axes[0].plot(ARRIVAL_RATES, avg_times, marker='o'); axes[0].set_title('Avg travel time')
 axes[0].set_xlabel('Arrival rate λ'); axes[0].set_ylabel('Seconds')
-axes[1].plot(lambdas, throughputs, marker='s', color='green'); axes[1].set_title('Throughput')
+axes[1].plot(ARRIVAL_RATES, throughputs, marker='s', color='green'); axes[1].set_title('Throughput')
 axes[1].set_xlabel('Arrival rate λ'); axes[1].set_ylabel('Cars exited')
-axes[2].plot(lambdas, queues, marker='^', color='red'); axes[2].set_title('Max queue')
+axes[2].plot(ARRIVAL_RATES, queues, marker='^', color='red'); axes[2].set_title('Max queue')
 axes[2].set_xlabel('Arrival rate λ'); axes[2].set_ylabel('Cars')
 plt.tight_layout(); plt.show()
 </code></pre>
@@ -649,36 +790,36 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 import random
 
-np.random.seed(9); random.seed(9)
+# --- Parameters (user-tunable) ---
+NUM_AGENTS = 30          # number of people in the community
+NUM_PUBLIC_PLACES = 4    # number of public meeting places
+GRID_SIZE = 10           # grid size for locations
+N_STEPS = 60             # simulation steps
+MEET_PROB = 0.7          # probability two people at same location talk
+SPREAD_PROB = 0.8        # probability speaker shares gossip
+RECEIVE_PROB = 0.9       # probability listener accepts gossip
 
-num_agents = 30
-num_places = 4
-grid_size = 10
-steps = 60
-meet_prob = 0.7
-spread_prob = 0.8
-receive_prob = 0.9
+np.random.seed(9); random.seed(9)
 
 class Agent:
     def __init__(self, aid):
         self.id = aid
-        self.home = tuple(np.random.randint(0, grid_size, 2))
+        self.home = tuple(np.random.randint(0, GRID_SIZE, 2))
         self.loc = self.home
         self.gossip = set()
         self.stay_home = random.uniform(0.3, 0.7)
 
-agents = [Agent(i) for i in range(num_agents)]
-public_places = [tuple(np.random.randint(0, grid_size, 2)) for _ in range(num_places)]
+agents = [Agent(i) for i in range(NUM_AGENTS)]
+public_places = [tuple(np.random.randint(0, GRID_SIZE, 2)) for _ in range(NUM_PUBLIC_PLACES)]
 
 # 初始只有 1 人知道谣言
 source = random.choice(agents)
 source.gossip.add(1)
 
 history = []
-for t in range(steps):
+for t in range(N_STEPS):
     for a in agents:
         a.loc = a.home if random.random() < a.stay_home else random.choice(public_places)
-    # 按位置分组
     locs = {}
     for a in agents:
         locs.setdefault(a.loc, []).append(a)
@@ -686,18 +827,18 @@ for t in range(steps):
         if len(group) < 2: continue
         for i in range(len(group)):
             for j in range(i+1, len(group)):
-                if random.random() < meet_prob:
+                if random.random() < MEET_PROB:
                     a1, a2 = group[i], group[j]
                     for g in a1.gossip:
-                        if g not in a2.gossip and random.random() < spread_prob * receive_prob:
+                        if g not in a2.gossip and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a2.gossip.add(g)
                     for g in a2.gossip:
-                        if g not in a1.gossip and random.random() < spread_prob * receive_prob:
+                        if g not in a1.gossip and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a1.gossip.add(g)
     history.append(sum(1 for a in agents if 1 in a.gossip))
 
 plt.figure(figsize=(8, 4))
-plt.plot(range(1, steps+1), history, marker='o', color='purple')
+plt.plot(range(1, N_STEPS+1), history, marker='o', color='purple')
 plt.xlabel('Time step'); plt.ylabel('Agents knowing gossip')
 plt.title('Gossip spread in a small community')
 plt.grid(True, alpha=0.3)
@@ -721,17 +862,24 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 import random
 
+# --- Parameters (user-tunable) ---
+NUM_AGENTS = 30
+NUM_PUBLIC_PLACES = 4
+GRID_SIZE = 10
+N_STEPS = 80
+SPREAD_PROB = 0.8
+RECEIVE_PROB = 0.9
+MEET_PROBS = [0.3, 0.5, 0.7, 0.9]  # meeting probabilities to compare
+
 def run_gossip(meet_prob, seed=10):
     np.random.seed(seed); random.seed(seed)
-    num_agents, num_places, grid_size, steps = 30, 4, 10, 80
-    spread_prob, receive_prob = 0.8, 0.9
-    agents = [{'home': tuple(np.random.randint(0, grid_size, 2)),
+    agents = [{'home': tuple(np.random.randint(0, GRID_SIZE, 2)),
                'loc': None, 'gossip': set(), 'stay_home': random.uniform(0.3, 0.7)}
-              for _ in range(num_agents)]
-    places = [tuple(np.random.randint(0, grid_size, 2)) for _ in range(num_places)]
+              for _ in range(NUM_AGENTS)]
+    places = [tuple(np.random.randint(0, GRID_SIZE, 2)) for _ in range(NUM_PUBLIC_PLACES)]
     agents[0]['gossip'].add(1)
     hist = []
-    for t in range(steps):
+    for t in range(N_STEPS):
         for a in agents:
             a['loc'] = a['home'] if random.random() < a['stay_home'] else random.choice(places)
         locs = {}
@@ -742,15 +890,15 @@ def run_gossip(meet_prob, seed=10):
                 for j in range(i+1, len(group)):
                     if random.random() < meet_prob:
                         a1, a2 = group[i], group[j]
-                        if 1 in a1['gossip'] and 1 not in a2['gossip'] and random.random() < spread_prob * receive_prob:
+                        if 1 in a1['gossip'] and 1 not in a2['gossip'] and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a2['gossip'].add(1)
-                        if 1 in a2['gossip'] and 1 not in a1['gossip'] and random.random() < spread_prob * receive_prob:
+                        if 1 in a2['gossip'] and 1 not in a1['gossip'] and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a1['gossip'].add(1)
         hist.append(sum(1 for a in agents if 1 in a['gossip']))
     return hist
 
 fig, ax = plt.subplots(figsize=(8, 4))
-for mp in [0.3, 0.5, 0.7, 0.9]:
+for mp in MEET_PROBS:
     ax.plot(run_gossip(mp), label=f'meet_prob={mp}')
 ax.set_xlabel('Time step'); ax.set_ylabel('Agents knowing gossip')
 ax.set_title('Effect of meeting probability on gossip spread')
@@ -796,6 +944,11 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 21           # size of square forest grid
+TREE_DENSITY = 0.60      # initial probability a cell is a tree
+N_STEPS = 10             # number of fire steps to simulate
+
 np.random.seed(11)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 CMAP = ListedColormap(['white', 'green', 'red', 'black'])
@@ -816,10 +969,9 @@ def step_det(f):
             new[(f == TREE) & np.roll(burn, (dr, dc), axis=(0, 1))] = BURNING
     return new
 
-size, density, steps = 21, 0.6, 10
-f = init_forest(size, density)
+f = init_forest(GRID_SIZE, TREE_DENSITY)
 frames = [f.copy()]
-for _ in range(steps):
+for _ in range(N_STEPS):
     f = step_det(f); frames.append(f.copy())
 
 fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
@@ -846,6 +998,14 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 41           # forest grid size
+P_SPREAD = 0.70          # probability fire spreads to a neighboring tree
+P_IGNITE = 0.001         # spontaneous ignition probability per tree per step
+N_STEPS = 30             # steps per simulation
+N_REPS = 10              # repetitions per density for averaging
+DENSITIES = np.arange(0.1, 0.9, 0.03)  # initial tree densities to scan
+
 np.random.seed(12)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 
@@ -869,19 +1029,18 @@ def step_prob(f, p_spread, p_ignite):
     new[(f == TREE) & (np.random.rand(*f.shape) < p_ignite)] = BURNING
     return new
 
-def burned_frac(d, size=41, steps=30, reps=10):
+def burned_frac(d, size=GRID_SIZE, steps=N_STEPS, reps=N_REPS):
     vals = []
     for _ in range(reps):
-        f = init_f(size, d, 0.001)
-        for _ in range(steps): f = step_prob(f, 0.7, 0.001)
+        f = init_f(size, d, P_IGNITE)
+        for _ in range(steps): f = step_prob(f, P_SPREAD, P_IGNITE)
         vals.append((f == ASH).sum() / f.size)
     return np.mean(vals)
 
-densities = np.arange(0.1, 0.9, 0.03)
-ys = [burned_frac(d) for d in densities]
+ys = [burned_frac(d) for d in DENSITIES]
 
 plt.figure(figsize=(8, 4))
-plt.plot(densities, ys, marker='o', color='firebrick')
+plt.plot(DENSITIES, ys, marker='o', color='firebrick')
 plt.xlabel('Initial tree density'); plt.ylabel('Average burned fraction')
 plt.title('Burned fraction vs. tree density')
 plt.grid(True, ls='--', alpha=0.5)
@@ -905,6 +1064,14 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 80
+N_STEPS = 200
+P_GROW = 0.02            # probability an empty cell regrows into a tree
+P_SPREAD = 0.80          # probability fire spreads to a neighbor
+P_IGNITE = 0.0005        # spontaneous ignition probability per tree per step
+INITIAL_DENSITY = 0.60   # initial tree density
+
 np.random.seed(13)
 EMPTY, TREE, BURNING, ASH = 0, 1, 2, 3
 CMAP = ListedColormap(['white', 'green', 'red', 'black'])
@@ -924,13 +1091,12 @@ def step_full(f, p_grow, p_spread, p_ignite):
     new[(f == EMPTY) & (np.random.rand(*f.shape) < p_grow)] = TREE
     return new
 
-size, steps = 80, 200
-f = (np.random.rand(size, size) < 0.6).astype(int)
-f[size//2-2:size//2+2, size//2-2:size//2+2] = BURNING
+f = (np.random.rand(GRID_SIZE, GRID_SIZE) < INITIAL_DENSITY).astype(int)
+f[GRID_SIZE//2-2:GRID_SIZE//2+2, GRID_SIZE//2-2:GRID_SIZE//2+2] = BURNING
 
 tree, burning, ash = [], [], []
-for _ in range(steps):
-    f = step_full(f, p_grow=0.02, p_spread=0.8, p_ignite=0.0005)
+for _ in range(N_STEPS):
+    f = step_full(f, P_GROW, P_SPREAD, P_IGNITE)
     tree.append((f == TREE).sum())
     burning.append((f == BURNING).sum())
     ash.append((f == ASH).sum())
@@ -985,6 +1151,13 @@ plt.tight_layout(); plt.show()
             <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 import random
+
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 40           # side length of square grid
+EMPTY_RATIO = 0.20       # fraction of empty cells
+TYPE_RATIOS = [0.40, 0.40]  # population fractions for each agent type
+TOLERANCE = 0.30         # minimum fraction of similar neighbors required
+MAX_ITERATIONS = 50      # upper limit on relocation rounds
 
 np.random.seed(14); random.seed(14)
 EMPTY = 0
@@ -1045,18 +1218,17 @@ def step(grid, T):
         grid[r,c] = EMPTY
     return grid
 
-size, er, T = 40, 0.2, 0.3
-grid = init_grid(size, er, [0.4, 0.4])
+grid = init_grid(GRID_SIZE, EMPTY_RATIO, TYPE_RATIOS)
 print(f"Initial similarity: {similarity(grid):.1f}%")
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 axes[0].imshow(grid, cmap='viridis', vmin=0, vmax=2)
 axes[0].set_title('Initial'); axes[0].axis('off')
 
-for _ in range(50):
-    grid = step(grid, T)
+for _ in range(MAX_ITERATIONS):
+    grid = step(grid, TOLERANCE)
 
 axes[1].imshow(grid, cmap='viridis', vmin=0, vmax=2)
-axes[1].set_title(f'Final (T={T})'); axes[1].axis('off')
+axes[1].set_title(f'Final (T={TOLERANCE})'); axes[1].axis('off')
 print(f"Final similarity: {similarity(grid):.1f}%")
 plt.tight_layout(); plt.show()
 </code></pre>
@@ -1077,15 +1249,77 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 import random
 
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 40
+TOLERANCE = 0.40
+EMPTY_RATIOS = [0.05, 0.15, 0.30]  # empty-cell fractions to compare
+TYPE_RATIOS = [0.35, 0.35, 0.10]   # three-type population mix
+MAX_ITERATIONS = 60
+
+# Helper functions (same as Block 1)
+def init_grid(size, empty_ratio, ratios):
+    total = size * size
+    n_empty = int(total * empty_ratio)
+    counts = [int(total * r) for r in ratios]
+    diff = total - n_empty - sum(counts)
+    if diff > 0: n_empty += diff
+    elif diff < 0: counts[-1] += diff
+    cells = [0]*n_empty
+    for t, n in enumerate(counts, start=1):
+        cells += [t]*n
+    random.shuffle(cells)
+    return np.array(cells).reshape(size, size)
+
+def similarity(grid):
+    size = grid.shape[0]
+    total, n = 0.0, 0
+    for r in range(size):
+        for c in range(size):
+            a = grid[r, c]
+            if a == 0: continue
+            n += 1
+            neighbors = []
+            for dr in (-1,0,1):
+                for dc in (-1,0,1):
+                    if dr==0 and dc==0: continue
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < size and 0 <= nc < size:
+                        neighbors.append(grid[nr, nc])
+            if neighbors:
+                total += neighbors.count(a) / len(neighbors)
+    return 100 * total / n if n else 0
+
+def is_happy(grid, r, c, T):
+    a = grid[r, c]
+    if a == 0: return True
+    size = grid.shape[0]
+    rel = [grid[nr, nc] for dr in (-1,0,1) for dc in (-1,0,1)
+           if not (dr==0 and dc==0) and 0 <= (nr:=r+dr) < size and 0 <= (nc:=c+dc) < size
+           and grid[nr, nc] != 0]
+    if not rel: return True
+    return rel.count(a) / len(rel) >= T
+
+def step(grid, T):
+    size = grid.shape[0]
+    unhappy = [(r,c) for r in range(size) for c in range(size)
+               if grid[r,c]!=0 and not is_happy(grid,r,c,T)]
+    empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==0]
+    random.shuffle(unhappy); random.shuffle(empty)
+    for r,c in unhappy:
+        if not empty: break
+        nr, nc = empty.pop()
+        empty.append((r,c))
+        grid[nr,nc] = grid[r,c]
+        grid[r,c] = 0
+    return grid
+
 np.random.seed(15); random.seed(15)
-size, T = 40, 0.4
-empty_ratios = [0.05, 0.15, 0.30]
 fig, axes = plt.subplots(1, 3, figsize=(15, 4))
 
-for ax, er in zip(axes, empty_ratios):
-    grid = init_grid(size, er, [0.35, 0.35, 0.1])
-    for _ in range(60):
-        grid = step(grid, T)
+for ax, er in zip(axes, EMPTY_RATIOS):
+    grid = init_grid(GRID_SIZE, er, TYPE_RATIOS)
+    for _ in range(MAX_ITERATIONS):
+        grid = step(grid, TOLERANCE)
     ax.imshow(grid, cmap='viridis', vmin=0, vmax=3)
     ax.set_title(f'empty={er:.0%}, sim={similarity(grid):.0f}%')
     ax.axis('off')
@@ -1109,19 +1343,79 @@ plt.tight_layout(); plt.show()
 import matplotlib.pyplot as plt
 import random
 
+# --- Parameters (user-tunable) ---
+GRID_SIZE = 40
+EMPTY_RATIO = 0.20
+TYPE_RATIOS = [0.40, 0.40]
+TOLERANCES = np.arange(0.1, 1.0, 0.02)  # tolerance thresholds to scan
+MAX_ITERATIONS = 100
+
+# Helper functions (same as Block 1)
+def init_grid(size, empty_ratio, ratios):
+    total = size * size
+    n_empty = int(total * empty_ratio)
+    counts = [int(total * r) for r in ratios]
+    diff = total - n_empty - sum(counts)
+    if diff > 0: n_empty += diff
+    elif diff < 0: counts[-1] += diff
+    cells = [0]*n_empty
+    for t, n in enumerate(counts, start=1):
+        cells += [t]*n
+    random.shuffle(cells)
+    return np.array(cells).reshape(size, size)
+
+def similarity(grid):
+    size = grid.shape[0]
+    total, n = 0.0, 0
+    for r in range(size):
+        for c in range(size):
+            a = grid[r, c]
+            if a == 0: continue
+            n += 1
+            neighbors = []
+            for dr in (-1,0,1):
+                for dc in (-1,0,1):
+                    if dr==0 and dc==0: continue
+                    nr, nc = r+dr, c+dc
+                    if 0 <= nr < size and 0 <= nc < size:
+                        neighbors.append(grid[nr, nc])
+            if neighbors:
+                total += neighbors.count(a) / len(neighbors)
+    return 100 * total / n if n else 0
+
+def is_happy(grid, r, c, T):
+    a = grid[r, c]
+    if a == 0: return True
+    size = grid.shape[0]
+    rel = [grid[nr, nc] for dr in (-1,0,1) for dc in (-1,0,1)
+           if not (dr==0 and dc==0) and 0 <= (nr:=r+dr) < size and 0 <= (nc:=c+dc) < size
+           and grid[nr, nc] != 0]
+    if not rel: return True
+    return rel.count(a) / len(rel) >= T
+
+def step(grid, T):
+    size = grid.shape[0]
+    unhappy = [(r,c) for r in range(size) for c in range(size)
+               if grid[r,c]!=0 and not is_happy(grid,r,c,T)]
+    empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==0]
+    random.shuffle(unhappy); random.shuffle(empty)
+    for r,c in unhappy:
+        if not empty: break
+        nr, nc = empty.pop()
+        empty.append((r,c))
+        grid[nr,nc] = grid[r,c]
+        grid[r,c] = 0
+    return grid
+
 np.random.seed(16); random.seed(16)
-size, er = 40, 0.2
-tols = np.arange(0.1, 1.0, 0.02)
 sims, iters = [], []
 
-for T in tols:
-    grid = init_grid(size, er, [0.4, 0.4])
+for T in TOLERANCES:
+    grid = init_grid(GRID_SIZE, EMPTY_RATIO, TYPE_RATIOS)
     it = 0
-    for k in range(100):
+    for k in range(MAX_ITERATIONS):
         grid = step(grid, T)
         it += 1
-        # crude convergence check: if no one moved in last step (would require tracking moves)
-        # here simply run fixed iterations for illustration
     sims.append(similarity(grid))
     iters.append(it)
 
@@ -1129,7 +1423,7 @@ fig, ax1 = plt.subplots(figsize=(10, 5))
 color = 'tab:blue'
 ax1.set_xlabel('Tolerance threshold T')
 ax1.set_ylabel('Final similarity (%)', color=color)
-ax1.plot(tols, sims, color=color, marker='o')
+ax1.plot(TOLERANCES, sims, color=color, marker='o')
 ax1.tick_params(axis='y', labelcolor=color)
 ax1.set_ylim(0, 105)
 ax1.grid(True, ls='--', alpha=0.5)
@@ -1137,7 +1431,7 @@ ax1.grid(True, ls='--', alpha=0.5)
 ax2 = ax1.twinx()
 color = 'tab:red'
 ax2.set_ylabel('Iterations used', color=color)
-ax2.plot(tols, iters, color=color, marker='x', ls='--')
+ax2.plot(TOLERANCES, iters, color=color, marker='x', ls='--')
 ax2.tick_params(axis='y', labelcolor=color)
 plt.title('Schelling: tolerance vs segregation')
 plt.tight_layout(); plt.show()
@@ -1185,22 +1479,28 @@ import random
 import math
 import matplotlib.pyplot as plt
 
+# --- Parameters (user-tunable) ---
+NUM_DEPOTS = 30          # number of candidate depots
+BUDGET = 1500            # total electrification budget
+INITIAL_TEMP = 5000      # starting annealing temperature
+COOLING_RATE = 0.999     # temperature multiplier per iteration
+MAX_ITERATIONS = 20000   # total annealing iterations
+STOP_TEMP = 1.0          # stop when temperature falls below this
+
 np.random.seed(17); random.seed(17)
 
-num_depots = 30
-budget = 1500
-costs = [random.randint(50, 150) for _ in range(num_depots)]
-benefits = [random.randint(30, 80) for _ in range(num_depots)]
+costs = [random.randint(50, 150) for _ in range(NUM_DEPOTS)]
+benefits = [random.randint(30, 80) for _ in range(NUM_DEPOTS)]
 
 def objective(state):
     c = sum(costs[i] for i, s in enumerate(state) if s)
     b = sum(benefits[i] for i, s in enumerate(state) if s)
-    return -float('inf') if c > budget else b
+    return -float('inf') if c > BUDGET else b
 
 def neighbor(state):
     s = list(state)
     if random.random() < 0.7:
-        s[random.randint(0, num_depots-1)] ^= 1
+        s[random.randint(0, NUM_DEPOTS-1)] ^= 1
     else:
         on = [i for i, v in enumerate(s) if v]
         off = [i for i, v in enumerate(s) if not v]
@@ -1210,21 +1510,20 @@ def neighbor(state):
     return tuple(s)
 
 # 初始解：随机选约一半，若超预算则随机移除
-state = [0]*num_depots
-for _ in range(num_depots//2):
-    state[random.randint(0, num_depots-1)] = 1
-while sum(costs[i] for i, v in enumerate(state) if v) > budget and any(state):
+state = [0]*NUM_DEPOTS
+for _ in range(NUM_DEPOTS//2):
+    state[random.randint(0, NUM_DEPOTS-1)] = 1
+while sum(costs[i] for i, v in enumerate(state) if v) > BUDGET and any(state):
     on = [i for i, v in enumerate(state) if v]
     state[random.choice(on)] = 0
 state = tuple(state)
 
-T = 5000
-cooling = 0.999
+T = INITIAL_TEMP
 best_state, best_obj = state, objective(state)
 current_state, current_obj = state, best_obj
 hist_current, hist_best = [], []
 
-for _ in range(20000):
+for _ in range(MAX_ITERATIONS):
     nb = neighbor(current_state)
     nb_obj = objective(nb)
     if nb_obj > current_obj:
@@ -1237,10 +1536,10 @@ for _ in range(20000):
         current_state, current_obj = nb, nb_obj
     if current_obj > best_obj:
         best_state, best_obj = current_state, current_obj
-    T *= cooling
+    T *= COOLING_RATE
     hist_current.append(current_obj)
     hist_best.append(best_obj)
-    if T < 1: break
+    if T < STOP_TEMP: break
 
 print(f"Best benefit = {best_obj}, cost = {sum(costs[i] for i,v in enumerate(best_state) if v)}")
 
@@ -1269,12 +1568,40 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-np.random.seed(18); random.seed(18)
+# --- Parameters (user-tunable) ---
+COOLING_RATES = [0.99, 0.995, 0.999]  # cooling schedules to compare
+MAX_ITERATIONS = 20000
+INITIAL_TEMP = 5000
+STOP_TEMP = 1.0
+NUM_DEPOTS = 30
+BUDGET = 1500
 
-def run_sa(cooling, max_iter=20000):
-    T = 5000
-    state = tuple([1 if random.random() < 0.5 else 0 for _ in range(num_depots)])
-    while sum(costs[i] for i, v in enumerate(state) if v) > budget and any(state):
+# Same random instance as Block 1 (fixed seed for comparability)
+random.seed(17); np.random.seed(17)
+costs = [random.randint(50, 150) for _ in range(NUM_DEPOTS)]
+benefits = [random.randint(30, 80) for _ in range(NUM_DEPOTS)]
+
+def objective(state):
+    c = sum(costs[i] for i, s in enumerate(state) if s)
+    b = sum(benefits[i] for i, s in enumerate(state) if s)
+    return -float('inf') if c > BUDGET else b
+
+def neighbor(state):
+    s = list(state)
+    if random.random() < 0.7:
+        s[random.randint(0, NUM_DEPOTS-1)] ^= 1
+    else:
+        on = [i for i, v in enumerate(s) if v]
+        off = [i for i, v in enumerate(s) if not v]
+        if on and off:
+            s[random.choice(on)] = 0
+            s[random.choice(off)] = 1
+    return tuple(s)
+
+def run_sa(cooling, max_iter=MAX_ITERATIONS):
+    T = INITIAL_TEMP
+    state = tuple([1 if random.random() < 0.5 else 0 for _ in range(NUM_DEPOTS)])
+    while sum(costs[i] for i, v in enumerate(state) if v) > BUDGET and any(state):
         on = [i for i, v in enumerate(state) if v]
         lst = list(state); lst[random.choice(on)] = 0; state = tuple(lst)
     cur, cur_obj = state, objective(state)
@@ -1289,11 +1616,11 @@ def run_sa(cooling, max_iter=20000):
             best, best_obj = cur, cur_obj
         T *= cooling
         hist.append(best_obj)
-        if T < 1: break
+        if T < STOP_TEMP: break
     return hist
 
 plt.figure(figsize=(8, 4))
-for cr in [0.99, 0.995, 0.999]:
+for cr in COOLING_RATES:
     hist = run_sa(cr)
     plt.plot(hist, label=f'cooling={cr}')
 plt.xlabel('Iteration'); plt.ylabel('Best benefit')
