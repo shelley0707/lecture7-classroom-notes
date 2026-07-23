@@ -78,6 +78,7 @@ def simulate_once(params):
     x = np.random.normal(params['mu'], params['sigma'])
     return max(0, x)            # 例如：风速不能为负
 
+# Function: run_simulation - repeat the simulation many times and return the output distribution
 def run_simulation(params, n_runs=N_RUNS):
     """重复 n_runs 次，返回输出分布。"""
     results = [simulate_once(params) for _ in range(n_runs)]
@@ -346,15 +347,18 @@ def sample_duration(d):
     if t == "uniform":  return np.random.uniform(d["min"], d["max"])
     if t == "constant": return d["value"]
 
+# Function: simulate_project - simulate one project schedule and identify the critical path
 def simulate_project(tasks):
     """单次运行：返回总工期、各任务完成时间、关键路径任务集合。"""
     tasks_dict = {t["id"]: t for t in tasks}
     finish, sampled = {}, {}
     pending = list(tasks)
     processed = set()
+    # Loop: repeat while pending
     while pending:
         ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
         pending = [t for t in pending if t not in ready]
+        # Loop: iterate over ready
         for t in ready:
             dur = sample_duration(t["dist"])
             sampled[t["id"]] = dur
@@ -366,9 +370,11 @@ def simulate_project(tasks):
     critical = set(['H'])
     to_trace = ['H']
     tol = 0.001
+    # Loop: repeat while to_trace
     while to_trace:
         tid = to_trace.pop()
         start = finish[tid] - sampled[tid]
+        # Loop: iterate over tasks_dict[tid]["predecessors"]
         for p in tasks_dict[tid]["predecessors"]:
             if abs(finish[p] - start) < tol:
                 critical.add(p)
@@ -420,14 +426,17 @@ def sample_duration(d):
     if t == "uniform":  return np.random.uniform(d["min"], d["max"])
     if t == "constant": return d["value"]
 
+# Function: simulate_project - simulate one project schedule and identify the critical path
 def simulate_project(tasks):
     tasks_dict = {t["id"]: t for t in tasks}
     finish, sampled = {}, {}
     pending = list(tasks)
     processed = set()
+    # Loop: repeat while pending
     while pending:
         ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
         pending = [t for t in pending if t not in ready]
+        # Loop: iterate over ready
         for t in ready:
             dur = sample_duration(t["dist"])
             sampled[t["id"]] = dur
@@ -438,9 +447,11 @@ def simulate_project(tasks):
     critical = set(['H'])
     to_trace = ['H']
     tol = 0.001
+    # Loop: repeat while to_trace
     while to_trace:
         tid = to_trace.pop()
         start = finish[tid] - sampled[tid]
+        # Loop: iterate over tasks_dict[tid]["predecessors"]
         for p in tasks_dict[tid]["predecessors"]:
             if abs(finish[p] - start) < tol:
                 critical.add(p)
@@ -449,6 +460,7 @@ def simulate_project(tasks):
 
 np.random.seed(4)
 durations = []
+# Loop: iterate range(N_MONTE_CARLO_RUNS) times
 for _ in range(N_MONTE_CARLO_RUNS):
     dur, _, _ = simulate_project(TASKS_DATA)
     durations.append(dur)
@@ -518,14 +530,17 @@ def sample_duration(d):
     if t == "uniform":  return np.random.uniform(d["min"], d["max"])
     if t == "constant": return d["value"]
 
+# Function: simulate_project - simulate one project schedule and identify the critical path
 def simulate_project(tasks):
     tasks_dict = {t["id"]: t for t in tasks}
     finish, sampled = {}, {}
     pending = list(tasks)
     processed = set()
+    # Loop: repeat while pending
     while pending:
         ready = [t for t in pending if all(p in processed for p in t["predecessors"])]
         pending = [t for t in pending if t not in ready]
+        # Loop: iterate over ready
         for t in ready:
             dur = sample_duration(t["dist"])
             sampled[t["id"]] = dur
@@ -536,9 +551,11 @@ def simulate_project(tasks):
     critical = set(['H'])
     to_trace = ['H']
     tol = 0.001
+    # Loop: repeat while to_trace
     while to_trace:
         tid = to_trace.pop()
         start = finish[tid] - sampled[tid]
+        # Loop: iterate over tasks_dict[tid]["predecessors"]
         for p in tasks_dict[tid]["predecessors"]:
             if abs(finish[p] - start) < tol:
                 critical.add(p)
@@ -547,19 +564,23 @@ def simulate_project(tasks):
 
 np.random.seed(5)
 critical_counts = {t["id"]: 0 for t in TASKS_DATA}
+# Loop: iterate range(N_CRITICAL_PATH_RUNS) times
 for _ in range(N_CRITICAL_PATH_RUNS):
     _, _, cp = simulate_project(TASKS_DATA)
+    # Loop: iterate over cp
     for tid in cp:
         critical_counts[tid] += 1
 
 probs = {k: v / N_CRITICAL_PATH_RUNS * 100 for k, v in critical_counts.items()}
 print("关键路径概率：")
+# Loop: iterate over sorted(probs.items(),key=lambdax
 for k, v in sorted(probs.items(), key=lambda x: -x[1]):
     print(f"  {k}: {v:.1f}%")
 
 # 敏感性：把任务 A 的 mean 分别 -10% 和 +10%，看平均工期变化
 base_mean = TASKS_DATA[0]["dist"]["mean"]
 sens = {}
+# Loop: iterate over [-SENSITIVITY_DELTA,0,SENSITIVITY_DELTA]
 for delta in [-SENSITIVITY_DELTA, 0, SENSITIVITY_DELTA]:
     TASKS_DATA[0]["dist"]["mean"] = base_mean * (1 + delta)
     durs = [simulate_project(TASKS_DATA)[0] for _ in range(N_SENSITIVITY_RUNS)]
@@ -699,6 +720,7 @@ for t in range(N_STEPS):
 
     # 2) 从尾到头更新速度（避免碰撞）
     cars.sort(key=lambda c: c['x'], reverse=True)
+    # Loop: iterate over enumerate(cars)
     for i, c in enumerate(cars):
         leader = cars[i-1] if i > 0 else None
         if leader is None:
@@ -710,6 +732,7 @@ for t in range(N_STEPS):
 
     # 3) 移除驶出车辆并记录通行时间
     cars_new = []
+    # Loop: iterate over cars
     for c in cars:
         if c['x'] >= ROAD_LENGTH:
             travel_times.append(t - c['entry_t'])
@@ -773,12 +796,14 @@ def run_traffic(lam, seed=RANDOM_SEED):
                 blocked += 1
         max_queue = max(max_queue, blocked)
         cars.sort(key=lambda c: c['x'], reverse=True)
+        # Loop: iterate over enumerate(cars)
         for i, c in enumerate(cars):
             leader = cars[i-1] if i > 0 else None
             gap = (leader['x'] - c['x'] - CAR_LENGTH) if leader else 1e9
             target = min(CAR_SPEED, max(0, gap - MIN_GAP) / TIME_STEP)
             c['x'] += target * TIME_STEP
         cars_new = []
+        # Loop: iterate over cars
         for c in cars:
             if c['x'] >= ROAD_LENGTH:
                 travel_times.append(t - c['entry_t'])
@@ -871,21 +896,29 @@ source = random.choice(agents)
 source.gossip.add(1)
 
 history = []
+# Loop: iterate range(N_STEPS) times
 for t in range(N_STEPS):
+    # Loop: iterate over agents
     for a in agents:
         a.loc = a.home if random.random() < a.stay_home else random.choice(public_places)
     locs = {}
+    # Loop: iterate over agents
     for a in agents:
         locs.setdefault(a.loc, []).append(a)
+    # Loop: iterate over locs.values()
     for group in locs.values():
         if len(group) < 2: continue
+        # Loop: iterate range(len(group)) times
         for i in range(len(group)):
+            # Loop: iterate range(i+1,len(group)) times
             for j in range(i+1, len(group)):
                 if random.random() < MEET_PROB:
                     a1, a2 = group[i], group[j]
+                    # Loop: iterate over a1.gossip
                     for g in a1.gossip:
                         if g not in a2.gossip and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a2.gossip.add(g)
+                    # Loop: iterate over a2.gossip
                     for g in a2.gossip:
                         if g not in a1.gossip and random.random() < SPREAD_PROB * RECEIVE_PROB:
                             a1.gossip.add(g)
@@ -940,10 +973,14 @@ def run_gossip(meet_prob, seed=10):
         for a in agents:
             a['loc'] = a['home'] if random.random() < a['stay_home'] else random.choice(places)
         locs = {}
+        # Loop: iterate over agents
         for a in agents:
             locs.setdefault(a['loc'], []).append(a)
+        # Loop: iterate over locs.values()
         for group in locs.values():
+            # Loop: iterate range(len(group)) times
             for i in range(len(group)):
+                # Loop: iterate range(i+1,len(group)) times
                 for j in range(i+1, len(group)):
                     if random.random() < meet_prob:
                         a1, a2 = group[i], group[j]
@@ -955,6 +992,7 @@ def run_gossip(meet_prob, seed=10):
     return hist
 
 fig, ax = plt.subplots(figsize=(8, 4))
+# Loop: iterate over MEET_PROBS
 for mp in MEET_PROBS:
     ax.plot(run_gossip(mp), label=f'meet_prob={mp}')
 ax.set_xlabel('Time step'); ax.set_ylabel('Agents knowing gossip')
@@ -1017,11 +1055,14 @@ def init_forest(size, density):
     f[size//2, size//2] = BURNING
     return f
 
+# Function: step_det - one deterministic step of fire spreading to neighboring trees
 def step_det(f):
     new = f.copy()
     burn = (f == BURNING)
     new[burn] = ASH
+    # Loop: iterate over (-1,0,1)
     for dr in (-1, 0, 1):
+        # Loop: iterate over (-1,0,1)
         for dc in (-1, 0, 1):
             if dr == 0 and dc == 0: continue
             new[(f == TREE) & np.roll(burn, (dr, dc), axis=(0, 1))] = BURNING
@@ -1029,10 +1070,12 @@ def step_det(f):
 
 f = init_forest(GRID_SIZE, TREE_DENSITY)
 frames = [f.copy()]
+# Loop: iterate range(N_STEPS) times
 for _ in range(N_STEPS):
     f = step_det(f); frames.append(f.copy())
 
 fig, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+# Loop: iterate over zip(axes,[0,3,6,10])
 for ax, idx in zip(axes, [0, 3, 6, 10]):
     ax.imshow(frames[idx], cmap=CMAP, vmin=0, vmax=3)
     ax.set_title(f'Step {idx}'); ax.axis('off')
@@ -1074,12 +1117,15 @@ def init_f(size, d, p_ignite):
     f[(f == TREE) & ignite] = BURNING
     return f
 
+# Function: step_prob - one probabilistic step of fire spread and spontaneous ignition
 def step_prob(f, p_spread, p_ignite):
     new = f.copy()
     burn = (f == BURNING)
     new[burn] = ASH
     risk = np.zeros_like(f, dtype=float)
+    # Loop: iterate over (-1,0,1)
     for dr in (-1, 0, 1):
+        # Loop: iterate over (-1,0,1)
         for dc in (-1, 0, 1):
             if dr == 0 and dc == 0: continue
             risk += np.roll(burn, (dr, dc), axis=(0, 1)).astype(float)
@@ -1088,10 +1134,13 @@ def step_prob(f, p_spread, p_ignite):
     new[(f == TREE) & (np.random.rand(*f.shape) < p_ignite)] = BURNING
     return new
 
+# Function: burned_frac - estimate the burned fraction for a given initial tree density
 def burned_frac(d, size=GRID_SIZE, steps=N_STEPS, reps=N_REPS):
     vals = []
+    # Loop: iterate range(reps) times
     for _ in range(reps):
         f = init_f(size, d, P_IGNITE)
+        # Loop: iterate range(steps) times
         for _ in range(steps): f = step_prob(f, P_SPREAD, P_IGNITE)
         vals.append((f == ASH).sum() / f.size)
     return np.mean(vals)
@@ -1157,6 +1206,7 @@ f = (np.random.rand(GRID_SIZE, GRID_SIZE) < INITIAL_DENSITY).astype(int)
 f[GRID_SIZE//2-2:GRID_SIZE//2+2, GRID_SIZE//2-2:GRID_SIZE//2+2] = BURNING
 
 tree, burning, ash = [], [], []
+# Loop: iterate range(N_STEPS) times
 for _ in range(N_STEPS):
     f = step_full(f, P_GROW, P_SPREAD, P_IGNITE)
     tree.append((f == TREE).sum())
@@ -1239,16 +1289,21 @@ def init_grid(size, empty_ratio, ratios):
     random.shuffle(cells)
     return np.array(cells).reshape(size, size)
 
+# Function: similarity - compute the average fraction of similar neighbors across agents
 def similarity(grid):
     size = grid.shape[0]
     total, n = 0.0, 0
+    # Loop: iterate range(size) times
     for r in range(size):
+        # Loop: iterate range(size) times
         for c in range(size):
             a = grid[r, c]
             if a == EMPTY: continue
             n += 1
             neighbors = []
+            # Loop: iterate over (-1,0,1)
             for dr in (-1,0,1):
+                # Loop: iterate over (-1,0,1)
                 for dc in (-1,0,1):
                     if dr==0 and dc==0: continue
                     nr, nc = r+dr, c+dc
@@ -1258,6 +1313,7 @@ def similarity(grid):
                 total += neighbors.count(a) / len(neighbors)
     return 100 * total / n if n else 0
 
+# Function: is_happy - check whether an agent is satisfied with its neighborhood
 def is_happy(grid, r, c, T):
     a = grid[r, c]
     if a == EMPTY: return True
@@ -1268,12 +1324,14 @@ def is_happy(grid, r, c, T):
     if not rel: return True
     return rel.count(a) / len(rel) >= T
 
+# Function: step - one relocation round where unhappy agents move to empty cells
 def step(grid, T):
     size = grid.shape[0]
     unhappy = [(r,c) for r in range(size) for c in range(size)
                if grid[r,c]!=EMPTY and not is_happy(grid,r,c,T)]
     empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==EMPTY]
     random.shuffle(unhappy); random.shuffle(empty)
+    # Loop: iterate over unhappy
     for r,c in unhappy:
         if not empty: break
         nr, nc = empty.pop()
@@ -1288,6 +1346,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 axes[0].imshow(grid, cmap='viridis', vmin=0, vmax=2)
 axes[0].set_title('Initial'); axes[0].axis('off')
 
+# Loop: iterate range(MAX_ITERATIONS) times
 for _ in range(MAX_ITERATIONS):
     grid = step(grid, TOLERANCE)
 
@@ -1335,16 +1394,21 @@ def init_grid(size, empty_ratio, ratios):
     random.shuffle(cells)
     return np.array(cells).reshape(size, size)
 
+# Function: similarity - compute the average fraction of similar neighbors across agents
 def similarity(grid):
     size = grid.shape[0]
     total, n = 0.0, 0
+    # Loop: iterate range(size) times
     for r in range(size):
+        # Loop: iterate range(size) times
         for c in range(size):
             a = grid[r, c]
             if a == 0: continue
             n += 1
             neighbors = []
+            # Loop: iterate over (-1,0,1)
             for dr in (-1,0,1):
+                # Loop: iterate over (-1,0,1)
                 for dc in (-1,0,1):
                     if dr==0 and dc==0: continue
                     nr, nc = r+dr, c+dc
@@ -1354,6 +1418,7 @@ def similarity(grid):
                 total += neighbors.count(a) / len(neighbors)
     return 100 * total / n if n else 0
 
+# Function: is_happy - check whether an agent is satisfied with its neighborhood
 def is_happy(grid, r, c, T):
     a = grid[r, c]
     if a == 0: return True
@@ -1364,12 +1429,14 @@ def is_happy(grid, r, c, T):
     if not rel: return True
     return rel.count(a) / len(rel) >= T
 
+# Function: step - one relocation round where unhappy agents move to empty cells
 def step(grid, T):
     size = grid.shape[0]
     unhappy = [(r,c) for r in range(size) for c in range(size)
                if grid[r,c]!=0 and not is_happy(grid,r,c,T)]
     empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==0]
     random.shuffle(unhappy); random.shuffle(empty)
+    # Loop: iterate over unhappy
     for r,c in unhappy:
         if not empty: break
         nr, nc = empty.pop()
@@ -1381,8 +1448,10 @@ def step(grid, T):
 np.random.seed(15); random.seed(15)
 fig, axes = plt.subplots(1, 3, figsize=(15, 4))
 
+# Loop: iterate over zip(axes,EMPTY_RATIOS)
 for ax, er in zip(axes, EMPTY_RATIOS):
     grid = init_grid(GRID_SIZE, er, TYPE_RATIOS)
+    # Loop: iterate range(MAX_ITERATIONS) times
     for _ in range(MAX_ITERATIONS):
         grid = step(grid, TOLERANCE)
     ax.imshow(grid, cmap='viridis', vmin=0, vmax=3)
@@ -1430,16 +1499,21 @@ def init_grid(size, empty_ratio, ratios):
     random.shuffle(cells)
     return np.array(cells).reshape(size, size)
 
+# Function: similarity - compute the average fraction of similar neighbors across agents
 def similarity(grid):
     size = grid.shape[0]
     total, n = 0.0, 0
+    # Loop: iterate range(size) times
     for r in range(size):
+        # Loop: iterate range(size) times
         for c in range(size):
             a = grid[r, c]
             if a == 0: continue
             n += 1
             neighbors = []
+            # Loop: iterate over (-1,0,1)
             for dr in (-1,0,1):
+                # Loop: iterate over (-1,0,1)
                 for dc in (-1,0,1):
                     if dr==0 and dc==0: continue
                     nr, nc = r+dr, c+dc
@@ -1449,6 +1523,7 @@ def similarity(grid):
                 total += neighbors.count(a) / len(neighbors)
     return 100 * total / n if n else 0
 
+# Function: is_happy - check whether an agent is satisfied with its neighborhood
 def is_happy(grid, r, c, T):
     a = grid[r, c]
     if a == 0: return True
@@ -1459,12 +1534,14 @@ def is_happy(grid, r, c, T):
     if not rel: return True
     return rel.count(a) / len(rel) >= T
 
+# Function: step - one relocation round where unhappy agents move to empty cells
 def step(grid, T):
     size = grid.shape[0]
     unhappy = [(r,c) for r in range(size) for c in range(size)
                if grid[r,c]!=0 and not is_happy(grid,r,c,T)]
     empty = [(r,c) for r in range(size) for c in range(size) if grid[r,c]==0]
     random.shuffle(unhappy); random.shuffle(empty)
+    # Loop: iterate over unhappy
     for r,c in unhappy:
         if not empty: break
         nr, nc = empty.pop()
@@ -1476,9 +1553,11 @@ def step(grid, T):
 np.random.seed(16); random.seed(16)
 sims, iters = [], []
 
+# Loop: iterate over TOLERANCES
 for T in TOLERANCES:
     grid = init_grid(GRID_SIZE, EMPTY_RATIO, TYPE_RATIOS)
     it = 0
+    # Loop: iterate range(MAX_ITERATIONS) times
     for k in range(MAX_ITERATIONS):
         grid = step(grid, T)
         it += 1
@@ -1564,6 +1643,7 @@ def objective(state):
     b = sum(benefits[i] for i, s in enumerate(state) if s)
     return -float('inf') if c > BUDGET else b
 
+# Function: neighbor - generate a neighboring solution by flipping or swapping bits
 def neighbor(state):
     s = list(state)
     if random.random() < 0.7:
@@ -1578,8 +1658,10 @@ def neighbor(state):
 
 # 初始解：随机选约一半，若超预算则随机移除
 state = [0]*NUM_DEPOTS
+# Loop: iterate range(NUM_DEPOTS//2) times
 for _ in range(NUM_DEPOTS//2):
     state[random.randint(0, NUM_DEPOTS-1)] = 1
+# Loop: repeat while sum(costs[i]fori,vinenumerate(state)ifv)>BUDGETandany(state)
 while sum(costs[i] for i, v in enumerate(state) if v) > BUDGET and any(state):
     on = [i for i, v in enumerate(state) if v]
     state[random.choice(on)] = 0
@@ -1590,6 +1672,7 @@ best_state, best_obj = state, objective(state)
 current_state, current_obj = state, best_obj
 hist_current, hist_best = [], []
 
+# Loop: iterate range(MAX_ITERATIONS) times
 for _ in range(MAX_ITERATIONS):
     nb = neighbor(current_state)
     nb_obj = objective(nb)
@@ -1654,6 +1737,7 @@ def objective(state):
     b = sum(benefits[i] for i, s in enumerate(state) if s)
     return -float('inf') if c > BUDGET else b
 
+# Function: neighbor - generate a neighboring solution by flipping or swapping bits
 def neighbor(state):
     s = list(state)
     if random.random() < 0.7:
@@ -1666,15 +1750,18 @@ def neighbor(state):
             s[random.choice(off)] = 1
     return tuple(s)
 
+# Function: run_sa - run simulated annealing with the specified cooling schedule
 def run_sa(cooling, max_iter=MAX_ITERATIONS):
     T = INITIAL_TEMP
     state = tuple([1 if random.random() < 0.5 else 0 for _ in range(NUM_DEPOTS)])
+    # Loop: repeat while sum(costs[i]fori,vinenumerate(state)ifv)>BUDGETandany(state)
     while sum(costs[i] for i, v in enumerate(state) if v) > BUDGET and any(state):
         on = [i for i, v in enumerate(state) if v]
         lst = list(state); lst[random.choice(on)] = 0; state = tuple(lst)
     cur, cur_obj = state, objective(state)
     best, best_obj = cur, cur_obj
     hist = [best_obj]
+    # Loop: iterate range(max_iter) times
     for _ in range(max_iter):
         nb = neighbor(cur)
         nb_obj = objective(nb)
@@ -1688,6 +1775,7 @@ def run_sa(cooling, max_iter=MAX_ITERATIONS):
     return hist
 
 plt.figure(figsize=(8, 4))
+# Loop: iterate over COOLING_RATES
 for cr in COOLING_RATES:
     hist = run_sa(cr)
     plt.plot(hist, label=f'cooling={cr}')
