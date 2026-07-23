@@ -17,21 +17,6 @@
     .example-good { background: #f0fdf4; border-left: 4px solid #22c55e; }
     .example-bad { background: #fef2f2; border-left: 4px solid #ef4444; }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .copy-btn {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-      background: #475569;
-      color: white;
-      border-radius: 0.25rem;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .example-good:hover .copy-btn, .example-bad:hover .copy-btn, .extract-sentence:hover .copy-btn { opacity: 1; }
-    .extract-sentence { background: #f8fafc; border-left: 4px solid #3b82f6; position: relative; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -266,14 +251,12 @@
       <p class="text-slate-700 mb-4">O 奖论文不是用最复杂的模型，而是用最合适的模型。评委想看的是：你理解了问题，并且你的模型是为这个问题量身定做的。</p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
-        <div class="example-good p-4 rounded-lg" data-copy-text="&quot;We begin with a logistic growth model as a baseline because the problem explicitly mentions a carrying capacity. While an exponential model would be simpler, it would ignore the resource constraint and overestimate long-term population.&quot;">
-          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+        <div class="example-good p-4 rounded-lg">
           <div class="font-bold text-green-800 mb-2">好的写法</div>
           <p class="text-slate-700 text-sm">"We begin with a logistic growth model as a baseline because the problem explicitly mentions a carrying capacity. While an exponential model would be simpler, it would ignore the resource constraint and overestimate long-term population."</p>
           <p class="text-slate-500 text-xs mt-2">点评：解释了选择逻辑，对比了替代方案。</p>
         </div>
-        <div class="example-bad p-4 rounded-lg" data-copy-text="&quot;We use a neural network because it is a powerful machine learning model.&quot;">
-          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+        <div class="example-bad p-4 rounded-lg">
           <div class="font-bold text-red-800 mb-2">不好的写法</div>
           <p class="text-slate-700 text-sm">"We use a neural network because it is a powerful machine learning model."</p>
           <p class="text-slate-500 text-xs mt-2">点评：只说模型很强，没说为什么适合这个问题。</p>
@@ -428,8 +411,10 @@
       <h3 class="text-lg font-bold text-slate-900 mb-3">敏感性分析的写作模板</h3>
       <div class="example-good p-4 rounded-lg mb-4" data-copy-text="&quot;We tested the sensitivity of the optimal solution to the estimated cost parameter c. Figure 5 shows that the recommended strategy remains unchanged when c varies by ±20%, but shifts dramatically when c exceeds 1.5 times its baseline value. This indicates that our primary recommendation is robust under reasonable estimation error, though accurate measurement of c remains critical.&quot;">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
         <p class="text-slate-700 text-sm">"We tested the sensitivity of the optimal solution to the estimated cost parameter c. Figure 5 shows that the recommended strategy remains unchanged when c varies by ±20%, but shifts dramatically when c exceeds 1.5 times its baseline value. This indicates that our primary recommendation is robust under reasonable estimation error, though accurate measurement of c remains critical."</p>
-      </div>
+      
+        </div>
 
       <div class="p-4 bg-amber-50 border-l-4 border-amber-400 rounded">
         <p class="text-slate-700 text-sm"><strong>避坑：</strong>不要只画一张图而不解释。评委需要知道：哪个参数敏感、敏感到什么程度、对决策有什么影响。</p>
@@ -441,14 +426,12 @@
       <p class="text-slate-700 mb-4">很多队伍把结论写成“我们做了什么”的清单，但 O 奖论文的结论会回到赛题的原始问题，并给出可操作的洞察。</p>
 
       <div class="grid md:grid-cols-2 gap-4 mb-6">
-        <div class="example-good p-4 rounded-lg" data-copy-text="&quot;Our model indicates that a 15% reduction in water consumption during the first three months of drought would delay reservoir depletion by approximately 8 weeks. For city planners, this suggests that moderate early restrictions are more effective than severe late-stage cuts.&quot;">
-          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+        <div class="example-good p-4 rounded-lg">
           <div class="font-bold text-green-800 mb-2">好的结论</div>
           <p class="text-slate-700 text-sm">"Our model indicates that a 15% reduction in water consumption during the first three months of drought would delay reservoir depletion by approximately 8 weeks. For city planners, this suggests that moderate early restrictions are more effective than severe late-stage cuts."</p>
           <p class="text-slate-500 text-xs mt-2">点评：直接回答了“该怎么做”，并给出了具体数字。</p>
         </div>
-        <div class="example-bad p-4 rounded-lg" data-copy-text="&quot;In this paper, we built a model, did simulation, and got some results. The results show that water is important.&quot;">
-          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+        <div class="example-bad p-4 rounded-lg">
           <div class="font-bold text-red-800 mb-2">不好的结论</div>
           <p class="text-slate-700 text-sm">"In this paper, we built a model, did simulation, and got some results. The results show that water is important."</p>
           <p class="text-slate-500 text-xs mt-2">点评：空泛，没有回答具体问题。</p>
@@ -510,15 +493,14 @@
         </table>
       </div>
 
-      <div class="example-good p-4 rounded-lg" data-copy-text="&quot;We used ChatGPT and GitHub Copilot to assist with code debugging and grammar checking. All mathematical models, assumptions, interpretations, and final conclusions were developed and verified by the team. We manually checked all data sources and ran every simulation independently.&quot;">
-          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+      <div class="example-good p-4 rounded-lg">
         <div class="font-bold text-green-800 mb-2">AI Report 示例</div>
         <p class="text-slate-700 text-sm">"We used ChatGPT and GitHub Copilot to assist with code debugging and grammar checking. All mathematical models, assumptions, interpretations, and final conclusions were developed and verified by the team. We manually checked all data sources and ran every simulation independently."</p>
       </div>
     </section>
 
     <section id="sentences" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">十、20 个获奖范文精彩句式与点评</h2>
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">九、20 个获奖范文精彩句式与点评</h2>
       <p class="text-slate-700 mb-6">下面的句式基于 O 奖论文常见表达提炼而成。每个句式都附有“可以用在哪里”和“为什么好”，以及一个对应的反面教材。</p>
 
       <div class="space-y-6">
@@ -529,14 +511,18 @@
             <span class="font-bold text-slate-900">句式 1</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;We develop a [model name] to address [problem], yielding [key result] under [main condition].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"We develop a [model name] to address [problem], yielding [key result] under [main condition]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>一句话交代模型、问题和核心结果，信息密度高，符合 O 奖摘要“先给结果”的风格。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;This paper studies a problem and uses some models.&quot;（没有具体模型、没有结果。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"This paper studies a problem and uses some models."（没有具体模型、没有结果。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 2 -->
@@ -546,14 +532,18 @@
             <span class="font-bold text-slate-900">句式 2</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;While previous studies have focused on [X], the trade-off between [Y] and [Z] remains underexplored in the context of [specific scenario].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"While previous studies have focused on [X], the trade-off between [Y] and [Z] remains underexplored in the context of [specific scenario]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用“文献缺口”定位自己的贡献，显得研究有依据、有动机。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;This problem is very important and many people care about it.&quot;（空话，没有学术定位。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"This problem is very important and many people care about it."（空话，没有学术定位。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 3 -->
@@ -563,14 +553,18 @@
             <span class="font-bold text-slate-900">句式 3</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;We assume [A]. This simplification is reasonable because [justification], and it leads to [consequence].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"We assume [A]. This simplification is reasonable because [justification], and it leads to [consequence]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>假设不是被扔出来的，而是被“论证”出来的。说明合理性和后果是关键。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We assume the population is constant.&quot;（没有解释为什么合理、会有什么影响。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We assume the population is constant."（没有解释为什么合理、会有什么影响。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 4 -->
@@ -580,14 +574,18 @@
             <span class="font-bold text-slate-900">句式 4</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Rather than adopting a black-box approach, we choose [model] because its parameters have direct physical interpretations.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Rather than adopting a black-box approach, we choose [model] because its parameters have direct physical interpretations."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>强调可解释性，呼应 HiMCM 对“理解模型”的重视。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We use a neural network because it is very accurate.&quot;（没有解释可解释性和适用性。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We use a neural network because it is very accurate."（没有解释可解释性和适用性。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 5 -->
@@ -597,14 +595,18 @@
             <span class="font-bold text-slate-900">句式 5</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Starting from a baseline [simple model], we progressively incorporate [factor 1] and [factor 2] to better capture reality.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Starting from a baseline [simple model], we progressively incorporate [factor 1] and [factor 2] to better capture reality."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>展示建模思路的层次感，说明复杂度的增加是必要的。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Our model has 20 equations and 50 parameters.&quot;（复杂度本身不是优点。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model has 20 equations and 50 parameters."（复杂度本身不是优点。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 6 -->
@@ -614,14 +616,18 @@
             <span class="font-bold text-slate-900">句式 6</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Let [symbol] denote [quantity], measured in [unit], at time [t].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Let [symbol] denote [quantity], measured in [unit], at time [t]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>定义清楚、单位明确，避免符号歧义。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;x is something we care about.&quot;（不专业，无量纲无单位。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"x is something we care about."（不专业，无量纲无单位。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 7 -->
@@ -631,14 +637,18 @@
             <span class="font-bold text-slate-900">句式 7</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Combining [Equation 1] and [Equation 2], we obtain the governing equation for [variable].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Combining [Equation 1] and [Equation 2], we obtain the governing equation for [variable]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用“Combining...”自然连接推导步骤，逻辑清晰。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Then we get the equation.&quot;（跳跃，读者不知道方程从哪里来。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Then we get the equation."（跳跃，读者不知道方程从哪里来。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 8 -->
@@ -648,14 +658,18 @@
             <span class="font-bold text-slate-900">句式 8</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;The system is solved numerically using [method] with [software], ensuring [accuracy/stability criterion].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"The system is solved numerically using [method] with [software], ensuring [accuracy/stability criterion]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>说明方法、工具和精度标准，体现专业性。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We used Python to solve it.&quot;（太笼统。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We used Python to solve it."（太笼统。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 9 -->
@@ -665,14 +679,18 @@
             <span class="font-bold text-slate-900">句式 9</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;As shown in Figure [N], the model predicts [result], which is consistent with [data/expectation].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"As shown in Figure [N], the model predicts [result], which is consistent with [data/expectation]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>图文结合，并把结果与预期或数据做对比。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;The figure shows the result.&quot;（没有说明结果是什么、意味着什么。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"The figure shows the result."（没有说明结果是什么、意味着什么。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 10 -->
@@ -682,14 +700,18 @@
             <span class="font-bold text-slate-900">句式 10</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;This seemingly counterintuitive outcome arises because [mechanism], highlighting the importance of [factor].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"This seemingly counterintuitive outcome arises because [mechanism], highlighting the importance of [factor]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>解释反直觉结果，展示对模型机制的深刻理解。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;The result is strange and we don&#x27;t know why.&quot;（显得模型不可控。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"The result is strange and we don't know why."（显得模型不可控。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 11 -->
@@ -699,14 +721,18 @@
             <span class="font-bold text-slate-900">句式 11</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;A ±20% variation in [parameter] alters [output] by less than [X]%, suggesting that our recommendation is robust.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"A ±20% variation in [parameter] alters [output] by less than [X]%, suggesting that our recommendation is robust."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>用具体数字量化稳健性，并链接到决策建议。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We did sensitivity analysis and the model is stable.&quot;（没有具体参数和数字。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We did sensitivity analysis and the model is stable."（没有具体参数和数字。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 12 -->
@@ -716,14 +742,18 @@
             <span class="font-bold text-slate-900">句式 12</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;The model is most sensitive to [parameter], which implies that future data collection should prioritize this quantity.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"The model is most sensitive to [parameter], which implies that future data collection should prioritize this quantity."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把敏感性分析转化为行动建议，体现应用价值。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Parameter A is sensitive.&quot;（没有说明对决策的影响。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Parameter A is sensitive."（没有说明对决策的影响。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 13 -->
@@ -733,14 +763,18 @@
             <span class="font-bold text-slate-900">句式 13</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;To validate the model, we compare its predictions with [data source]; the relative error remains below [Y]% across all test cases.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"To validate the model, we compare its predictions with [data source]; the relative error remains below [Y]% across all test cases."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>明确验证方法、数据来源和误差标准。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Our model is correct because the results look reasonable.&quot;（主观判断，缺乏数据支撑。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model is correct because the results look reasonable."（主观判断，缺乏数据支撑。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 14 -->
@@ -750,14 +784,18 @@
             <span class="font-bold text-slate-900">句式 14</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;A key limitation of our approach is [limitation]. However, this is partially mitigated by [mitigation strategy].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"A key limitation of our approach is [limitation]. However, this is partially mitigated by [mitigation strategy]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>不仅承认弱点，还说明如何缓解，展示批判性思维。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Our model has no weaknesses.&quot;（不诚实，评委不会相信。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model has no weaknesses."（不诚实，评委不会相信。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 15 -->
@@ -767,14 +805,18 @@
             <span class="font-bold text-slate-900">句式 15</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Taken together, our results suggest that [policy/action] is the most effective strategy under [condition].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Taken together, our results suggest that [policy/action] is the most effective strategy under [condition]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把多个结果综合成一个明确的决策建议。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We made a model and got results.&quot;（没有结论。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We made a model and got results."（没有结论。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 16 -->
@@ -784,14 +826,18 @@
             <span class="font-bold text-slate-900">句式 16</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;For [stakeholder], the primary implication is [specific impact], which calls for [specific action].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"For [stakeholder], the primary implication is [specific impact], which calls for [specific action]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>把模型结果翻译成不同主体的行动建议，体现现实关怀。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Our result is good for everyone.&quot;（过于笼统。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our result is good for everyone."（过于笼统。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 17 -->
@@ -801,14 +847,18 @@
             <span class="font-bold text-slate-900">句式 17</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Future work could relax [assumption] by incorporating [extension], potentially improving [aspect] of the model.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Future work could relax [assumption] by incorporating [extension], potentially improving [aspect] of the model."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>具体的未来方向比空泛的“more data”更有说服力。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;We need more data in the future.&quot;（没有说明什么数据、为什么。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"We need more data in the future."（没有说明什么数据、为什么。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 18 -->
@@ -818,14 +868,18 @@
             <span class="font-bold text-slate-900">句式 18</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Figure [N] illustrates that [trend], with [feature] becoming pronounced as [variable] increases.&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Figure [N] illustrates that [trend], with [feature] becoming pronounced as [variable] increases."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>描述图表时指出趋势和关键特征，而不是复述坐标轴。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Figure 1 shows x on the x-axis and y on the y-axis.&quot;（没有解释趋势。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Figure 1 shows x on the x-axis and y on the y-axis."（没有解释趋势。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 19 -->
@@ -835,14 +889,18 @@
             <span class="font-bold text-slate-900">句式 19</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;Compared with [alternative], our model achieves [advantage] while requiring only [cost/trade-off].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"Compared with [alternative], our model achieves [advantage] while requiring only [cost/trade-off]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>通过对比凸显模型优势，同时诚实地承认代价。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;Our model is better than others.&quot;（没有具体比较维度。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"Our model is better than others."（没有具体比较维度。）</p>
-          </div>
+          
+        </div>
         </div>
 
         <!-- 20 -->
@@ -852,209 +910,272 @@
             <span class="font-bold text-slate-900">句式 20</span>
           </div>
           <div class="example-good p-3 rounded mb-3" data-copy-text="&quot;In summary, we have presented a transparent, reproducible framework that transforms [data/assumptions] into actionable insights for [decision-maker].&quot;">
-<button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-800 italic">"In summary, we have presented a transparent, reproducible framework that transforms [data/assumptions] into actionable insights for [decision-maker]."</p>
           
+        </div>
           <p class="text-slate-700 text-sm mb-2"><strong>点评：</strong>强调透明性、可复现性和行动价值，是高分论文的常见收尾。</p>
           <div class="example-bad p-3 rounded" data-copy-text="&quot;In conclusion, we finished this paper.&quot;（无效结论。）">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
             <p class="text-slate-700 text-sm"><strong>反面：</strong>"In conclusion, we finished this paper."（无效结论。）</p>
-          </div>
+          
+        </div>
         </div>
       </div>
     </section>
 
     
     <section id="real-sentences" class="paper-card gold bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">十一、从获奖论文中摘抄的 20 个真实精彩句式</h2>
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">十、从获奖论文中摘抄的 20 个真实精彩句式</h2>
       <p class="text-slate-700 mb-6">下面 20 个句子全部来自 2021–2024 年 HiMCM O 奖论文原文（摘要、假设、模型、结论等部分）。每个句子都标注了来源和适用场景，并说明它为什么有效。将鼠标悬停在句子上可点击 Copy 按钮。</p>
 
       <div class="space-y-5">
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="To model the spread of dandelions over a plot of land, we developed a Seed Agent Model, which follows a dandelion&#x27;s life cycle from seed to plant to puffball, including germination, growth, and death.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14632</span>
             <span class="text-xs text-slate-500">摘要 / 模型介绍</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"To model the spread of dandelions over a plot of land, we developed a Seed Agent Model, which follows a dandelion's life cycle from seed to plant to puffball, including germination, growth, and death."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>用一句话清晰交代模型覆盖的完整生命周期，动词 follows 让抽象模型变得具象。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="This model ensures that the majority of dandelion seeds would be dispersed closer to the original dandelion, however it fails to accurately simulate the trajectory of dispersal and does not take the potential of dead seeds into account.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14140</span>
             <span class="text-xs text-slate-500">摘要 / 模型演进</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"This model ensures that the majority of dandelion seeds would be dispersed closer to the original dandelion, however it fails to accurately simulate the trajectory of dispersal and does not take the potential of dead seeds into account."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>诚实指出简单模型的两个局限，为下一步引入 Lévy Flight Model 提供自然过渡。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="In order to reduce the limitations, we then incorporated the Lévy Flight Model, which is specifically used to simulate random walks and can more accurately model the paths of dispersal.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14140</span>
             <span class="text-xs text-slate-500">摘要 / 模型选择</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"In order to reduce the limitations, we then incorporated the Lévy Flight Model, which is specifically used to simulate random walks and can more accurately model the paths of dispersal."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>说明模型演进动机：不是为复杂而复杂，而是为了修正前模型的不足。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="When performing sensitivity analysis on the population model, we modified each factor considered by up to 40% in either direction.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2022A-13014</span>
             <span class="text-xs text-slate-500">摘要 / 敏感性分析</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"When performing sensitivity analysis on the population model, we modified each factor considered by up to 40% in either direction."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>具体说明敏感性分析的扰动幅度，让方法可复现。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="This analysis revealed that the egg-laying rate, worker bee lifespan during the active/inactive season, and length of the active season had the greatest impact on the population of bees over ten years.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2022A-13014</span>
             <span class="text-xs text-slate-500">摘要 / 敏感性结论</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"This analysis revealed that the egg-laying rate, worker bee lifespan during the active/inactive season, and length of the active season had the greatest impact on the population of bees over ten years."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>直接列出关键敏感因素，并把结论与时间尺度关联。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Beyond this, we mimic the inner workings of a real hive by modeling not just population but also pollen and nectar stores, which feeds back into bee populations and is a key indicator of hive failure.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2022A-13405</span>
             <span class="text-xs text-slate-500">摘要 / 模型与现实对应</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Beyond this, we mimic the inner workings of a real hive by modeling not just population but also pollen and nectar stores, which feeds back into bee populations and is a key indicator of hive failure."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>展示模型如何对应真实生物机制，feedback 一词体现系统思维。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="We then constructed multiple scenarios with accurately chosen parameters and in depth sensitivity analysis to find a solution to the widely debated question: How many bee colonies should be placed on a farm?">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2022A-13405</span>
             <span class="text-xs text-slate-500">摘要 / 研究问题</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"We then constructed multiple scenarios with accurately chosen parameters and in depth sensitivity analysis to find a solution to the widely debated question: How many bee colonies should be placed on a farm?"</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>把研究问题直接抛出来，并用方法回应问题，结构清晰。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="The entire modeling process is separated into two parts: building a preliminary model designed to choose batteries for a remote, off-the-grid 1600-square-foot house, and generalizing it so that it can suit every house.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2021A-11931</span>
             <span class="text-xs text-slate-500">摘要 / 论文结构</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"The entire modeling process is separated into two parts: building a preliminary model designed to choose batteries for a remote, off-the-grid 1600-square-foot house, and generalizing it so that it can suit every house."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>用两个分句预告论文结构：先特例、后推广。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Both the preliminary model and the BRM model are designed to evaluate the difference between the homeowner&#x27;s expectations for the batteries and the batteries&#x27; actual specifications.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2021A-11931</span>
             <span class="text-xs text-slate-500">摘要 / 核心思想</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Both the preliminary model and the BRM model are designed to evaluate the difference between the homeowner's expectations for the batteries and the batteries' actual specifications."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>用一个简洁的"期望 vs 实际"框架解释模型核心思想。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="We are making this assumption because it is the most cost efficient and the objective of this solution is to find the most cost effective and eliminate unnecessary spending.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2021A-11616</span>
             <span class="text-xs text-slate-500">假设 / 合理性</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"We are making this assumption because it is the most cost efficient and the objective of this solution is to find the most cost effective and eliminate unnecessary spending."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>把假设与论文目标直接挂钩，体现假设的服务性。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Although there is no one cause of CCD, modeling bee colonies provides insight into how to keep colonies alive and what factors have the greatest effect on bees.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2022A-13014</span>
             <span class="text-xs text-slate-500">引言 / 研究意义</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Although there is no one cause of CCD, modeling bee colonies provides insight into how to keep colonies alive and what factors have the greatest effect on bees."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>承认问题复杂性，同时点明建模能带来的具体洞察。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="To make our model adaptable to different regions and climates, we introduced several hyperparameters of temperature, light, wind, consumers, and soil nutrients, which are calibrated by location.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14632</span>
             <span class="text-xs text-slate-500">摘要 / 模型扩展</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"To make our model adaptable to different regions and climates, we introduced several hyperparameters of temperature, light, wind, consumers, and soil nutrients, which are calibrated by location."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>列出关键超参数并说明其地理校准机制，增强模型可信度。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="This is a necessary assumption to simplify our model, as we lack the specifications for the different makes of buses employed by different cities. Since buses of one category are based on similar technology, they should not differ significantly among themselves.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023B-13694</span>
             <span class="text-xs text-slate-500">假设 / 三段式</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"This is a necessary assumption to simplify our model, as we lack the specifications for the different makes of buses employed by different cities. Since buses of one category are based on similar technology, they should not differ significantly among themselves."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>典型的"做什么—为什么—合理性"三段式假设写作。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="By comparing the latter 3 models for CO2 emission, we chose to use the logistic model since it is more accurate based on its R-square value, Root Mean Square Error, Mean Absolute Percentage Error, and its trend is more consistent with the reality.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023B-14087</span>
             <span class="text-xs text-slate-500">模型选择 / 多指标</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"By comparing the latter 3 models for CO2 emission, we chose to use the logistic model since it is more accurate based on its R-square value, Root Mean Square Error, Mean Absolute Percentage Error, and its trend is more consistent with the reality."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>用四个具体指标支撑模型选择，避免主观断言。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Unlike subjective expert judgements, our model learns and constrains the weights and parameters from historical data to identify patterns and trends.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2024A-15504</span>
             <span class="text-xs text-slate-500">摘要 / 模型优势</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Unlike subjective expert judgements, our model learns and constrains the weights and parameters from historical data to identify patterns and trends."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>通过与"主观专家判断"对比，突出模型客观性。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="While data collection remains a significant challenge, future efforts in collecting more comprehensive data can further enhance the model&#x27;s predictive power.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2024A-15504</span>
             <span class="text-xs text-slate-500">摘要 / 局限与未来</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"While data collection remains a significant challenge, future efforts in collecting more comprehensive data can further enhance the model's predictive power."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>承认数据局限，同时给出具体改进路径。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Given our data has relatively high dimensions while no assumptions on it, we adopted Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) as our basic model, which aligns best with our data characteristics.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2024A-15926</span>
             <span class="text-xs text-slate-500">摘要 / 数据驱动选择</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Given our data has relatively high dimensions while no assumptions on it, we adopted Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) as our basic model, which aligns best with our data characteristics."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>模型选择与数据特征直接对应，体现方法论自觉性。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="A benefit of this model is its generalizability to almost any type of plant due to our proposed Data-Score-Divide (DSD) framework.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14632</span>
             <span class="text-xs text-slate-500">摘要 / 通用性</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"A benefit of this model is its generalizability to almost any type of plant due to our proposed Data-Score-Divide (DSD) framework."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>给框架命名（DSD）并强调通用性，增强记忆点。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Our models suggest that invasive species are able to spread quicker than we imagine, and that they impact our world greatly in all different aspects.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14140</span>
             <span class="text-xs text-slate-500">结论 / 洞察升华</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Our models suggest that invasive species are able to spread quicker than we imagine, and that they impact our world greatly in all different aspects."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>把具体结果升华到更广泛的生态与社会洞察。</p>
         </div>
         <div class="extract-sentence p-4 rounded-lg" data-copy-text="Our models still need to be modified before being applied to real life scenarios, where relationships between variables are more complex.">
           <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
+
+          <button class="copy-btn" onclick="copySentence(this)" title="Copy">Copy</button>
           <div class="flex items-center gap-2 mb-2">
             <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">2023A-14140</span>
             <span class="text-xs text-slate-500">结论 / 诚实局限</span>
-          </div>
+          
+        </div>
           <p class="text-slate-800 italic mb-2">"Our models still need to be modified before being applied to real life scenarios, where relationships between variables are more complex."</p>
           <p class="text-slate-600 text-sm"><strong>为什么好：</strong>诚实承认现实复杂性，为后续研究留出空间。</p>
         </div>
       </div>
     </section>
-
-    <section id="checklist" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">十二、提交前检查清单</h2>
+<section id="checklist" class="paper-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4 serif">十一、提交前检查清单</h2>
       <div class="grid md:grid-cols-2 gap-4">
         <div class="p-4 bg-slate-50 rounded-lg">
           <div class="font-bold text-slate-900 mb-2">结构与内容</div>
@@ -1101,5 +1222,6 @@ function copySentence(btn) {
   });
 }
 </script>
+
 </body>
 </html>
