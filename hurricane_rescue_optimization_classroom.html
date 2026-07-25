@@ -10,6 +10,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <style>
     .module-card { border-left: 4px solid #6366f1; }
+    .qa-block { border-left: 4px solid #f59e0b; }
+    .teacher-block { border-left: 4px solid #10b981; }
     pre { max-height: 600px; overflow: auto; }
     .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
     .math { font-family: Georgia, 'Times New Roman', serif; }
@@ -22,7 +24,7 @@
     <header class="mb-10 text-center">
       <h1 class="text-4xl font-bold text-slate-900 mb-3">飓风救援优化建模</h1>
       <p class="text-lg text-slate-600">从模糊现实到精确数学结构：决策变量、约束、目标函数与三把手术刀</p>
-      <p class="text-sm text-slate-500 mt-2">每节左侧 = 思维框架与方程，右侧 = Python Demo</p>
+      <p class="text-sm text-slate-500 mt-2">每节左侧 = 思维框架与方程，右侧 = Python Demo；黄色区块 = 课堂引导提问，绿色区块 = 教师参考</p>
     </header>
 
     <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
@@ -33,6 +35,8 @@
         <a href="#m3" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">3. 资源分层</a>
         <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. 三把手术刀</a>
         <a href="#m5" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">5. 完整模型</a>
+        <a href="#m5-ext1" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">延伸 1：多模式运输</a>
+        <a href="#m5-ext2" class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200">延伸 2：指数衰减</a>
       </div>
     </nav>
 
@@ -66,6 +70,27 @@ print("\nIf demand > inventory or demand > heli capacity,")
 print("the model MUST allow shortage (slack) or it will crash.")
 </code></pre>
         </div>
+      </div>
+
+      <!-- Q&A -->
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>“优化建模”和“凭感觉分配物资”有什么本质区别？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>优化建模把<strong>目标、约束、变量</strong>显式写下来，使每步选择都可检查、可复现；感觉分配往往只依赖经验，遇到极端情况容易遗漏隐性假设。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果目标只有“最大化获救人数”，模型可能给出什么伦理上不可接受的解？请给出多种合理回答。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A（效率优先）：</strong>模型会把所有资源投到人口最多、最容易到达的城镇，偏远小城镇可能完全得不到救援。</p>
+          <p><strong>回答 B（安全优先）：</strong>模型可能要求直升机在恶劣天气下超负荷飞行，忽视机组人员安全。</p>
+          <p><strong>回答 C（公平优先）：</strong>模型会造成“看得见的地方获救、看不见的地方被牺牲”，引发社会信任危机。</p>
+          <p><strong>回答 D（长期影响）：</strong>只算当前获救人数可能忽略疫情二次爆发、物资哄抢等后续风险。</p>
+        </div>
+      </div>
+
+      <!-- Teacher reference -->
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的核心方法是“<strong>在限制下做最好的交换</strong>”。教学时应让学生先做一个 1 分钟 sanity check：比较总库存、总需求、总运力。如果需求大于运力，必须允许短缺（slack），否则模型会不可行。教师可强调：<strong>模型不会自动具备常识，所有伦理底线（如不放弃任何城镇）必须写成约束或惩罚。</strong></p>
       </div>
     </section>
 
@@ -107,11 +132,31 @@ prob += x['W1']['A'] + x['W2']['A'] == 10, "A_demand"
 prob += x['W1']['B'] + x['W2']['B'] == 12, "B_demand"
 
 prob.solve(pulp.PULP_CBC_CMD(msg=0))
-for route, var in x.items():
-    print(f"{route[0]} -> {route[1]}: {pulp.value(var):.2f} tons")
+for w in ['W1', 'W2']:
+    for h in ['A', 'B']:
+        print(f"{w} -> {h}: {pulp.value(x[w][h]):.2f} tons")
 print(f"Minimum cost: ${pulp.value(prob.objective):.2f}")
 </code></pre>
         </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>同一句话“我们需要 100 吨水”，什么时候写成硬约束，什么时候写成软惩罚？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>硬约束表示“任何短缺都不可接受”；软惩罚表示“可以短缺，但要在目标函数里付出代价”。判断标准不是语言，而是<strong>现实可接受性</strong>。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>飓风救援中，哪些需求应该写成硬约束？哪些适合软惩罚？请给出多种分类。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>饮用水、急救药品属于硬约束，因为短缺直接危及生命。</p>
+          <p><strong>回答 B：</strong>帐篷、棉被等可降级满足，适合软惩罚，允许部分短缺。</p>
+          <p><strong>回答 C：</strong>若物资总量明显不足，全部写成硬约束会让模型不可行，应把最低生存线写成硬约束，其余写成软惩罚。</p>
+          <p><strong>回答 D：</strong>法律或政治承诺（如“必须覆盖所有登记居民”）可能要求硬约束，即使成本很高。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是“<strong>把问题拆成变量、约束、目标三要素</strong>”。教师可先给出 toy LP 让学生运行，再让他们把“需求 = 100 吨”分别改写为 <code>x == 100</code> 和 <code>shortage = 100 - x</code> 两种形式，观察可行域变化。重点讲解：决策变量要包含时间维度；约束是“不能突破的硬限制”；目标函数是“衡量好坏的标尺”。</p>
       </div>
     </section>
 
@@ -173,6 +218,25 @@ print("Add fairness constraints if that is unacceptable.")
 </code></pre>
         </div>
       </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么要做“极端情境测试”？它能发现普通测试发现不了什么问题？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>普通测试往往只覆盖“正常参数”，而极端测试把参数推到 0、∞、100 倍，能暴露模型中<strong>隐性的荒谬假设</strong>，例如某个城镇被完全放弃、0.5 架直升机被允许等。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果模型把 80% 的资源分配给人口最大的城镇，这是否合理？请给出多种视角。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A（功利主义）：</strong>合理，因为 maximize 总获救人数，大镇人多，资源效用更高。</p>
+          <p><strong>回答 B（公平主义）：</strong>不合理，每个生命价值相等，小城镇不应被系统性牺牲。</p>
+          <p><strong>回答 C（政策视角）：</strong>取决于政府承诺。如果承诺“覆盖所有居民”，则不可接受；如果资源确实不足，应公开说明。</p>
+          <p><strong>回答 D（模型改进）：</strong>可以加入比例公平约束或 max-min 约束，让每个城镇至少获得最低比例需求。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是“<strong>六层透镜 + 极端情境测试</strong>”。原文从稀缺性、差异性、网络结构、时间维度、离散性、多目标冲突六个角度，把模糊因素转化为具体数学产物：稀缺性 → 删除变量或把 = 改为 ≤；差异性 → 权重或公平约束；网络结构 → 区分运输方式；时间维度 → 衰减/惩罚；离散性 → 整数变量；多目标冲突 → 加权求和或词典序优化。教师可让学生对每个透镜举一个“如果推到极端会怎样”的例子。</p>
+      </div>
     </section>
 
     <!-- m3 -->
@@ -215,6 +279,25 @@ print("\nIf helicopters do both transport and recon,")
 print("both tasks consume the same total flight-time pool.")
 </code></pre>
         </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么“72 小时窗口”通常建议放在目标函数里做惩罚，而不是写成硬约束？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>写成硬约束会拒绝所有超过 72 小时的方案，无法比较“晚 1 小时”与“晚 10 小时”的真实代价；放在目标函数中可以把延误量化为金钱或生命损失，保留所有可行方案供权衡。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>在什么情况下，你应该把“72 小时”写成硬约束？请给出多种合理场景。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>药品、血浆等有时效硬性要求的物资，超过时间即失效，必须写成硬约束。</p>
+          <p><strong>回答 B：</strong>机场跑道、道路在 72 小时后将被下一次洪水淹没，届时完全无法进入。</p>
+          <p><strong>回答 C：</strong>政治或法律承诺“所有居民在 72 小时内获得基本供水”，必须作为约束满足。</p>
+          <p><strong>回答 D：</strong>若模型用于评估“能否完成承诺”，可先用硬约束做可行性判断，再用软惩罚做成本优化。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是“<strong>三层资源金字塔</strong>”：顶层实物存量（库存、资金）写成 ≤ 约束；中层运力流量（自有/租用直升机）如果是固定的写约束，如果是可决策的同时出现在约束和目标里；底层时空衰减（延误、价值下降）写成目标函数惩罚。教师可让学生现场对 5～6 个因素分类，并解释“为什么”放在那里。</p>
       </div>
     </section>
 
@@ -266,6 +349,25 @@ print("Slack-variable model:", pulp.LpStatus[prob_good.status])
 print(f"Delivered: {pulp.value(x2):.2f}, Shortage: {pulp.value(s):.2f}")
 </code></pre>
         </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>求解器报告 Infeasible 时，第一步应该检查什么？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>先检查约束之间是否互相矛盾，而不是怀疑求解器。常见错误包括：把 0 资源写入等式约束、总需求大于总供给却要求全部满足、两条约束在数学上互斥。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>松弛变量的惩罚系数 P 是不是越大越好？请给出多种合理分析。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>不是。P 过大会导致数值不稳定，求解器对微小缺货过度敏感。</p>
+          <p><strong>回答 B：</strong>P 应反映真实社会成本。例如缺货 1 吨生命损失等价于多少美元？若 P 脱离实际，模型会做出昂贵但不合理的决策。</p>
+          <p><strong>回答 C：</strong>P 应显著高于运输成本，否则模型会倾向于“直接缺货”而不是组织运输。</p>
+          <p><strong>回答 D：</strong>可通过敏感性分析绘制“总成本 vs P”曲线，观察决策何时发生质变，帮助决策者选择合理 P。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是“<strong>三把手术刀</strong>”：#1 删除变量（或把 = 改为 ≤）处理零资源；#2 引入松弛变量 shortage 处理总供给不足；#3 求解前预处理发现并调和互斥约束。教师可用右侧代码演示：硬约束模型不可行，加入松弛变量后立即可行，并让学生理解 shortage 同时出现在约束和目标中的“双重身份”。</p>
       </div>
     </section>
 
@@ -363,6 +465,7 @@ for h in TOWNS:
 </code></pre>
         </div>
       </div>
+
       <div class="mt-8 p-4 bg-amber-50 rounded-lg text-sm text-slate-700">
         <strong>启发问题：</strong>
         <ol class="list-decimal pl-5 mt-2 space-y-1">
@@ -370,6 +473,25 @@ for h in TOWNS:
           <li>如果把公平性约束从 50% 调到 90%，总成本会上升还是下降？为什么？</li>
           <li>现实中，直升机往返时间不是精确的 3 小时，而是受天气影响。你会怎么修改模型？</li>
         </ol>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>目标函数里的四项（运输成本、租赁成本、缺货惩罚、延误惩罚）分别代表什么现实含义？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>运输成本是“把物资送出去花的钱”；租赁成本是“额外调用社会资源的钱”；缺货惩罚是“没满足需求造成的生命/社会损失”；延误惩罚是“晚到的边际价值损失”。四项相加构成“总损失”，最小化它等价于最大化救援净收益。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果 P = 1000 导致模型租了很多直升机，这说明什么？可能有哪些解释？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>短缺代价远高于租赁成本，模型理性地选择多租直升机以避免缺货。</p>
+          <p><strong>回答 B：</strong>P 可能被高估了，脱离了实际社会成本，导致过度反应。</p>
+          <p><strong>回答 C：</strong>现实中直升机架次可能有限，模型未加租赁上限，应添加 <code>y <= MAX_RENTAL</code>。</p>
+          <p><strong>回答 D：</strong>可以从敏感性分析看：P 降到多少时租赁架次骤降，该阈值就是决策转折点。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是“<strong>完整 MILP 模型</strong>”：决策变量 x<sub>w,t,h</sub>（连续）、y（整数租赁架次）、shortage<sub>h</sub>（连续松弛）；目标函数最小化运输成本 + 租赁成本 + 缺货惩罚 + 延误惩罚；约束包括仓库库存、直升机总运力、需求平衡、公平性约束、整数与非负。教师可让学生先调参（改变 P、公平性比例、ROUND_TRIP），观察解的变化，体会“参数即价值观”。</p>
       </div>
     </section>
 
@@ -481,6 +603,25 @@ for h in TOWNS:
 </code></pre>
         </div>
       </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>把卡车和直升机分开建模，对变量和约束带来了什么本质变化？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>变量从单一 x 拆分为 x_truck 和 x_heli；每种运力有独立的容量约束；B 镇等不可达路线通过不创建变量或设为零来强制禁用；库存约束需要同时汇总两种运输方式的出库量。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果卡车运力被设为 0，模型会自动退化成纯直升机调度吗？有哪些前提？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>会。卡车变量被约束为 0 后，目标函数自然只由直升机承担运输，A、C 两镇也由直升机供应。</p>
+          <p><strong>回答 B：</strong>前提是直升机总运力足够，否则会出现短缺，模型通过 shortage 变量保持可行。</p>
+          <p><strong>回答 C：</strong>如果 B 镇直升机 unreachable 也应被禁用，否则模型可能给 B 镇分配直升机，这是设计时需要注意的。</p>
+          <p><strong>回答 D：</strong>退化后目标函数结构不变，只是部分变量取 0，体现了模型对“网络结构透镜”的响应。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本延伸的解决方法是“<strong>多模式运输建模</strong>”：为每种运输方式定义独立决策变量；分别写每种方式的运力约束；对不可达组合（如卡车到 B 镇）不创建变量或强制为 0；需求平衡式汇总所有可达方式的运量。教师可引导学生把“道路被毁”当成稀缺性/网络结构透镜，体会模型从单模式到多模式的扩展。</p>
+      </div>
     </section>
 
     <!-- Extension 2 -->
@@ -571,6 +712,25 @@ hourly = X.sum(axis=(0, 2))
 print(f"\nHourly total shipment: {hourly.round(2)}")
 </code></pre>
         </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>指数衰减价值函数与线性延误惩罚在模型行为上有什么不同？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>线性惩罚假设每小时延误代价相同，解可能把物资均匀分散在时间上；指数衰减则强调“灾后前几个小时价值最高”，λ 越大，模型越倾向于把物资集中在前面几小时送达。为防止所有物资挤在第 0 小时，需要额外加上每小时运力上限。</p>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果 λ = 0，模型行为会变成什么样？请给出多种合理推断。</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>λ = 0 意味着送达时间不影响价值，目标退化为最小化运输成本，物资会从最便宜的仓库出发。</p>
+          <p><strong>回答 B：</strong>如果同时 D = 0，模型完全不在乎延误，所有需求可能集中到成本最低的路线，即使很晚送达。</p>
+          <p><strong>回答 C：</strong>λ = 0 时指数项恒为 1，目标函数中“价值”变成与 t 无关的常数，无法体现时间紧迫性。</p>
+          <p><strong>回答 D：</strong>这说明 λ 不是纯数学参数，而是对“时间价值”的价值观设定，需要与领域专家共同确定。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
+        <p class="text-sm text-slate-700">本延伸的解决方法是“<strong>指数衰减时间价值</strong>”：把第 t 小时送达物资的价值写成 V<sub>0</sub>·e<sup>-λt</sup>，目标函数改为最大化总价值 − 总成本（等价于最小化 总成本 − 总价值）。由于目标含 e<sup>-λt</sup>，模型变为非线性，可用 scipy.optimize.minimize (SLSQP) 解连续变量版本；若保留整数变量则需 MINLP 求解器。为避免所有物资挤在第 0 小时，必须加入每小时运力上限约束。教师可让学生分别比较 λ = 0.05、0.15、0.5 时的平均送达时间。</p>
       </div>
     </section>
 
