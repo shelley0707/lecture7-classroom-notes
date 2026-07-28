@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Graph Theory — Classroom Demo</title>
+  <title>Graph Theory Classroom — Shopping Mall Fire Case Study</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <style>
-    .module-card { border-left: 4px solid #3b82f6; }
-    .module-card.formula { border-left-color: #10b981; }
-    .module-card.method { border-left-color: #8b5cf6; }
-    .module-card.example { border-left-color: #f59e0b; }
+    .module-card { border-left: 4px solid #6366f1; }
+    .qa-block { border-left: 4px solid #f59e0b; }
+    .teacher-block { border-left: 4px solid #10b981; }
     pre { max-height: 600px; overflow: auto; }
     .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
     .math { font-family: Georgia, 'Times New Roman', serif; }
@@ -21,817 +20,1043 @@
 <body class="bg-slate-50 text-slate-800">
   <div class="max-w-7xl mx-auto px-4 py-8">
     <header class="mb-10 text-center">
-      <h1 class="text-4xl font-bold text-slate-900 mb-3">Graph Theory for HiMCM</h1>
-      <p class="text-lg text-slate-600">把“点、边、权重、约束”翻译成可运行的模型：从 Königsberg 到 TSP / MST / 图着色</p>
-      <p class="text-sm text-slate-500 mt-2">每节左侧 = 概念与数学表达，右侧 = 可运行的 Python Demo + 可视化</p>
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">图论课堂：商场火灾案例研究</h1>
+      <p class="text-lg text-slate-600">从空间网络到烟雾扩散：把真实火灾抽象成图，再用 SIR 模型与网络度量做决策</p>
+      <p class="text-sm text-slate-500 mt-2">左侧 = 逐步深入的建模思路与启发式提问，右侧 = 可运行的 Python Demo</p>
     </header>
 
     <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
       <div class="flex flex-wrap gap-3 justify-center text-sm">
-        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. Basics</a>
-        <a href="#m1b" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">1b. Königsberg</a>
-        <a href="#m2" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2. Dijkstra</a>
-        <a href="#m3" class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">3. MST</a>
-        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. Hamiltonian / TSP</a>
-        <a href="#m5" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200">5. Graph Coloring</a>
-        <a href="#m6" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">6. Assignment</a>
-        <a href="#m7" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">7. Course Reg</a>
-        <a href="#m8" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">8. Factory Cost</a>
-        <a href="#m9" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">9. Practice</a>
-        <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. Summary</a>
+        <a href="#m0" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">0. 案例导入</a>
+        <a href="#m1" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">1. 抽象成图</a>
+        <a href="#m2" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">2. SIR 烟扩散</a>
+        <a href="#m3" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200">3. 基线模拟</a>
+        <a href="#m4" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">4. 干预对比</a>
+        <a href="#m5" class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 hover:bg-rose-200">5. 疏散路径</a>
+        <a href="#m6" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200">6. 敏感性</a>
+        <a href="#m7" class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200">7. 开放延伸</a>
       </div>
     </nav>
 
-    <!-- Module 1: Basics -->
-    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. 什么是图？G = (V, E)</h2>
+    <section id="m0" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">0. 案例导入：商场起火，为什么要用图论？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4">图论把现实问题抽象成<strong>点</strong>（Vertices/Nodes）和<strong>边</strong>（Edges）。点代表对象，边代表对象之间的关系。</p>
-          <ul class="space-y-2 text-slate-700 list-disc pl-5">
-            <li><strong>V（顶点集）：</strong>图中所有节点的集合，例如建筑物、城市、课程、人群。</li>
-            <li><strong>E（边集）：</strong>连接两个节点的边，可以是有向或无向，可以带权重。</li>
-            <li><strong>权重：</strong>边或点上的“代价/距离/时间/容量”。</li>
-          </ul>
-          <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-slate-700">
-            <div class="font-semibold text-blue-900 mb-2">基本定义</div>
-            <p class="math text-center text-lg my-2">G = (V, E)</p>
-            <p>其中 V = {v₁, v₂, ..., vₙ}，E ⊆ V × V。</p>
-            <p class="mt-2">如果边带权重：G = (V, E, w)，w: E → ℝ。</p>
-          </div>
-          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-            <strong> takeaway：</strong>拿到题先问：谁是点？谁是边？边有没有方向？有没有权重？
-          </div>
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>场景：</strong>周五晚上，商场一层的 Retail_A 店铺起火。烟不是只留在店里，而是沿着走廊、扶梯、楼梯井迅速扩散。作为应急响应人员，你需要回答：</p>
+<ul class="list-disc pl-5 mb-4 text-slate-700">
+  <li>烟最快会从哪里蔓延？</li>
+  <li>哪些通道应该立即关闭？</li>
+  <li>顾客应该从哪个出口撤离？</li>
+</ul>
+<p class="text-slate-700 mb-4"><strong>建模思路：</strong>把商场内部的空间单元（店铺、走廊、楼梯）抽象成<strong>节点</strong>，把它们之间的连通路径抽象成<strong>边</strong>。于是“烟怎么扩散”“人怎么疏散”就变成了图上的传播与路径问题。</p>
+<div class="p-3 bg-indigo-50 rounded-lg text-indigo-800"><strong> takeaway：</strong>图论不是画一张漂亮地图，而是把空间结构变成可计算对象。</div>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
           <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
 
-# 创建一个无向图
+# A minimal sanity check: a small abstract mall
 G = nx.Graph()
-G.add_nodes_from(['A', 'B', 'C', 'D'])
-G.add_weighted_edges_from([
-    ('A', 'B', 4),
-    ('A', 'C', 2),
-    ('B', 'C', 1),
-    ('B', 'D', 5),
-    ('C', 'D', 8)
-])
-
-pos = nx.spring_layout(G, seed=42)
-plt.figure(figsize=(6, 4))
-nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=1200, font_size=12, font_weight='bold')
-edge_labels = nx.get_edge_attributes(G, 'weight')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-plt.title('Weighted Undirected Graph G = (V, E, w)')
-plt.axis('off')
-plt.show()
-
-print('Vertices:', list(G.nodes))
-print('Edges:', list(G.edges(data=True)))
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 1b: Types of Graphs -->
-    <section class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">1b. 常见图类型速查</h2>
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">无向图 Undirected</div>
-          <p class="text-slate-600 mt-1">边没有方向，A–B 与 B–A 是同一条边。适合“连接关系”。</p>
-        </div>
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">有向图 Directed</div>
-          <p class="text-slate-600 mt-1">边有方向，A→B ≠ B→A。适合“单向流动/依赖”。</p>
-        </div>
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">加权图 Weighted</div>
-          <p class="text-slate-600 mt-1">每条边有权重（距离/时间/成本）。</p>
-        </div>
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">完全图 Complete</div>
-          <p class="text-slate-600 mt-1">任意两点之间都有边。n 个节点的完全图有 n(n−1)/2 条边。</p>
-        </div>
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">树 Tree / 生成树 Spanning Tree</div>
-          <p class="text-slate-600 mt-1">无环连通图。生成树包含原图所有顶点且边数 = n−1。</p>
-        </div>
-        <div class="p-4 border rounded-lg bg-slate-50">
-          <div class="font-bold text-slate-900">二分图 Bipartite</div>
-          <p class="text-slate-600 mt-1">顶点可分为两组，边只跨组不连组内。适合“任务分配”。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 1c: Königsberg Bridge Problem -->
-    <section id="m1b" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">1c.  Königsberg 七桥问题：Eulerian 路径</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>能否一次不重复地走过 Königsberg 的全部七座桥？欧拉把四块陆地抽象为点、七座桥抽象为边，证明：</p>
-          <ul class="space-y-2 text-slate-700 list-disc pl-5">
-            <li>一个无向图存在 <strong>Eulerian 回路</strong>（起点=终点）当且仅当所有顶点的度数都是偶数。</li>
-            <li>存在 <strong>Eulerian 路径</strong>（起点≠终点）当且仅当恰好有 0 或 2 个顶点的度数是奇数。</li>
-          </ul>
-          <div class="mt-6 p-4 bg-red-50 rounded-lg text-sm text-slate-700">
-            <div class="font-semibold text-red-900 mb-2">Königsberg 的度数</div>
-            <p>A: 5, B: 3, C: 3, D: 3 —— 四个奇度顶点。</p>
-            <p class="mt-2">因此：<strong>不存在 Eulerian 路径。</strong></p>
-          </div>
-          <div class="p-3 bg-red-50 rounded-lg text-sm text-red-800 mt-4">
-            <strong> takeaway：</strong>判断能否“一笔画”不用试，只数每个点连了几条边（degree）。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-
-# 四块陆地 A/B/C/D，七座桥
-G = nx.MultiGraph()
-G.add_nodes_from(['A', 'B', 'C', 'D'])
-# 历史上的 Königsberg 桥连接关系
-bridges = [
-    ('A', 'B'), ('A', 'B'),  # A-B 两座桥
-    ('A', 'C'), ('A', 'C'),  # A-C 两座桥
-    ('A', 'D'),              # A-D 一座桥
-    ('B', 'D'),              # B-D 一座桥
-    ('C', 'D')               # C-D 一座桥
-]
-G.add_edges_from(bridges)
-
-# 检查 Eulerian 路径
-print('Degrees:', dict(G.degree()))
-odd = [n for n, d in G.degree() if d % 2 == 1]
-print(f'Odd-degree vertices: {odd} ({len(odd)} total)')
-print('Has Eulerian path:', nx.has_eulerian_path(G))
-print('Has Eulerian circuit:', nx.is_eulerian(G))
-
-# 可视化：用弯曲的边表示 Multiple edges
-pos = {
-    'A': (0, 1),
-    'B': (-1, 0),
-    'C': (1, 0),
-    'D': (0, -1)
-}
-plt.figure(figsize=(7, 6))
-nx.draw_networkx_nodes(G, pos, node_color='lightcoral', node_size=2000, font_size=14)
-nx.draw_networkx_labels(G, pos, font_size=14, font_weight='bold')
-# 画边，multi-edge 用弧线
-ax = plt.gca()
-for u, v, key in G.edges(keys=True):
-    rad = 0.3 * (key + 1)
-    nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], connectionstyle=f'arc3,rad={rad}',
-                           edge_color='steelblue', width=2, ax=ax)
-plt.title('Königsberg Bridges: No Eulerian Path Exists')
-plt.axis('off')
-plt.tight_layout()
-plt.show()
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 2: Dijkstra -->
-    <section id="m2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. 最短路径：Dijkstra</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>给定加权图和起点 s，求 s 到所有其他顶点的最短距离。</p>
-          <div class="p-4 bg-green-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-green-900 mb-2">数学表达</div>
-            <p><strong>决策变量：</strong>设 d[v] 为从 s 到 v 的最短距离。</p>
-            <p class="mt-2"><strong>目标：</strong>最小化 d[t]（若只关心终点 t），或求出所有 d[v]。</p>
-            <p class="mt-2"><strong>递推关系（三角不等式）：</strong></p>
-            <p class="math text-center my-2">d[v] ≤ d[u] + w(u, v) &nbsp; ∀(u, v) ∈ E</p>
-            <p class="mt-2"><strong>初始化：</strong>d[s] = 0，d[v] = +∞（v ≠ s）。</p>
-          </div>
-          <div class="p-3 bg-green-50 rounded-lg text-sm text-green-800">
-            <strong> takeaway：</strong>Dijkstra 要求边权非负。时间复杂度 O((V+E) log V)。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-
-G = nx.Graph()
-G.add_weighted_edges_from([
-    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
-    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
-    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
-])
-
-start, end = 'A', 'F'
-length, path = nx.single_source_dijkstra(G, start, end)
-print(f'Shortest path from {start} to {end}: {path}')
-print(f'Total distance: {length}')
-
-# 可视化最短路径
-pos = nx.spring_layout(G, seed=42)
-plt.figure(figsize=(8, 5))
-path_edges = list(zip(path, path[1:]))
-
-# 画所有节点和边
-nx.draw_networkx_nodes(G, pos, node_color='lightgray', node_size=1200)
-nx.draw_networkx_nodes(G, pos, nodelist=path, node_color='lightgreen', node_size=1500)
-nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
-nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1.5)
-# 高亮最短路径
-nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='green', width=3)
-edge_labels = nx.get_edge_attributes(G, 'weight')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-plt.title(f'Shortest Path {start}→{end}: {path} (distance={length})')
-plt.axis('off')
-plt.show()
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 3: MST -->
-    <section id="m3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. 最小生成树：Minimum Spanning Tree</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>选择一组边，连接图中所有顶点，且总权重最小。典型场景：布线、道路、管道。</p>
-          <div class="p-4 bg-purple-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-purple-900 mb-2">数学表达</div>
-            <p><strong>决策变量：</strong>x<sub>e</sub> ∈ {0, 1}，边 e 是否被选中。</p>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min Σ<sub>e∈E</sub> w<sub>e</sub> · x<sub>e</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>选中 n−1 条边：Σ x<sub>e</sub> = n − 1</li>
-              <li>无环（对于任意非空子集 S ⊂ V，S 内部的边数 ≤ |S| − 1）</li>
-              <li>连通性：选中边构成的子图连接所有顶点</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-purple-50 rounded-lg text-sm text-purple-800">
-            <strong> takeaway：</strong>经典算法 Kruskal（按权重贪心加边）和 Prim（从一点逐步扩展）。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-
-G = nx.Graph()
-G.add_weighted_edges_from([
-    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
-    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
-    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
-])
-
-mst = nx.minimum_spanning_tree(G, weight='weight')
-print('MST edges:', list(mst.edges(data=True)))
-print('Total MST weight:', mst.size(weight='weight'))
-
-# 可视化
-pos = nx.spring_layout(G, seed=42)
-plt.figure(figsize=(8, 5))
-nx.draw_networkx_nodes(G, pos, node_color='lightblue', node_size=1000)
-nx.draw_networkx_labels(G, pos)
-# 非 MST 边灰色
-nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# MST 边红色
-nx.draw_networkx_edges(mst, pos, edge_color='red', width=2.5)
-edge_labels = nx.get_edge_attributes(G, 'weight')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-plt.title('Minimum Spanning Tree (red edges)')
-plt.axis('off')
-plt.show()
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 4: Hamiltonian / TSP -->
-    <section id="m4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. Hamiltonian 路径 / 圈 与 TSP</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>Hamiltonian 路径：</strong>经过图中每个顶点恰好一次的路径。<strong>Hamiltonian 圈：</strong>回到起点的闭合路径。<strong>TSP（旅行商问题）：</strong>在完全图中找最短的 Hamiltonian 圈。</p>
-          <div class="p-4 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-amber-900 mb-2">TSP 数学表达</div>
-            <p><strong>决策变量：</strong>x<sub>ij</sub> ∈ {0, 1}，是否从 i 直接走到 j。</p>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min Σ<sub>i,j</sub> c<sub>ij</sub> · x<sub>ij</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每个点恰好进入一次：Σ<sub>i</sub> x<sub>ij</sub> = 1，∀j</li>
-              <li>每个点恰好离开一次：Σ<sub>j</sub> x<sub>ij</sub> = 1，∀i</li>
-              <li>消除子回路（subtour elimination）</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
-            <strong> takeaway：</strong>TSP 是 NP-hard。小规模可用整数规划精确求解；大规模用启发式。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import itertools
-import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
-
-nodes = ['A', 'B', 'C', 'D']
-dist = np.array([
-    [0, 10, 15, 20],
-    [10, 0, 35, 25],
-    [15, 35, 0, 30],
-    [20, 25, 30, 0]
-])
-
-# 暴力枚举最优 TSP 回路
-best = None
-best_cost = float('inf')
-for perm in itertools.permutations(range(1, len(nodes))):
-    route = (0,) + perm + (0,)
-    cost = sum(dist[route[i]][route[i+1]] for i in range(len(route)-1))
-    if cost < best_cost:
-        best_cost = cost
-        best = route
-
-best_route = [nodes[i] for i in best]
-print('Best TSP route:', best_route)
-print('Minimum distance:', best_cost)
-
-# 可视化最优回路
-G = nx.complete_graph(len(nodes))
-pos = nx.circular_layout(G)
-plt.figure(figsize=(6, 6))
-nx.draw_networkx_nodes(G, pos, node_color='lightyellow', node_size=1500)
-nx.draw_networkx_labels(G, pos, labels={i: nodes[i] for i in range(len(nodes))}, font_size=14)
-
-# 画所有边（灰色）
-nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# 画 TSP 回路（红色）
-tour_edges = list(zip(best, best[1:]))
-nx.draw_networkx_edges(G, pos, edgelist=tour_edges, edge_color='red', width=3)
-plt.title(f'TSP Optimal Tour: {" → ".join(best_route)} = {best_cost}')
-plt.axis('off')
-plt.show()
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Module 5: Graph Coloring -->
-    <section id="m5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. 图着色 Graph Coloring</h2>
-      <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>给每个顶点分配一种“颜色”，使得相邻顶点颜色不同，且使用的颜色总数最少。应用：考试排期、化学品隔离、频率分配。</p>
-          <div class="p-4 bg-pink-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-pink-900 mb-2">数学表达</div>
-            <p><strong>决策变量：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>c<sub>v</sub> ∈ {1, 2, ..., K}：顶点 v 的颜色编号</li>
-              <li>y<sub>k</sub> ∈ {0, 1}：颜色 k 是否被使用</li>
-            </ul>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min Σ<sub>k=1</sub><sup>K</sup> y<sub>k</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>相邻顶点颜色不同：c<sub>u</sub> ≠ c<sub>v</sub>，∀(u, v) ∈ E</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-pink-50 rounded-lg text-sm text-pink-800">
-            <strong> takeaway：</strong>最小着色数是 NP-hard。常用贪心算法或整数规划；实际问题常转化为“最少需要几个时间段”。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-
-# 考试排期：课程为节点，有共同学生的课程连边
-G = nx.Graph()
-G.add_nodes_from(['Math', 'Physics', 'CS', 'English', 'History'])
+G.add_nodes_from([&#x27;Entrance&#x27;, &#x27;Retail_A&#x27;, &#x27;Corridor&#x27;, &#x27;Stairwell&#x27;])
 G.add_edges_from([
-    ('Math', 'Physics'), ('Math', 'CS'),
-    ('Physics', 'English'), ('CS', 'History'),
-    ('English', 'History')
+    (&#x27;Entrance&#x27;, &#x27;Retail_A&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor&#x27;),
+    (&#x27;Corridor&#x27;, &#x27;Stairwell&#x27;)
 ])
 
-# 贪心着色
-coloring = nx.coloring.greedy_color(G, strategy='largest_first')
-num_colors = max(coloring.values()) + 1
-print('Color assignment:', coloring)
-print('Minimum time slots needed (greedy):', num_colors)
+print(&quot;Nodes (spatial units):&quot;, list(G.nodes()))
+print(&quot;Edges (connections):&quot;, list(G.edges()))
+print(&quot;Degree of each node:&quot;, dict(G.degree()))
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>面对商场火灾，你最关心的三个问题是什么？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>这三个问题通常对应模型的三个核心：火源/烟源位置、传播路径、人员疏散出口。</p>
+<p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>为什么用图论而不是只用一张平面图来分析？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>平面图只能看位置关系，图论能量化‘必须经过谁’‘距离多远’‘切断哪条边最有效’。</p>
+<p><strong>回答 B：</strong>图可以与传播算法、最短路径算法、中心性算法结合，实现自动模拟。</p>
+<p><strong>回答 C：</strong>图上的节点和边可以携带属性（长度、容量、通风效率），便于做敏感性分析。</p>
+<p><strong>回答 D：</strong>便于与优化工具结合，回答‘最优隔离门位置’这类设计问题。</p>
+</div>
+<p class="text-slate-800 mb-2"><strong>Q3：</strong>在这个案例里，节点和边分别可以代表什么？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>节点代表空间单元：店铺、走廊、扶梯、楼梯间、设备间；边代表它们之间的连通路径，通常用长度、通风阻力等作为权重。</p>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的核心方法是‘现实空间 → 图结构’。教师要让学生意识到：一个节点不是一个点，而是一个有属性的空间单元；一条边不是一条线，而是一个有方向/长度/容量的通道。先建立这种抽象，后面的传播模型才有意义。</p>
+      </div>
+    </section>
 
-# 可视化
-colors = ['#fca5a5', '#93c5fd', '#86efac', '#fde047', '#d8b4fe']
-node_colors = [colors[coloring[n] % len(colors)] for n in G.nodes]
-pos = nx.spring_layout(G, seed=42)
-plt.figure(figsize=(7, 5))
-nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=1500, font_size=11,
-        edge_color='gray', width=2)
-plt.title(f'Exam Scheduling as Graph Coloring ({num_colors} time slots)')
-plt.axis('off')
+
+    <section id="m1" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">1. 把商场抽象成图：节点、边与属性</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>这部分做什么：</strong>定义一个简化的商场通风网络。每个节点有三个属性：<code>type</code>（空间类型）、<code>pos</code>（平面位置）、<code>state</code>（初始状态）。边是无向的，表示烟雾/人员可以在两个方向流动。</p>
+<p class="text-slate-700 mb-4">我们根据节点坐标计算每条边的长度，因为长度会影响烟雾传播速率：走廊越长，烟越慢到达。</p>
+<div class="p-3 bg-indigo-50 rounded-lg text-indigo-800"><strong> takeaway：</strong>给边加“长度”属性，是把几何信息注入图结构的第一步。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create an undirected graph for airflow/smoke propagation paths.
+G_smoke = nx.Graph()
+
+# Nodes: spatial units with type, position, and initial state.
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},   # fire origin
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;], state=&#x27;S&#x27;)
+
+# Edges: physical connections (undirected = smoke can travel both ways).
+edges_data = [
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;),
+    (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;),
+    (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;),
+    (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+]
+G_smoke.add_edges_from(edges_data)
+
+# Compute edge lengths from node positions.
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    length = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
+    G_smoke.edges[u, v][&#x27;length&#x27;] = length
+
+# Visualize.
+node_type_colors = {
+    &#x27;store&#x27;: &#x27;lightblue&#x27;,
+    &#x27;corridor&#x27;: &#x27;lightgreen&#x27;,
+    &#x27;escalator&#x27;: &#x27;orange&#x27;,
+    &#x27;stairwell&#x27;: &#x27;lightcoral&#x27;,
+    &#x27;utility&#x27;: &#x27;lightgray&#x27;
+}
+node_colors = [node_type_colors[G_smoke.nodes[n][&#x27;type&#x27;]] for n in G_smoke.nodes()]
+
+plt.figure(figsize=(10, 8))
+nx.draw_networkx_nodes(G_smoke, pos, node_color=node_colors, node_size=3000, alpha=0.9)
+nx.draw_networkx_labels(G_smoke, pos, font_size=9, font_weight=&#x27;bold&#x27;)
+nx.draw_networkx_edges(G_smoke, pos, edge_color=&#x27;gray&#x27;, width=1.5)
+edge_labels = nx.get_edge_attributes(G_smoke, &#x27;length&#x27;)
+formatted = {(u, v): f&quot;{d:.2f}&quot; for (u, v), d in edge_labels.items()}
+nx.draw_networkx_edge_labels(G_smoke, pos, edge_labels=formatted, font_color=&#x27;darkred&#x27;, font_size=7)
+plt.title(&quot;Mall Ventilation Network: Nodes and Edge Lengths&quot;)
+plt.axis(&#x27;off&#x27;)
+plt.show()
+
+print(f&quot;Number of nodes: {G_smoke.number_of_nodes()}&quot;)
+print(f&quot;Number of edges: {G_smoke.number_of_edges()}&quot;)
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么用无向图而不是有向图？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>烟在静止空气中会向各个方向扩散，人员在疏散前也可以在走廊里双向走动。只有当我们要专门模拟‘只能向下逃生的楼梯’或‘单向扶梯’时，才需要把边改成有向。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>节点位置（pos）只影响可视化吗？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>不只是可视化。这里用它来计算边长度，而边长度会进入后面的传播概率公式——越长的通道，烟到达得越慢。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>如果楼梯只能向下、电梯停运，有向图会怎么改？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>把 Stairwell 到上层的边保留为向下方向，移除向上的边。</p>
+<p><strong>回答 B：</strong>扶梯边可以删除，因为火灾时通常禁止使用。</p>
+<p><strong>回答 C：</strong>走廊在疏散阶段可能变成单向，避免对冲，需要把无向边拆成两条方向相反但有容量限制的有向边。</p>
+<p><strong>回答 D：</strong>有向图能表达疏散规则，但也会让某些节点变得‘不可达’，需要检查图的强连通性。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘图抽象 + 属性标注’。教师要强调：节点属性（type, pos, state）和边属性（length）是后续所有计算的原料。让学生自己决定哪些属性重要，是建模训练的核心。</p>
+      </div>
+    </section>
+
+
+    <section id="m2" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">2. SIR 烟扩散模型：状态、转移与参数</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>为什么用 SIR？</strong>传染病模型和烟雾扩散有一个共同结构：某种‘东西’通过接触/邻接关系从一个单元传到另一个单元。我们可以借用 SIR 的框架：</p>
+<ul class="list-disc pl-5 mb-4 text-slate-700">
+  <li><strong>S（Safe）：</strong>尚未被烟波及的区域。</li>
+  <li><strong>I（Infected）：</strong>烟雾浓度超过安全阈值，处于危险中。</li>
+  <li><strong>R（Recovered）：</strong>烟雾被排出或中和，区域重新安全。</li>
+</ul>
+<p class="text-slate-700 mb-4"><strong>转移规则：</strong>每个时间步，S 节点如果与 I 节点相邻，就以一定概率变成 I；I 节点以恢复率 γ 变成 R。边越长，传播概率越低。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import random
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Re-build the mall graph (self-contained for this block).
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;], state=&#x27;S&#x27;)
+edges_data = [
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+]
+G_smoke.add_edges_from(edges_data)
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
+
+
+def run_smoke_simulation(graph, fire_origin,
+                         base_propagation_rate,  # base probability that smoke spreads from I to S per step
+                         decay_factor,           # how much edge length reduces propagation rate
+                         recovery_rate,          # base probability that I becomes R per step
+                         intervention_boost,     # extra recovery rate when intervention is active
+                         intervention_start):    # earliest time step intervention may activate
+    &quot;&quot;&quot;Run one stochastic SIR-style smoke simulation on the mall graph.&quot;&quot;&quot;
+    G_sim = graph.copy()
+    for node in G_sim.nodes():
+        G_sim.nodes[node][&#x27;state&#x27;] = &#x27;S&#x27;
+        G_sim.nodes[node][&#x27;infected_time&#x27;] = -1
+
+    G_sim.nodes[fire_origin][&#x27;state&#x27;] = &#x27;I&#x27;
+    G_sim.nodes[fire_origin][&#x27;infected_time&#x27;] = 0
+
+    intervention_active = False
+    num_time_steps = 100
+    network_states_over_time = []
+
+    def counts(g):
+        s = sum(1 for n in g.nodes() if g.nodes[n][&#x27;state&#x27;] == &#x27;S&#x27;)
+        i = sum(1 for n in g.nodes() if g.nodes[n][&#x27;state&#x27;] == &#x27;I&#x27;)
+        r = sum(1 for n in g.nodes() if g.nodes[n][&#x27;state&#x27;] == &#x27;R&#x27;)
+        return s, i, r
+
+    for t in range(num_time_steps):
+        if t &gt;= intervention_start and not intervention_active:
+            if random.random() &lt; 0.8:
+                intervention_active = True
+
+        new_states = {}
+        for node in G_sim.nodes():
+            current_state = G_sim.nodes[node][&#x27;state&#x27;]
+            new_states[node] = current_state
+
+            if current_state == &#x27;S&#x27;:
+                for neighbor in G_sim.neighbors(node):
+                    if G_sim.nodes[neighbor][&#x27;state&#x27;] == &#x27;I&#x27;:
+                        length = G_sim.edges[neighbor, node][&#x27;length&#x27;]
+                        adjusted_rate = base_propagation_rate / (1 + decay_factor * length)
+                        if random.random() &lt; adjusted_rate:
+                            new_states[node] = &#x27;I&#x27;
+                            G_sim.nodes[node][&#x27;infected_time&#x27;] = t
+                            break
+            elif current_state == &#x27;I&#x27;:
+                gamma = recovery_rate
+                if intervention_active:
+                    gamma += intervention_boost
+                if random.random() &lt; gamma:
+                    new_states[node] = &#x27;R&#x27;
+
+        for node, state in new_states.items():
+            G_sim.nodes[node][&#x27;state&#x27;] = state
+
+        network_states_over_time.append({n: G_sim.nodes[n][&#x27;state&#x27;] for n in G_sim.nodes()})
+
+        s, i, r = counts(G_sim)
+        if s == 0:
+            return t, network_states_over_time
+
+    return num_time_steps, network_states_over_time
+
+
+# Run one example with no recovery to see pure spread.
+fire_origin_node = &#x27;Retail_A&#x27;
+t, states = run_smoke_simulation(
+    G_smoke, fire_origin_node,
+    base_propagation_rate=0.1,   # base smoke spread probability per step
+    decay_factor=0.2,            # longer edges reduce this probability
+    recovery_rate=0.0,           # no natural clearance yet
+    intervention_boost=0.0,      # no intervention yet
+    intervention_start=5
+)
+print(f&quot;All nodes affected by time step {t}&quot;)
+
+# Show state counts over time for this single run.
+state_colors = {&#x27;S&#x27;: &#x27;lightgray&#x27;, &#x27;I&#x27;: &#x27;red&#x27;, &#x27;R&#x27;: &#x27;green&#x27;}
+counts_over_time = {&#x27;S&#x27;: [], &#x27;I&#x27;: [], &#x27;R&#x27;: []}
+for st in states:
+    for key in counts_over_time:
+        counts_over_time[key].append(sum(1 for v in st.values() if v == key))
+
+plt.figure(figsize=(8, 4))
+plt.plot(counts_over_time[&#x27;S&#x27;], label=&#x27;Safe&#x27;, color=&#x27;lightgray&#x27;)
+plt.plot(counts_over_time[&#x27;I&#x27;], label=&#x27;Smoke-filled&#x27;, color=&#x27;red&#x27;)
+plt.plot(counts_over_time[&#x27;R&#x27;], label=&#x27;Cleared&#x27;, color=&#x27;green&#x27;)
+plt.xlabel(&#x27;Time step&#x27;)
+plt.ylabel(&#x27;Number of nodes&#x27;)
+plt.title(&#x27;SIR-style Smoke Dispersion: Single Stochastic Run&#x27;)
+plt.legend()
+plt.grid(True, alpha=0.3)
 plt.show()
 </code></pre>
         </div>
       </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么可以借用传染病 SIR 模型来描述烟雾扩散？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>两者都是‘状态通过邻接关系转移’的过程：S→I 表示未受影响区域被影响；I→R 表示危险被清除。SIR 提供了一个成熟的状态机框架。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>解释 base_propagation_rate、decay_factor、recovery_rate、intervention_boost 这四个参数的现实含义。</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong><code>base_propagation_rate</code>：烟雾单位时间内的基础蔓延概率；<code>decay_factor</code>：通道越长，蔓延概率衰减越明显；<code>recovery_rate</code>：自然排烟/沉降使区域恢复安全的速率；<code>intervention_boost</code>：启动机械通风或喷淋后额外增加的恢复速率。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>模型里的 R（Cleared）状态在现实中对应什么？它合理吗？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>对应烟雾被机械排烟系统抽出，或喷淋使烟尘沉降，区域重新达到可进入标准。</p>
+<p><strong>回答 B：</strong>对应消防员控制住火势并通风后，空间被宣布安全。</p>
+<p><strong>回答 C：</strong>在快速疏散场景中，R 可能不太合理，因为火灾现场很少在几分钟内‘恢复’；可以把 recovery_rate 设为 0，只看 S→I。</p>
+<p><strong>回答 D：</strong>R 更像是一种‘干预成功’的隐喻，提醒学生模型借用了传染病语言，需要检验每个状态的现实意义。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘借用成熟模型框架并重新解释状态’。教师要让学生把 S、I、R 翻译成烟雾语言，而不是机械记忆。特别强调：base_propagation_rate 是概率不是速度；decay_factor 把几何长度引入传播；recovery_rate + intervention_boost 体现干预效果。</p>
+      </div>
     </section>
 
-    <!-- Module 6: Assignment Problem -->
-    <section id="m6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. 指派问题：Assignment / Bipartite Matching</h2>
+
+    <section id="m3" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">3. 基线模拟：没有干预时，烟多久充满商场？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>n 个工人完成 n 项任务，每人一项，每项一人，最小化总成本。这是二分图上的最小权完美匹配。</p>
-          <div class="p-4 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-indigo-900 mb-2">数学表达</div>
-            <p><strong>决策变量：</strong>x<sub>ij</sub> ∈ {0, 1}，工人 i 是否做任务 j。</p>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min Σ<sub>i,j</sub> c<sub>ij</sub> · x<sub>ij</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每个工人一项任务：Σ<sub>j</sub> x<sub>ij</sub> = 1，∀i</li>
-              <li>每项任务一个工人：Σ<sub>i</sub> x<sub>ij</sub> = 1，∀j</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800">
-            <strong> takeaway：</strong>指派问题是 LP 松弛后自动得到整数解的特殊情况，可用匈牙利算法或 scipy.optimize.linear_sum_assignment。
-          </div>
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>为什么跑多次？</strong>因为传播是随机的，一次模拟可能只是‘运气好’或‘运气差’。我们需要蒙特卡洛方法：跑几百次，看平均行为和波动范围。</p>
+<p class="text-slate-700 mb-4"><strong>基线结论：</strong>如果没有隔离门也没有通风，烟几乎一定会到达所有空间单元。这个‘最坏情况’是我们评估干预策略的参照系。</p>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <pre><code class="language-python">import random
+import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from scipy.optimize import linear_sum_assignment
 
-# 成本矩阵：行 = 志愿者队伍，列 = 污染河段
-teams = ['T1', 'T2', 'T3', 'T4']
-sections = ['S1', 'S2', 'S3', 'S4']
-cost = np.array([
-    [9, 2, 7, 8],
-    [6, 4, 3, 7],
-    [5, 8, 1, 4],
-    [7, 6, 9, 5]
+# --- Setup graph and simulation function (self-contained) ---
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;], state=&#x27;S&#x27;)
+G_smoke.add_edges_from([
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
 ])
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
 
-row_ind, col_ind = linear_sum_assignment(cost)
-print('Optimal assignment:')
-for r, c in zip(row_ind, col_ind):
-    print(f'  {teams[r]} → {sections[c]}, cost = {cost[r, c]}')
-print('Total minimum cost:', cost[row_ind, col_ind].sum())
 
-# 可视化二分图匹配
-B = nx.DiGraph()
-B.add_nodes_from([f't_{t}' for t in teams], bipartite=0)
-B.add_nodes_from([f's_{s}' for s in sections], bipartite=1)
-for r, c in zip(row_ind, col_ind):
-    B.add_edge(f't_{teams[r]}', f's_{sections[c]}', weight=cost[r, c])
+def run_smoke_simulation(graph, fire_origin, base_propagation_rate, decay_factor,
+                         recovery_rate, intervention_boost, intervention_start):
+    G_sim = graph.copy()
+    for node in G_sim.nodes():
+        G_sim.nodes[node][&#x27;state&#x27;] = &#x27;S&#x27;
+        G_sim.nodes[node][&#x27;infected_time&#x27;] = -1
+    G_sim.nodes[fire_origin][&#x27;state&#x27;] = &#x27;I&#x27;
+    G_sim.nodes[fire_origin][&#x27;infected_time&#x27;] = 0
+    intervention_active = False
+    network_states_over_time = []
 
-pos = {}
-pos.update({f't_{t}': (0, i) for i, t in enumerate(teams)})
-pos.update({f's_{s}': (1, i) for i, s in enumerate(sections)})
+    for t in range(100):
+        if t &gt;= intervention_start and not intervention_active:
+            if random.random() &lt; 0.8:
+                intervention_active = True
+        new_states = {}
+        for node in G_sim.nodes():
+            current_state = G_sim.nodes[node][&#x27;state&#x27;]
+            new_states[node] = current_state
+            if current_state == &#x27;S&#x27;:
+                for neighbor in G_sim.neighbors(node):
+                    if G_sim.nodes[neighbor][&#x27;state&#x27;] == &#x27;I&#x27;:
+                        length = G_sim.edges[neighbor, node][&#x27;length&#x27;]
+                        rate = base_propagation_rate / (1 + decay_factor * length)
+                        if random.random() &lt; rate:
+                            new_states[node] = &#x27;I&#x27;
+                            G_sim.nodes[node][&#x27;infected_time&#x27;] = t
+                            break
+            elif current_state == &#x27;I&#x27;:
+                gamma = recovery_rate + (intervention_boost if intervention_active else 0)
+                if random.random() &lt; gamma:
+                    new_states[node] = &#x27;R&#x27;
+        for node, state in new_states.items():
+            G_sim.nodes[node][&#x27;state&#x27;] = state
+        network_states_over_time.append({n: G_sim.nodes[n][&#x27;state&#x27;] for n in G_sim.nodes()})
+        if sum(1 for n in G_sim.nodes() if G_sim.nodes[n][&#x27;state&#x27;] == &#x27;S&#x27;) == 0:
+            return t, network_states_over_time
+    return 100, network_states_over_time
 
-plt.figure(figsize=(6, 5))
-left = [n for n in B.nodes if n.startswith('t_')]
-right = [n for n in B.nodes if n.startswith('s_')]
-nx.draw_networkx_nodes(B, pos, nodelist=left, node_color='lightblue', node_size=1200)
-nx.draw_networkx_nodes(B, pos, nodelist=right, node_color='lightgreen', node_size=1200)
-nx.draw_networkx_labels(B, pos, labels={n: n.split('_')[1] for n in B.nodes}, font_size=12)
-nx.draw_networkx_edges(B, pos, edge_color='red', width=2, arrows=True,
-                       connectionstyle='arc3,rad=0.1')
-edge_labels = nx.get_edge_attributes(B, 'weight')
-nx.draw_networkx_edge_labels(B, pos, edge_labels=edge_labels)
-plt.title('Optimal Assignment (Minimum Cost Bipartite Matching)')
-plt.axis('off')
+
+# --- Monte Carlo baseline ---
+fire_origin_node = &#x27;Retail_A&#x27;
+num_simulations = 200
+max_steps = 100
+num_nodes = G_smoke.number_of_nodes()
+
+times_to_full = []
+affected_counts_runs = []
+
+for _ in range(num_simulations):
+    t, states = run_smoke_simulation(
+        G_smoke, fire_origin_node,
+        base_propagation_rate=0.1,
+        decay_factor=0.2,
+        recovery_rate=0.0,
+        intervention_boost=0.0,
+        intervention_start=5
+    )
+    times_to_full.append(t)
+    affected = [sum(1 for s in st.values() if s in [&#x27;I&#x27;, &#x27;R&#x27;]) for st in states]
+    while len(affected) &lt; max_steps:
+        affected.append(num_nodes)
+    affected_counts_runs.append(affected)
+
+affected_arr = np.array(affected_counts_runs)
+avg_affected = affected_arr.mean(axis=0)
+std_affected = affected_arr.std(axis=0)
+
+print(f&quot;Baseline: avg time to affect all nodes = {np.mean(times_to_full):.2f} steps&quot;)
+print(f&quot;Baseline: std = {np.std(times_to_full):.2f} steps&quot;)
+
+plt.figure(figsize=(10, 5))
+plt.plot(range(max_steps), avg_affected, label=&#x27;Avg affected nodes&#x27;, color=&#x27;blue&#x27;)
+plt.fill_between(range(max_steps), avg_affected - std_affected, avg_affected + std_affected,
+                 color=&#x27;blue&#x27;, alpha=0.15, label=&#x27;±1 std&#x27;)
+plt.xlabel(&#x27;Time step&#x27;)
+plt.ylabel(&#x27;Number of affected nodes (I + R)&#x27;)
+plt.title(&#x27;Baseline: No Intervention (200 stochastic runs)&#x27;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.ylim(0, num_nodes + 0.5)
 plt.show()
 </code></pre>
         </div>
       </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么要跑多次模拟而不是只看一次？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>一次随机模拟可能是极端值；多次运行可以得到平均行为和置信区间，帮助判断‘通常多久会充满’而不是‘某一次多久’。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>基线模拟告诉我们最糟糕的结论是什么？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>在没有隔离和通风的情况下，烟最终几乎会到达所有空间单元。这个结论为后续评估任何干预策略提供了参照。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>如果不让模拟停止在‘所有节点受影响’，我们还应该追踪哪些指标？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>每个时间步处于危险中的人数，而不仅仅是节点数。</p>
+<p><strong>回答 B：</strong>各个出口被烟雾封锁的时间，用于判断疏散窗口。</p>
+<p><strong>回答 C：</strong>累计暴露量，即 I 状态节点随时间的积分，衡量总体毒性负担。</p>
+<p><strong>回答 D：</strong>不同类型空间（店铺 vs 楼梯）的受影响顺序，指导救援优先级。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘蒙特卡洛基线模拟’。教师要让学生理解：随机模型需要统计收敛；基线不是目标，而是参照系。可以引导学生观察标准差，讨论不确定性对应急决策的影响。</p>
+      </div>
     </section>
 
-    <!-- Module 7: Course Registration -->
-    <section id="m7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. 课程注册优化：Course Registration</h2>
+
+    <section id="m4" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">4. 干预策略对比：隔离门 vs. 全楼通风</h2>
       <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题（来自 PDF）：</strong>N 名学生、M 门课，每名学生最多选 2 门课，每门课有最大容量。如何最大化总体满意度？或如何最小化总运营成本？</p>
-          <div class="p-4 bg-cyan-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-cyan-900 mb-2">数学表达</div>
-            <p><strong>决策变量：</strong>x<sub>ij</sub> ∈ {0, 1}，学生 i 是否选课程 j。</p>
-            <p class="mt-2"><strong>参数：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>s<sub>ij</sub>：学生 i 对课程 j 的满意度（或运营成本）</li>
-              <li>c<sub>j</sub>：课程 j 的容量</li>
-              <li>k = 2：每名学生最多选的课程数</li>
-            </ul>
-            <p class="mt-2"><strong>目标函数（最大化满意度）：</strong></p>
-            <p class="math text-center my-2">max Σ<sub>i,j</sub> s<sub>ij</sub> · x<sub>ij</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每名学生最多选 k 门：Σ<sub>j</sub> x<sub>ij</sub> ≤ k，∀i</li>
-              <li>每门课不超过容量：Σ<sub>i</sub> x<sub>ij</sub> ≤ c<sub>j</sub>，∀j</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-cyan-50 rounded-lg text-sm text-cyan-800">
-            <strong> takeaway：</strong>这是二分图上的整数规划，可用 PuLP / scipy / networkx 最大流求解。
-          </div>
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>两种思路：</strong></p>
+<ul class="list-disc pl-5 mb-4 text-slate-700">
+  <li><strong>隔离门（改结构）：</strong>删除图中的某些边，让烟无法沿该路径传播。</li>
+  <li><strong>全楼通风（改参数）：</strong>提高恢复率 γ，让已经充满烟的区域更快被清除。</li>
+</ul>
+<p class="text-slate-700 mb-4">它们分别对应图论中的‘边删除问题’和动力学中的‘恢复率增强’。比较它们，可以帮助决策者理解：什么时候该花钱修防火门，什么时候该投资排烟系统。</p>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <pre><code class="language-python">import random
+import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from scipy.optimize import linprog
 
-# 数据
-students = ['S1', 'S2', 'S3', 'S4', 'S5']
-courses = ['C1', 'C2', 'C3']
-capacity = {'C1': 3, 'C2': 3, 'C3': 2}
-max_courses_per_student = 2
+# --- Setup graph and simulation function ---
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;], state=&#x27;S&#x27;)
+G_smoke.add_edges_from([
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+])
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
 
-# 随机满意度矩阵
-np.random.seed(42)
-satisfaction = np.random.randint(1, 10, size=(len(students), len(courses)))
-print('Satisfaction matrix:')
-print(satisfaction)
 
-# 用 PuLP 求解最大化满意度
-# pip install pulp
-import pulp
-prob = pulp.LpProblem('Course_Registration', pulp.LpMaximize)
-x = pulp.LpVariable.dicts('x', ((i, j) for i in range(len(students)) for j in range(len(courses))), cat='Binary')
-# 目标
-prob += pulp.lpSum(satisfaction[i][j] * x[i, j] for i in range(len(students)) for j in range(len(courses)))
-# 每名学生最多选 2 门
-for i in range(len(students)):
-    prob += pulp.lpSum(x[i, j] for j in range(len(courses))) <= max_courses_per_student
-# 每门课不超过容量
-for j, c in enumerate(courses):
-    prob += pulp.lpSum(x[i, j] for i in range(len(students))) <= capacity[c]
+def run_smoke_simulation(graph, fire_origin, base_propagation_rate, decay_factor,
+                         recovery_rate, intervention_boost, intervention_start):
+    G_sim = graph.copy()
+    for node in G_sim.nodes():
+        G_sim.nodes[node][&#x27;state&#x27;] = &#x27;S&#x27;
+    G_sim.nodes[fire_origin][&#x27;state&#x27;] = &#x27;I&#x27;
+    intervention_active = False
+    network_states_over_time = []
+    for t in range(100):
+        if t &gt;= intervention_start and not intervention_active:
+            if random.random() &lt; 0.8:
+                intervention_active = True
+        new_states = {}
+        for node in G_sim.nodes():
+            state = G_sim.nodes[node][&#x27;state&#x27;]
+            new_states[node] = state
+            if state == &#x27;S&#x27;:
+                for neighbor in G_sim.neighbors(node):
+                    if G_sim.nodes[neighbor][&#x27;state&#x27;] == &#x27;I&#x27;:
+                        length = G_sim.edges[neighbor, node][&#x27;length&#x27;]
+                        rate = base_propagation_rate / (1 + decay_factor * length)
+                        if random.random() &lt; rate:
+                            new_states[node] = &#x27;I&#x27;
+                            break
+            elif state == &#x27;I&#x27;:
+                gamma = recovery_rate + (intervention_boost if intervention_active else 0)
+                if random.random() &lt; gamma:
+                    new_states[node] = &#x27;R&#x27;
+        for node, state in new_states.items():
+            G_sim.nodes[node][&#x27;state&#x27;] = state
+        network_states_over_time.append({n: G_sim.nodes[n][&#x27;state&#x27;] for n in G_sim.nodes()})
+        if sum(1 for n in G_sim.nodes() if G_sim.nodes[n][&#x27;state&#x27;] == &#x27;S&#x27;) == 0:
+            return t, network_states_over_time
+    return 100, network_states_over_time
 
-prob.solve(pulp.PULP_CBC_CMD(msg=False))
-print('\nOptimal assignments:')
-assignments = []
-for i, s in enumerate(students):
-    for j, c in enumerate(courses):
-        if pulp.value(x[i, j]) > 0.5:
-            print(f'  {s} → {c} (satisfaction={satisfaction[i][j]})')
-            assignments.append((s, c))
-print('Total satisfaction:', pulp.value(prob.objective))
 
-# 可视化
-B = nx.DiGraph()
-B.add_nodes_from([f's_{s}' for s in students], bipartite=0)
-B.add_nodes_from([f'c_{c}' for c in courses], bipartite=1)
-for s, c in assignments:
-    B.add_edge(f's_{s}', f'c_{c}')
+def scenario_averages(graph, num_sims=200):
+    max_steps = 100
+    num_nodes = graph.number_of_nodes()
+    affected_runs = []
+    for _ in range(num_sims):
+        _, states = run_smoke_simulation(
+            graph, &#x27;Retail_A&#x27;, 0.1, 0.2, 0.0, 0.0, 5
+        )
+        affected = [sum(1 for s in st.values() if s in [&#x27;I&#x27;, &#x27;R&#x27;]) for st in states]
+        while len(affected) &lt; max_steps:
+            affected.append(num_nodes)
+        affected_runs.append(affected)
+    arr = np.array(affected_runs)
+    return arr.mean(axis=0), arr.std(axis=0)
 
-pos = {}
-pos.update({f's_{s}': (0, i) for i, s in enumerate(students)})
-pos.update({f'c_{c}': (1, i) for i, c in enumerate(courses)})
 
-plt.figure(figsize=(7, 5))
-left = [n for n in B.nodes if n.startswith('s_')]
-right = [n for n in B.nodes if n.startswith('c_')]
-nx.draw_networkx_nodes(B, pos, nodelist=left, node_color='lightblue', node_size=1200)
-nx.draw_networkx_nodes(B, pos, nodelist=right, node_color='lightcoral', node_size=1200)
-nx.draw_networkx_labels(B, pos, labels={n: n.split('_')[1] for n in B.nodes}, font_size=12)
-nx.draw_networkx_edges(B, pos, edge_color='green', width=2, arrows=True,
-                       connectionstyle='arc3,rad=0.05')
-plt.title('Course Registration: Maximum Satisfaction Assignment')
-plt.axis('off')
+# Scenario 1: baseline.
+avg_base, std_base = scenario_averages(G_smoke)
+
+# Scenario 2: isolation doors - remove critical edges.
+G_isolated = G_smoke.copy()
+edges_to_block = [
+    (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;)
+]
+for u, v in edges_to_block:
+    if G_isolated.has_edge(u, v):
+        G_isolated.remove_edge(u, v)
+avg_iso, std_iso = scenario_averages(G_isolated)
+
+# Scenario 3: full area ventilation - increase recovery (same graph).
+# We wrap a temporary function to pass higher recovery.
+def vent_averages(graph, num_sims=200):
+    max_steps = 100
+    num_nodes = graph.number_of_nodes()
+    affected_runs = []
+    for _ in range(num_sims):
+        _, states = run_smoke_simulation(
+            graph, &#x27;Retail_A&#x27;, 0.1, 0.2, 0.3, 0.2, 5
+        )
+        affected = [sum(1 for s in st.values() if s in [&#x27;I&#x27;, &#x27;R&#x27;]) for st in states]
+        while len(affected) &lt; max_steps:
+            affected.append(num_nodes)
+        affected_runs.append(affected)
+    arr = np.array(affected_runs)
+    return arr.mean(axis=0), arr.std(axis=0)
+
+avg_vent, std_vent = vent_averages(G_smoke)
+
+# Plot comparison.
+plt.figure(figsize=(12, 6))
+steps = range(100)
+plt.plot(steps, avg_base, label=&#x27;Baseline&#x27;, color=&#x27;blue&#x27;)
+plt.fill_between(steps, avg_base - std_base, avg_base + std_base, color=&#x27;blue&#x27;, alpha=0.1)
+plt.plot(steps, avg_iso, label=&#x27;Isolation doors&#x27;, color=&#x27;red&#x27;)
+plt.fill_between(steps, avg_iso - std_iso, avg_iso + std_iso, color=&#x27;red&#x27;, alpha=0.1)
+plt.plot(steps, avg_vent, label=&#x27;Full ventilation&#x27;, color=&#x27;green&#x27;)
+plt.fill_between(steps, avg_vent - std_vent, avg_vent + std_vent, color=&#x27;green&#x27;, alpha=0.1)
+plt.xlabel(&#x27;Time step&#x27;)
+plt.ylabel(&#x27;Average affected nodes&#x27;)
+plt.title(&#x27;Intervention Comparison: Isolation vs Ventilation&#x27;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.ylim(0, G_smoke.number_of_nodes() + 0.5)
 plt.show()
 </code></pre>
         </div>
       </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>隔离门和全楼通风分别改变了模型的哪个部分？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>隔离门是图结构的改变（删除边），让烟无法通过某些路径；全楼通风是动力学参数的改变（提高 recovery_rate 和 intervention_boost），让已充满烟的区域更快被清除。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>从曲线上看，哪种策略更快降低受影响节点数？为什么？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>通常情况下，隔离门在初期就能明显减缓上升，因为它切断了传播路径；全楼通风在中后期效果更明显，因为它能把已经受影响的节点转为 R。具体优劣取决于参数和起火位置。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>现实中，隔离门和通风可以同时使用吗？有什么风险？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>可以互补：隔离门阻止烟进入新区域，通风清除已有烟，效果通常最好。</p>
+<p><strong>回答 B：</strong>风险是隔离门关闭可能把人员困在危险区，必须与疏散路径设计配合。</p>
+<p><strong>回答 C：</strong>通风系统若设计不当，可能把烟吹向原本安全的区域，反而加剧蔓延。</p>
+<p><strong>回答 D：</strong>同时实施需要协调时机：先通风还是先关门？模型可以通过时间参数来探索不同顺序。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘结构干预 vs 参数干预的对比实验’。教师要引导学生看到：图论不只是画网络，还可以回答‘删哪条边最有效’；动力学参数不只是调数字，还对应真实工程决策。让学生讨论两者的成本、可逆性和副作用。</p>
+      </div>
     </section>
 
-    <!-- Module 8: Factory Cost Minimization -->
-    <section id="m8" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 工厂运输成本最小化：Factory → Supplier</h2>
+
+    <section id="m5" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">5. 网络度量与疏散路径：人往哪跑？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题（来自 PDF）：</strong>N 个工厂、M 个供应商，每条边代表运输成本。如何最小化总成本？如果每个供应商只服务一个工厂，就是运输问题 / 指派问题的扩展。</p>
-          <div class="p-4 bg-teal-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-teal-900 mb-2">数学表达（运输问题）</div>
-            <p><strong>决策变量：</strong>x<sub>ij</sub> ≥ 0，从工厂 i 运往供应商 j 的货物量（或 0/1 是否连接）。</p>
-            <p class="mt-2"><strong>参数：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>c<sub>ij</sub>：工厂 i 到供应商 j 的单位运输成本</li>
-              <li>s<sub>i</sub>：工厂 i 的供应量</li>
-              <li>d<sub>j</sub>：供应商 j 的需求量</li>
-            </ul>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min Σ<sub>i,j</sub> c<sub>ij</sub> · x<sub>ij</sub></p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>工厂出货量不超过供应：Σ<sub>j</sub> x<sub>ij</sub> ≤ s<sub>i</sub>，∀i</li>
-              <li>满足供应商需求：Σ<sub>i</sub> x<sub>ij</sub> = d<sub>j</sub>，∀j</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-teal-50 rounded-lg text-sm text-teal-800">
-            <strong> takeaway：</strong>这是经典 Transportation Problem，可用线性规划（LP）求解；若 x<sub>ij</sub> ∈ {0, 1} 且一一对应，则退化为指派问题。
-          </div>
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>疏散视角：</strong>烟雾扩散模型告诉我们哪里危险；网络度量告诉我们哪里关键。如果我们把 Stairwell_1 当作主要安全出口，那么每个节点到它的最短路径长度就是‘最少需要经过多少段通道’。</p>
+<p class="text-slate-700 mb-4"><strong>关键节点：</strong>介数中心性（Betweenness Centrality）衡量“有多少最短路径经过某个节点”。中心性高的走廊如果被烟封住，会迫使大量人员改道。</p>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
+          <pre><code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
-import networkx as nx
-from scipy.optimize import linprog
+import numpy as np
 
-factories = ['F1', 'F2', 'F3']
-suppliers = ['S1', 'S2', 'S3', 'S4']
+# Re-build graph.
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;])
+G_smoke.add_edges_from([
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+])
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
 
-# 单位运输成本矩阵
-cost = np.array([
-    [4, 6, 9, 5],
-    [7, 3, 5, 8],
-    [5, 8, 4, 6]
-], dtype=float)
+exit_node = &#x27;Stairwell_1&#x27;
 
-supply = np.array([40, 50, 60], dtype=float)   # 工厂产能
-demand = np.array([30, 40, 35, 45], dtype=float) # 供应商需求
+# Shortest path length from each node to the exit (using edge length as weight).
+lengths = nx.single_source_dijkstra_path_length(G_smoke, exit_node, weight=&#x27;length&#x27;)
+print(&quot;Shortest distance to exit (Stairwell_1):&quot;)
+for node, dist in sorted(lengths.items(), key=lambda x: x[1]):
+    print(f&quot;  {node}: {dist:.2f}&quot;)
 
-# 平衡检查
-print('Total supply:', supply.sum(), 'Total demand:', demand.sum())
+# Betweenness centrality (using length as weight).
+betweenness = nx.betweenness_centrality(G_smoke, weight=&#x27;length&#x27;)
+print(&quot;Betweenness centrality (top corridors):&quot;)
+for node, val in sorted(betweenness.items(), key=lambda x: -x[1]):
+    print(f&quot;  {node}: {val:.3f}&quot;)
 
-# 用 scipy.optimize.linprog 求解（变量展平为 x_ij）
-n_f, n_s = cost.shape
-c = cost.flatten()
-# 工厂供应约束：A_eq @ x = supply
-A_eq = np.zeros((n_f + n_s, n_f * n_s))
-b_eq = np.concatenate([supply, demand])
-for i in range(n_f):
-    A_eq[i, i*n_s:(i+1)*n_s] = 1
-for j in range(n_s):
-    for i in range(n_f):
-        A_eq[n_f + j, i*n_s + j] = 1
+# Visualize: node size proportional to betweenness.
+node_sizes = [2000 + 8000 * betweenness[n] for n in G_smoke.nodes()]
+node_type_colors = {
+    &#x27;store&#x27;: &#x27;lightblue&#x27;, &#x27;corridor&#x27;: &#x27;lightgreen&#x27;,
+    &#x27;escalator&#x27;: &#x27;orange&#x27;, &#x27;stairwell&#x27;: &#x27;lightcoral&#x27;, &#x27;utility&#x27;: &#x27;lightgray&#x27;
+}
+node_colors = [node_type_colors[G_smoke.nodes[n][&#x27;type&#x27;]] for n in G_smoke.nodes()]
 
-res = linprog(c, A_eq=A_eq, b_eq=b_eq, bounds=(0, None), method='highs')
-x_opt = res.x.reshape(n_f, n_s)
-print('\nOptimal shipment plan:')
-print(np.round(x_opt, 2))
-print('Minimum total cost:', res.fun)
-
-# 可视化运输网络
-G = nx.DiGraph()
-for f in factories:
-    G.add_node(f, bipartite=0)
-for s in suppliers:
-    G.add_node(s, bipartite=1)
-
-for i, f in enumerate(factories):
-    for j, s in enumerate(suppliers):
-        if x_opt[i, j] > 0.01:
-            G.add_edge(f, s, weight=cost[i, j], amount=x_opt[i, j])
-
-pos = {}
-pos.update({f: (0, i) for i, f in enumerate(factories)})
-pos.update({s: (1, i) for i, s in enumerate(suppliers)})
-
-plt.figure(figsize=(8, 5))
-left = [n for n in G.nodes if n in factories]
-right = [n for n in G.nodes if n in suppliers]
-nx.draw_networkx_nodes(G, pos, nodelist=left, node_color='lightblue', node_size=1500)
-nx.draw_networkx_nodes(G, pos, nodelist=right, node_color='lightgreen', node_size=1500)
-nx.draw_networkx_labels(G, pos, font_size=12)
-
-# 边宽按运量
-amounts = [G[u][v]['amount'] for u, v in G.edges]
-max_amt = max(amounts) if amounts else 1
-widths = [1 + 4 * amt / max_amt for amt in amounts]
-nx.draw_networkx_edges(G, pos, edge_color='teal', width=widths, arrows=True,
-                       connectionstyle='arc3,rad=0.05')
-edge_labels = {(u, v): f"{d['amount']:.1f}\n({d['weight']:.0f})" for u, v, d in G.edges(data=True)}
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=9)
-plt.title('Factory → Supplier Transportation Plan (amount, cost)')
-plt.axis('off')
+plt.figure(figsize=(10, 8))
+nx.draw_networkx_nodes(G_smoke, pos, node_color=node_colors, node_size=node_sizes, alpha=0.9)
+nx.draw_networkx_labels(G_smoke, pos, font_size=9, font_weight=&#x27;bold&#x27;)
+nx.draw_networkx_edges(G_smoke, pos, edge_color=&#x27;gray&#x27;, width=1.5)
+plt.title(&quot;Node Size = Betweenness Centrality (Larger = More Critical)&quot;)
+plt.axis(&#x27;off&#x27;)
 plt.show()
 </code></pre>
         </div>
       </div>
-    </section>
-
-    <!-- Module 9: Practice -->
-    <section id="m9" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 实战建模：把题目翻译成图</h2>
-      <div class="space-y-6">
-        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
-          <h3 class="font-bold text-amber-900 mb-2">例题 1：跨境物流最短时间路径</h3>
-          <p class="text-slate-700 text-sm mb-3">9 个货运港口，双向道路运输，各有固定卡车通行时间。货物从起点 S1 到终点 T9，必须依次经过保税中转港 K3 和海关查验港 K6。求总通行时间最短的路线。</p>
-          <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <div class="font-semibold text-slate-900">建模要点</div>
-              <ul class="list-disc pl-5 text-slate-700 space-y-1">
-                <li><strong>节点：</strong>9 个港口</li>
-                <li><strong>边：</strong>双向道路，权重 = 通行时间</li>
-                <li><strong>约束：</strong>路径必须 S1 → K3 → K6 → T9</li>
-                <li><strong>模型：</strong>分段 Dijkstra：S1→K3、K3→K6、K6→T9</li>
-              </ul>
-            </div>
-            <div>
-              <div class="font-semibold text-slate-900">Python 思路</div>
-              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code>path1 = nx.shortest_path(G, 'S1', 'K3', weight='weight')
-path2 = nx.shortest_path(G, 'K3', 'K6', weight='weight')
-path3 = nx.shortest_path(G, 'K6', 'T9', weight='weight')
-total = (nx.shortest_path_length(G, 'S1', 'K3', weight='weight') +
-         nx.shortest_path_length(G, 'K3', 'K6', weight='weight') +
-         nx.shortest_path_length(G, 'K6', 'T9', weight='weight'))</code></pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
-          <h3 class="font-bold text-amber-900 mb-2">例题 2：5G 光纤网络最小成本</h3>
-          <p class="text-slate-700 text-sm mb-3">9 个点，其中 5 个是核心 5G 基站，其余是中继塔。点间有双向光纤链接及安装成本。要求 5 个核心基站必须互相连通，中继塔可自由选择。求最小总安装成本。</p>
-          <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <div class="font-semibold text-slate-900">建模要点</div>
-              <ul class="list-disc pl-5 text-slate-700 space-y-1">
-                <li><strong>节点：</strong>9 个点（5 核心 + 4 中继）</li>
-                <li><strong>边：</strong>双向光纤，权重 = 安装成本</li>
-                <li><strong>约束：</strong>5 个核心节点必须连通</li>
-                <li><strong>模型：</strong>Steiner Tree；可近似为 MST 后只保留连接核心的树</li>
-              </ul>
-            </div>
-            <div>
-              <div class="font-semibold text-slate-900">Python 思路</div>
-              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code>mst = nx.minimum_spanning_tree(G, weight='weight')
-terminals = {'A','B','C','D','E'}
-# 取 MST 中连接终端的最小子树
-sub = mst.subgraph(
-  nx.shortest_path(mst, terminals)
-)</code></pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-5 border border-amber-200 rounded-lg bg-amber-50/50">
-          <h3 class="font-bold text-amber-900 mb-2">例题 3：化学品隔离（图着色）</h3>
-          <p class="text-slate-700 text-sm mb-3">若干化学品，某些 pairs 不能放在同一区块。求最少需要多少个区块。</p>
-          <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <div class="font-semibold text-slate-900">建模要点</div>
-              <ul class="list-disc pl-5 text-slate-700 space-y-1">
-                <li><strong>节点：</strong>化学品</li>
-                <li><strong>边：</strong>不能同区的化学品对</li>
-                <li><strong>权重：</strong>无</li>
-                <li><strong>目标：</strong>最少颜色数 = 最少区块数</li>
-              </ul>
-            </div>
-            <div>
-              <div class="font-semibold text-slate-900">Python 思路</div>
-              <pre class="text-xs bg-slate-800 text-slate-100 p-2 rounded"><code>G = nx.Graph()
-G.add_edges_from(conflict_pairs)
-num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
-            </div>
-          </div>
-        </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>最短路径长度对疏散有什么实际意义？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>它表示从当前位置到安全出口‘最少需要经过的通道总长度’。在火灾中，这个长度越短，人员到达安全区域的时间通常越短。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>介数中心性高的节点为什么特别关键？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>因为大量最短疏散路径都会经过它。如果它被封烟，很多人必须绕远路，疏散时间会显著增加。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>如果某条走廊因烟不能通行，模型该如何反映人员的绕行？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>在图中临时删除该边，重新计算所有节点到出口的最短路径。</p>
+<p><strong>回答 B：</strong>把边的通行能力设为 0 或权重设得极大，让算法自动避开。</p>
+<p><strong>回答 C：</strong>引入时间维度：随着时间推移，某些边被烟‘关闭’，疏散路径动态变化。</p>
+<p><strong>回答 D：</strong>加入容量和拥堵模型：走廊能同时通过的人数有限，最短路径不一定最快。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘图度量指导疏散规划’。教师要让学生把最短路径和中心性从抽象概念翻译成 actionable insight：出口位置、走廊重要性、动态封路后的路径重算。可以讨论为什么现实中不能只依赖最短路径，还要考虑人的行为、 signage、拥堵。</p>
       </div>
     </section>
 
-    <!-- Module 10: Summary -->
-    <section id="m10" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">10. 建模起手式：拿到题先填这 6 项</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border">
-          <thead class="bg-slate-100">
-            <tr>
-              <th class="px-4 py-2 text-left border">问题</th>
-              <th class="px-4 py-2 text-left border">示例</th>
-            </tr>
-          </thead>
-          <tbody class="text-slate-700">
-            <tr><td class="px-4 py-2 border font-semibold">1. 节点 V 是什么？</td><td class="px-4 py-2 border">城市、建筑物、课程、人群、化学品</td></tr>
-            <tr><td class="px-4 py-2 border font-semibold">2. 边 E 是什么？</td><td class="px-4 py-2 border">道路、连接、冲突关系、依赖关系</td></tr>
-            <tr><td class="px-4 py-2 border font-semibold">3. 有向还是无向？</td><td class="px-4 py-2 border">道路双向用无向；物流/依赖用有向</td></tr>
-            <tr><td class="px-4 py-2 border font-semibold">4. 权重是什么？</td><td class="px-4 py-2 border">距离、时间、成本、交互次数</td></tr>
-            <tr><td class="px-4 py-2 border font-semibold">5. 约束是什么？</td><td class="px-4 py-2 border">必须经过某点、容量限制、不能同色</td></tr>
-            <tr><td class="px-4 py-2 border font-semibold">6. 优化目标是什么？</td><td class="px-4 py-2 border">最短、最小成本、最少颜色、最大覆盖</td></tr>
-          </tbody>
-        </table>
+
+    <section id="m6" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">6. 敏感性分析：哪些参数最影响结果？</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>目的：</strong>模型的输出（例如‘烟多久充满商场’）依赖于多个参数。敏感性分析帮助我们判断：如果某个参数估计不准，结论会不会大幅改变；以及应该把有限的资源投入到控制哪个因素上。</p>
+<p class="text-slate-700 mb-4">这里我们改变 <code>base_propagation_rate</code> 和 <code>recovery_rate</code>，观察平均“充满时间”的变化。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import random
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+
+# Setup graph.
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;])
+G_smoke.add_edges_from([
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+])
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
+
+
+def run_smoke_simulation(graph, fire_origin, base_propagation_rate, decay_factor,
+                         recovery_rate, intervention_boost, intervention_start):
+    G_sim = graph.copy()
+    for node in G_sim.nodes():
+        G_sim.nodes[node][&#x27;state&#x27;] = &#x27;S&#x27;
+    G_sim.nodes[fire_origin][&#x27;state&#x27;] = &#x27;I&#x27;
+    intervention_active = False
+    for t in range(100):
+        if t &gt;= intervention_start and not intervention_active:
+            if random.random() &lt; 0.8:
+                intervention_active = True
+        new_states = {}
+        for node in G_sim.nodes():
+            state = G_sim.nodes[node][&#x27;state&#x27;]
+            new_states[node] = state
+            if state == &#x27;S&#x27;:
+                for neighbor in G_sim.neighbors(node):
+                    if G_sim.nodes[neighbor][&#x27;state&#x27;] == &#x27;I&#x27;:
+                        length = G_sim.edges[neighbor, node][&#x27;length&#x27;]
+                        rate = base_propagation_rate / (1 + decay_factor * length)
+                        if random.random() &lt; rate:
+                            new_states[node] = &#x27;I&#x27;
+                            break
+            elif state == &#x27;I&#x27;:
+                gamma = recovery_rate + (intervention_boost if intervention_active else 0)
+                if random.random() &lt; gamma:
+                    new_states[node] = &#x27;R&#x27;
+        for node, state in new_states.items():
+            G_sim.nodes[node][&#x27;state&#x27;] = state
+        if sum(1 for n in G_sim.nodes() if G_sim.nodes[n][&#x27;state&#x27;] == &#x27;S&#x27;) == 0:
+            return t
+    return 100
+
+
+def avg_time(prop_rate, rec_rate, num_sims=50):
+    times = []
+    for _ in range(num_sims):
+        t = run_smoke_simulation(
+            G_smoke, &#x27;Retail_A&#x27;, prop_rate, 0.2, rec_rate, 0.0, 5
+        )
+        times.append(t)
+    return np.mean(times)
+
+
+# Parameter grid.
+prop_rates = np.linspace(0.05, 0.30, 6)
+rec_rates = np.linspace(0.0, 0.30, 6)
+
+results = np.zeros((len(rec_rates), len(prop_rates)))
+for i, rec in enumerate(rec_rates):
+    for j, prop in enumerate(prop_rates):
+        results[i, j] = avg_time(prop, rec)
+
+plt.figure(figsize=(9, 7))
+im = plt.imshow(results, origin=&#x27;lower&#x27;, aspect=&#x27;auto&#x27;,
+                extent=[prop_rates[0], prop_rates[-1], rec_rates[0], rec_rates[-1]],
+                cmap=&#x27;YlOrRd&#x27;)
+plt.colorbar(im, label=&#x27;Avg time to affect all nodes&#x27;)
+plt.xlabel(&#x27;Base propagation rate&#x27;)
+plt.ylabel(&#x27;Recovery rate&#x27;)
+plt.title(&#x27;Sensitivity: How Parameters Affect Smoke Spread Speed&#x27;)
+plt.show()
+</code></pre>
+        </div>
       </div>
-      <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
-        <strong>推荐库：</strong>
-        <code>networkx</code>（图构建与经典算法）、
-        <code>scipy.optimize</code>（线性规划 / 指派问题）、
-        <code>pulp</code>（整数规划，适合选课、运输、TSP、着色）。
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>从热力图上看，哪个参数对‘充满时间’影响更大？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>通常传播率的影响更显著：传播率越高，充满时间急剧下降。恢复率在较高值时才能把曲线‘拉回来’，说明控制蔓延比事后清除更关键。</p>
+<p class="text-slate-800 mb-2"><strong>Q2：</strong>这些参数的真实值应该从哪里获取？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>可以来自建筑通风实验、火灾模拟软件（如 FDS）、历史火灾数据，或者由消防专家根据建筑材料、空间体积、通风口位置估计。</p>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>如果模型预测和真实消防演练结果差很多，你应该怎么办？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>校准参数：用演练数据反推合理的 base_propagation_rate 和 decay_factor。</p>
+<p><strong>回答 B：</strong>改进图结构：增加节点/边、加入楼层、考虑门的开启状态。</p>
+<p><strong>回答 C：</strong>引入更物理的模型：温度、烟密度、浮力驱动的烟气分层，而不是纯接触传播。</p>
+<p><strong>回答 D：</strong>承认模型局限：把它当作‘快速比较不同策略’的工具，而不是精确预测工具。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘参数敏感性分析’。教师要让学生理解：模型不是黑箱；通过改变参数可以判断哪些输入最需要精确估计，哪些决策最 robust。强调参数来源和模型验证的重要性，培养学生的批判性思维。</p>
       </div>
     </section>
 
-    <footer class="text-center text-sm text-slate-500 mt-10">
-      Graph Theory Classroom Demo · Based on HiMCM teaching slides · Every demo includes visualization
+
+    <section id="m7" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">7. 开放延伸：还能问什么问题？</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>延伸方向：</strong></p>
+<ul class="list-disc pl-5 mb-4 text-slate-700">
+  <li><strong>多起火点：</strong>如果两个店铺同时起火，危险区域会不会非线性扩大？</li>
+  <li><strong>最优单扇门：</strong>如果预算只够装一扇隔离门，应该装在哪个通道上？</li>
+  <li><strong>人员疏散耦合：</strong>把“烟扩散”和“人逃生”同时模拟，研究拥堵与疏散时间。</li>
+</ul>
+<p class="text-slate-700 mb-4">下面以一个简化的“最优单扇门”问题为例：枚举删除每条边，分别运行多次模拟，看哪条边 removal 能最大程度保护店铺节点。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import random
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+
+# Setup graph.
+G_smoke = nx.Graph()
+nodes_data = {
+    &#x27;Retail_A&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, 0)},
+    &#x27;Retail_B&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (1, 0)},
+    &#x27;Retail_C&#x27;: {&#x27;type&#x27;: &#x27;store&#x27;, &#x27;pos&#x27;: (0, -1)},
+    &#x27;Corridor_1&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, 0.5)},
+    &#x27;Corridor_2&#x27;: {&#x27;type&#x27;: &#x27;corridor&#x27;, &#x27;pos&#x27;: (0.5, -0.5)},
+    &#x27;Escalator_Up&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, 0.5)},
+    &#x27;Escalator_Down&#x27;: {&#x27;type&#x27;: &#x27;escalator&#x27;, &#x27;pos&#x27;: (1.5, -0.5)},
+    &#x27;Stairwell_1&#x27;: {&#x27;type&#x27;: &#x27;stairwell&#x27;, &#x27;pos&#x27;: (2, 0)},
+    &#x27;Equipment_Room&#x27;: {&#x27;type&#x27;: &#x27;utility&#x27;, &#x27;pos&#x27;: (-0.5, -0.5)}
+}
+for node_id, data in nodes_data.items():
+    G_smoke.add_node(node_id, type=data[&#x27;type&#x27;], pos=data[&#x27;pos&#x27;])
+G_smoke.add_edges_from([
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_1&#x27;), (&#x27;Corridor_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Retail_A&#x27;, &#x27;Corridor_2&#x27;), (&#x27;Corridor_2&#x27;, &#x27;Retail_C&#x27;),
+    (&#x27;Retail_B&#x27;, &#x27;Escalator_Up&#x27;), (&#x27;Escalator_Up&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Retail_C&#x27;, &#x27;Escalator_Down&#x27;), (&#x27;Escalator_Down&#x27;, &#x27;Stairwell_1&#x27;),
+    (&#x27;Corridor_2&#x27;, &#x27;Equipment_Room&#x27;), (&#x27;Stairwell_1&#x27;, &#x27;Retail_B&#x27;),
+    (&#x27;Corridor_1&#x27;, &#x27;Stairwell_1&#x27;)
+])
+pos = nx.get_node_attributes(G_smoke, &#x27;pos&#x27;)
+for u, v in G_smoke.edges():
+    G_smoke.edges[u, v][&#x27;length&#x27;] = np.linalg.norm(np.array(pos[u]) - np.array(pos[v]))
+
+
+def run_smoke_simulation(graph, fire_origin, base_propagation_rate=0.1,
+                         decay_factor=0.2, recovery_rate=0.0):
+    G_sim = graph.copy()
+    for node in G_sim.nodes():
+        G_sim.nodes[node][&#x27;state&#x27;] = &#x27;S&#x27;
+    G_sim.nodes[fire_origin][&#x27;state&#x27;] = &#x27;I&#x27;
+    states_over_time = []
+    for t in range(100):
+        new_states = {}
+        for node in G_sim.nodes():
+            state = G_sim.nodes[node][&#x27;state&#x27;]
+            new_states[node] = state
+            if state == &#x27;S&#x27;:
+                for neighbor in G_sim.neighbors(node):
+                    if G_sim.nodes[neighbor][&#x27;state&#x27;] == &#x27;I&#x27;:
+                        length = G_sim.edges[neighbor, node][&#x27;length&#x27;]
+                        rate = base_propagation_rate / (1 + decay_factor * length)
+                        if random.random() &lt; rate:
+                            new_states[node] = &#x27;I&#x27;
+                            break
+        for node, state in new_states.items():
+            G_sim.nodes[node][&#x27;state&#x27;] = state
+        states_over_time.append({n: G_sim.nodes[n][&#x27;state&#x27;] for n in G_sim.nodes()})
+        if sum(1 for n in G_sim.nodes() if G_sim.nodes[n][&#x27;state&#x27;] == &#x27;S&#x27;) == 0:
+            return states_over_time
+    return states_over_time
+
+
+store_nodes = [n for n, d in G_smoke.nodes(data=True) if d[&#x27;type&#x27;] == &#x27;store&#x27;]
+num_sims = 50
+
+# Baseline: average affected stores over time.
+baseline_counts = []
+for _ in range(num_sims):
+    states = run_smoke_simulation(G_smoke, &#x27;Retail_A&#x27;)
+    counts = [sum(1 for n, s in st.items() if n in store_nodes and s == &#x27;I&#x27;) for st in states]
+    baseline_counts.append(counts)
+max_len = max(len(c) for c in baseline_counts)
+baseline_padded = [c + [c[-1]] * (max_len - len(c)) for c in baseline_counts]
+baseline_avg = np.array(baseline_padded).mean(axis=0)
+
+# Test removing each edge.
+edge_results = []
+for u, v in G_smoke.edges():
+    G_test = G_smoke.copy()
+    G_test.remove_edge(u, v)
+    counts_runs = []
+    for _ in range(num_sims):
+        states = run_smoke_simulation(G_test, &#x27;Retail_A&#x27;)
+        counts = [sum(1 for n, s in st.items() if n in store_nodes and s == &#x27;I&#x27;) for st in states]
+        counts_runs.append(counts)
+    max_len = max(len(c) for c in counts_runs)
+    padded = [c + [c[-1]] * (max_len - len(c)) for c in counts_runs]
+    avg = np.array(padded).mean(axis=0)
+    # Score: area under infected-store curve (smaller = better)
+    score = avg.sum()
+    edge_results.append(((u, v), score, avg))
+
+edge_results.sort(key=lambda x: x[1])
+
+print(&quot;Top 3 most effective single edges to block:&quot;)
+for (u, v), score, _ in edge_results[:3]:
+    print(f&quot;  {u} - {v}: infected-store-time score = {score:.2f}&quot;)
+
+# Plot top 2 vs baseline.
+plt.figure(figsize=(10, 5))
+plt.plot(baseline_avg, label=&#x27;Baseline&#x27;, color=&#x27;blue&#x27;)
+for (u, v), _, avg in edge_results[:2]:
+    plt.plot(avg, label=f&#x27;Block {u}-{v}&#x27;)
+plt.xlabel(&#x27;Time step&#x27;)
+plt.ylabel(&#x27;Avg infected stores&#x27;)
+plt.title(&#x27;Optimal Single Isolation Door Comparison&#x27;)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>如果只允许关一扇门，应该关哪一扇？怎么判断？</p>
+<p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>通过枚举每条边被删除后的模拟结果，比较‘感染店铺数-时间’曲线下面积。面积最小的边就是最该关闭的隔离门位置。这是一种图上的‘边删除优化’。</p>
+<p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如何把人员疏散也加入这个模型？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>为每个人员设置一个‘智能体’，在每个时间步根据当前烟雾状态和最近出口决定移动方向。</p>
+<p><strong>回答 B：</strong>在边上加入容量限制：一条走廊同一时间只能通过有限人数，模拟拥堵。</p>
+<p><strong>回答 C：</strong>把疏散过程也看作网络上的流问题：最大化从危险节点到出口的安全流量。</p>
+<p><strong>回答 D：</strong>考虑人的行为不确定性：有人熟悉路线、有人逆行、有人停留，需要用随机性或规则系统建模。</p>
+</div>
+<p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>这个烟雾扩散模型最大的局限是什么？</p>
+<div class="text-sm text-slate-700 space-y-1">
+<p><strong>回答 A：</strong>没有温度、热辐射、烟气分层等物理量，只是接触传播。</p>
+<p><strong>回答 B：</strong>参数（传播率、恢复率）高度抽象，需要大量校准。</p>
+<p><strong>回答 C：</strong>没有考虑建筑的三维结构：楼梯井实际上会加速竖向蔓延。</p>
+<p><strong>回答 D：</strong>没有考虑人的行为与疏散决策，无法评估真实伤亡风险。</p>
+</div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本模块的解决方法是‘图上的边删除优化与开放问题’。教师要鼓励学生把商场火灾案例作为起点，提出自己的问题：多起火点、最优门配置、疏散耦合、三维模型、真实数据校准。核心能力是：能把一个现实问题变成图 + 动力学 + 优化，并清楚知道模型的假设和局限。</p>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8">
+      <p>HiMCM Classroom Notes — Graph Theory: Shopping Mall Fire Case Study</p>
+      <p class="mt-1">延伸：多起火点、最优隔离门、三维烟气模型、人员疏散耦合。</p>
     </footer>
   </div>
 
   <script>
     function copyCode(btn) {
-      const pre = btn.parentElement.querySelector('pre');
-      const code = pre.innerText;
+      const code = btn.nextElementSibling.querySelector('code').innerText;
       navigator.clipboard.writeText(code).then(() => {
         const old = btn.innerText;
         btn.innerText = 'Copied!';
