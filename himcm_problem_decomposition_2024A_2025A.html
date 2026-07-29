@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HiMCM 赛题深度拆解 | 2025A 紧急疏散 + 2024A 奥运项目评估</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    .module-card { border-left: 4px solid #3b82f6; }
+    .module-card.graph { border-left-color: #ef4444; }
+    .module-card.mcda { border-left-color: #10b981; }
+    .qa-block { border-left: 4px solid #f59e0b; }
+    .teacher-block { border-left: 4px solid #10b981; }
+    pre { max-height: 520px; overflow: auto; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
+    .math { font-family: Georgia, 'Times New Roman', serif; }
+    .problem-badge { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-slate-900 mb-3">HiMCM 赛题深度拆解</h1>
+      <p class="text-lg text-slate-600">2025A 紧急疏散搜索 · 2024A 奥运 SDE 评估</p>
+      <p class="text-sm text-slate-500 mt-2">覆盖图论、优化、微分方程、回归/分类、多准则决策与灵敏度分析</p>
+    </header>
+
+    <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
+      <div class="flex flex-wrap gap-3 justify-center text-sm">
+        <a href="#overview" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">总览</a>
+        <a href="#p1-review" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 重点</a>
+        <a href="#p1-goals" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 目标</a>
+        <a href="#p1-decompose" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 拆解</a>
+        <a href="#p1-brain" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 脑暴</a>
+        <a href="#p1-framework" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 框架</a>
+        <a href="#p1-vars" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 变量方法</a>
+        <a href="#p2-review" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 重点</a>
+        <a href="#p2-goals" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 目标</a>
+        <a href="#p2-decompose" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 拆解</a>
+        <a href="#p2-brain" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 脑暴</a>
+        <a href="#p2-framework" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 框架</a>
+        <a href="#p2-vars" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 变量方法</a>
+        <a href="#synthesis" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">综合备课</a>
+      </div>
+    </nav>
+
+    <!-- Overview -->
+    <section id="overview" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">总览：两个赛题如何串联之前所有话题</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="p-4 bg-red-50 rounded-lg">
+          <div class="font-bold text-red-900 text-lg mb-2">2025A — Emergency Evacuation Sweeps</div>
+          <p class="text-sm text-slate-700 mb-2">一栋建筑突发紧急情况，搜救人员需“ sweep ”所有房间确认安全/疏散人员。题目要求设计数学模型，决定搜救人员数量、起点、路径与撤离策略。</p>
+          <div class="text-xs text-slate-600 space-y-1">
+            <p><strong>对应话题：</strong>图论（建筑抽象为图）、优化（MILP / 路径规划）、微分方程（烟雾扩散 SIR）、蒙特卡洛（不确定性）。</p>
+            <p><strong>核心动词：</strong>抽象 → 建图 → 路由 → 动态 hazards → 灵敏度 → 写信。</p>
+          </div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <div class="font-bold text-green-900 text-lg mb-2">2024A — To Play or Not to Play</div>
+          <p class="text-sm text-slate-700 mb-2">IOC 希望用量化模型评估哪些 Sport / Discipline / Event（SDE）应加入/移除 2032 布里斯班奥运会。需回测历史 SDE，并推荐 3 个潜在新项目。</p>
+          <div class="text-xs text-slate-600 space-y-1">
+            <p><strong>对应话题：</strong>回归/分类（预测入选概率）、多准则决策 AHP/TOPSIS、数据标准化、灵敏度分析、综合指数。</p>
+            <p><strong>核心动词：</strong>因子识别 → 量化 → 加权聚合 → 回测 → 推荐 → 灵敏度。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2025A Problem -->
+    <section id="p1-review" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>赛题重点回顾
+      </h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>任务主体：</strong>First Responders 对一栋建筑执行“emergency evacuation sweep”——逐间确认人员状态并清空/标记。</li>
+            <li><strong>关键矛盾：</strong>速度 vs. 彻底性 vs. 安全性。人员太少则太慢，人员太多则协调困难；忽略某房间可能造成生命危险。</li>
+            <li><strong>题目给出的六个“必须考虑”元素：</strong>
+              <ol class="list-decimal pl-5 mt-1 space-y-1">
+                <li>什么算“all-clear”？</li>
+                <li>不同房间类型（open space / office / stairwell / elevator shaft）如何处理？</li>
+                <li>Responders 的专业差异（firefighters / EMTs / police）？</li>
+                <li>冗余：同一房间是否需多次检查？</li>
+                <li>不同紧急类型（fire / active threat / hazmat）如何改变策略？</li>
+                <li>建筑布局与楼层差异。</li>
+              </ol>
+            </li>
+            <li><strong>交付物：</strong>1–2 页致 LEPC 的信，说明模型、结果与建议。</li>
+          </ul>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
+            <div class="font-semibold text-amber-900 mb-2">启发提问</div>
+            <p class="text-sm text-slate-800"><strong>Q1：</strong>“all-clear”应该由什么指标定义？是“房间无人”还是“房间无威胁且人员已撤离”？</p>
+            <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可定义二元状态 <span class="math">clear_i ∈ {0,1}</span>，同时引入风险残差 <span class="math">r_i</span>；当两者都低于阈值时才算 all-clear。开放性问题：也可引入概率 <span class="math">P(clear_i)</span>。</p>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># 把建筑抽象成图：节点 = 房间/走廊/出口；边 = 通行时间
+import networkx as nx
+
+G = nx.Graph()
+# 节点：(room_id, 类型, 人数, 清理时间)
+rooms = {
+    &#x27;A101&#x27;: (&#x27;office&#x27;, 8, 30), &#x27;A102&#x27;: (&#x27;office&#x27;, 6, 25),
+    &#x27;Hall_A&#x27;: (&#x27;hall&#x27;, 0, 10), &#x27;Exit_1&#x27;: (&#x27;exit&#x27;, 0, 0),
+    &#x27;Exit_2&#x27;: (&#x27;exit&#x27;, 0, 0)
+}
+for n, (typ, occ, clear) in rooms.items():
+    G.add_node(n, type=typ, occupants=occ, clear_time=clear)
+
+# 边：通行时间（秒），可能随烟雾动态变化
+G.add_weighted_edges_from([
+    (&#x27;A101&#x27;, &#x27;Hall_A&#x27;, 15), (&#x27;A102&#x27;, &#x27;Hall_A&#x27;, 12),
+    (&#x27;Hall_A&#x27;, &#x27;Exit_1&#x27;, 20), (&#x27;Hall_A&#x27;, &#x27;Exit_2&#x27;, 25)
+])
+
+print(&#x27;节点:&#x27;, list(G.nodes(data=True)))
+print(&#x27;边:&#x27;, list(G.edges(data=True)))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="p1-goals" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>目标
+      </h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">主要目标</div>
+          <p class="text-slate-600 mt-1">最小化完成整栋建筑 sweep 的 makespan（最后一名 responder 完成任务的时间）。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">安全目标</div>
+          <p class="text-slate-600 mt-1">最大化人员生还率 / 最小化 responder 暴露于危险的时间；保证高优先级房间先被处理。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">决策目标</div>
+          <p class="text-slate-600 mt-1">回答“需要多少 responders？从哪进入？哪条路径？是否启用电梯/楼梯？”</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：目标函数选择</div>
+        <p class="text-slate-700">可引导学生比较三种目标：<span class="math">min T_max</span>（makespan，公平）、<span class="math">min Σt</span>（总路程，资源效率）、<span class="math">max Σ w_i·saved_i</span>（加权获救人数，伦理优先）。多数优秀论文会采用多目标并做 Pareto 前沿。</p>
+      </div>
+    </section>
+
+    <section id="p1-decompose" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>问题拆解
+      </h2>
+      <div class="space-y-4">
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="font-bold text-slate-900">环境抽象</div>
+            <p class="text-sm text-slate-700">将建筑平面转化为图 <span class="math">G=(V,E)</span>：房间、走廊段、楼梯口、出口为节点；门/通道为边；边权 = 通行时间或风险。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="font-bold text-slate-900">静态基准模型</div>
+            <p class="text-sm text-slate-700">给定 responders 数量与起点，求解覆盖所有房间的最短 makespan。这是多旅行商问题（mTSP）/ 弧路由问题（Arc Routing）的变种。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="font-bold text-slate-900">动态 hazards</div>
+            <p class="text-sm text-slate-700">引入烟雾/火势/威胁随时间演化：用 SIR/PDE/元胞自动机更新边权与节点可通行性，重新规划路径。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">4</div>
+          <div>
+            <div class="font-bold text-slate-900">人员因素</div>
+            <p class="text-sm text-slate-700">考虑 responder 异质性、疲劳、通信延迟、装备限制（如热成像仪）；以及被疏散人员的移动速度与服从率。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">5</div>
+          <div>
+            <div class="font-bold text-slate-900">灵敏度与推广</div>
+            <p class="text-sm text-slate-700">改变建筑层数、房间数、紧急类型，测试模型稳健性；给出不同场景下的 responder 数量建议表。</p>
+          </div>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
+        <div class="font-semibold text-amber-900 mb-2">启发提问</div>
+        <p class="text-sm text-slate-800"><strong>Q2：</strong>当烟雾让某条走廊在 90 秒后不可通行时，你的模型还能保证覆盖所有房间吗？</p>
+        <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可引入时间依赖图 <span class="math">G(t)</span>，或两阶段规划：先算理想路径，再用滚动时域（receding horizon）每 30 秒重算一次。</p>
+      </div>
+    </section>
+
+    <section id="p1-brain" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>脑暴可行模型：引导式提问
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q3：如何把建筑变成“图”？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>房间/走廊交叉口/楼梯/出口作节点；门/通道作边；边权可以是距离、时间、宽度（容量）、烟雾浓度。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q4：一个 responder 的路径是什么数学问题？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>若只需访问每个房间至少一次 → 图论中的 Rural Postman / Chinese Postman；若还需返回起点 → mTSP。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q5：多人协作如何避免重复或遗漏？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>MILP 中设 <span class="math">x_{r,i}</span> 表示 responder r 是否负责房间 i；约束 <span class="math">Σ_r x_{r,i} ≥ 1</span> 保证全覆盖，再按工作量均衡分配。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q6：烟雾/火势怎么放进模型？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>用 SIR/SEIR 描述烟粒子在节点间的扩散；当某节点烟雾浓度超过阈值，则相邻边权剧增或该节点从图中移除。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q7：冗余检查是否有必要？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>可把冗余作为约束（关键房间需 ≥2 名 responder 确认）或作为目标（降低误检概率）。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q8：电梯到底能不能用？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>火灾中电梯通常禁用；模型中可设电梯边权为 ∞，或仅在“active threat”等非火灾场景允许使用。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="p1-framework" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>模型基本框架
+      </h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p><strong>图模型：</strong></p>
+          <p class="math text-center">G(t) = (V, E(t), w(t))</p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">
+            <li><span class="math">V = Rooms ∪ Hallways ∪ Stairs ∪ Exits</span></li>
+            <li><span class="math">E(t)</span>：随时间变化的可用通道集合</li>
+            <li><span class="math">w_{ij}(t)</span>：从 i 到 j 的期望通行时间，随烟雾/拥堵动态增加</li>
+          </ul>
+          <p class="mt-4"><strong>决策变量：</strong></p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">
+            <li><span class="math">x_{r,i,t} ∈ {0,1}</span>：responder r 在时刻 t 位于节点 i</li>
+            <li><span class="math">y_i ∈ {0,1}</span>：房间 i 已被 sweep 并 all-clear</li>
+            <li><span class="math">R</span>：启用的 responder 总数（整数）</li>
+          </ul>
+          <p class="mt-4"><strong>目标函数：</strong></p>
+          <p class="math text-center">min T = min{ t : y_i = 1, ∀i ∈ Rooms }</p>
+          <p class="mt-4"><strong>核心约束：</strong></p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">
+            <li>全覆盖：每个房间至少被一名 responder 访问一次</li>
+            <li>流守恒：responder 从一个节点离开必须进入下一个节点</li>
+            <li>安全约束：responder 不得在烟雾浓度超过阈值的节点停留</li>
+            <li>容量约束：同一条窄通道同时通过的 responder 数受限</li>
+          </ul>
+        </div>
+        <div class="space-y-4">
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import pulp
+
+# 简化 MILP：两名消防员，6 个房间，最小化 makespan
+rooms = [&#x27;R1&#x27;,&#x27;R2&#x27;,&#x27;R3&#x27;,&#x27;R4&#x27;,&#x27;R5&#x27;,&#x27;R6&#x27;]
+responders = [&#x27;F1&#x27;,&#x27;F2&#x27;]
+time = {
+    (&#x27;F1&#x27;,&#x27;R1&#x27;):10, (&#x27;F1&#x27;,&#x27;R2&#x27;):12, (&#x27;F2&#x27;,&#x27;R5&#x27;):8, # ...
+}
+# 决策变量：x[r,i]=1 表示消防员 r 负责房间 i
+x = pulp.LpVariable.dicts(&#x27;x&#x27;, (responders, rooms), cat=&#x27;Binary&#x27;)
+T = pulp.LpVariable(&#x27;T&#x27;, lowBound=0)  # makespan
+
+prob = pulp.LpProblem(&#x27;EvacuationSweep&#x27;, pulp.LpMinimize)
+prob += T
+
+# 每个房间至少被覆盖一次
+for i in rooms:
+    prob += pulp.lpSum(x[r][i] for r in responders) &gt;= 1
+
+# T 不小于每位消防员的最大工作量
+for r in responders:
+    prob += T &gt;= pulp.lpSum(
+        time.get((r,i),20) * x[r][i] for i in rooms
+    )
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+print(&#x27;makespan =&#x27;, pulp.value(T))
+</code></pre>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python"># 烟雾扩散：用 SIR 类 ODE 模拟边权重随时间变化
+import numpy as np
+from scipy.integrate import odeint
+
+# S = 可见度良好, I = 浓烟, R = 已充满/不可通行
+N_nodes = 5
+beta, gamma = 0.3, 0.1  # 传播率、固化率
+
+def smoke(y, t, beta, gamma, adj):
+    S, I, R = y[:N_nodes], y[N_nodes:2*N_nodes], y[2*N_nodes:]
+    dSdt = -beta * adj @ (I / N_nodes) * S
+    dIdt =  beta * adj @ (I / N_nodes) * S - gamma * I
+    dRdt =  gamma * I
+    return np.concatenate([dSdt, dIdt, dRdt])
+
+# adj: 邻接矩阵；初始火源在节点 0
+adj = np.array([[0,1,1,0,0],[1,0,1,1,0],[1,1,0,1,1],
+                [0,1,1,0,1],[0,0,1,1,0]], dtype=float)
+y0 = np.array([0.9,0.9,0.9,0.9,0.9,  # S
+               0.1,0,0,0,0,           # I
+               0,0.1,0.1,0.1,0.1])    # R
+t = np.linspace(0, 30, 300)
+sol = odeint(smoke, y0, t, args=(beta, gamma, adj))
+# 当 R&gt;0.5 时该节点视为不可通行，动态更新边权重
+</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="p1-vars" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>变量和方法的讨论
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr><td class="px-4 py-2 font-semibold">空间</td><td class="px-4 py-2">节点 V、边 E、边权 w、房间面积、容量</td><td class="px-4 py-2">NetworkX 建图、Floyd-Warshall 全源最短路径</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">时间</td><td class="px-4 py-2">makespan T、通行时间 t_ij、清理时间 c_i</td><td class="px-4 py-2">PuLP / OR-Tools MILP、遗传算法、启发式</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">动态</td><td class="px-4 py-2">烟雾浓度 s_i(t)、温度、能见度</td><td class="px-4 py-2">SIR/SEIR ODE、元胞自动机、Monte Carlo</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">人员</td><td class="px-4 py-2">responder 数量 R、速度 v_r、疲劳系数</td><td class="px-4 py-2">多智能体仿真（Agent-Based Modeling）</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">不确定</td><td class="px-4 py-2">人员位置分布、火源位置、疏散服从率</td><td class="px-4 py-2">鲁棒优化、随机规划、情景分析</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：方法取舍</div>
+        <p class="text-slate-700">小规模建筑可用 MILP 求最优；大规模或动态环境建议用启发式 + 仿真验证。提醒学生：没有“唯一正确模型”，关键是假设透明、灵敏度充分、结论稳健。</p>
+      </div>
+    </section>
+
+    <!-- 2024A Problem -->
+    <section id="p2-review" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>赛题重点回顾
+      </h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate">
+          <ul class="space-y-2 text-slate-700 list-disc pl-5">
+            <li><strong>任务主体：</strong>受 IOC 委托，建立数学模型评估 Sport / Discipline / Event（SDE）是否应加入/移除 2032 布里斯班奥运会。</li>
+            <li><strong>IOC 六项准则：</strong>Popularity & Accessibility、Gender Equity、Sustainability、Inclusivity（≥75 国、4 大洲）、Relevance & Innovation、Safety & Fair Play。</li>
+            <li><strong>数据：</strong>HiMCM_Olympic_Data.xlsx 记录了 1896–2028 各 SDE 出现的事件数。</li>
+            <li><strong>核心要求：</strong>
+              <ol class="list-decimal pl-5 mt-1 space-y-1">
+                <li>识别并量化影响因素</li>
+                <li>构建评估模型</li>
+                <li>回测 2020/2024/2028 的新增/移除 SDE 以及 1988 前即存在的 SDE</li>
+                <li>推荐 3 个 2032 新项目并排序</li>
+                <li>灵敏度分析</li>
+                <li>写 1–2 页 IOC 信</li>
+              </ol>
+            </li>
+          </ul>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
+            <div class="font-semibold text-amber-900 mb-2">启发提问</div>
+            <p class="text-sm text-slate-800"><strong>Q1：</strong>“全球 popularity”是连续变量还是分类变量？如何把它变成模型能用的数字？</p>
+            <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可用观看人数、社交媒体话题量、参与国家数等代理指标；缺失数据可用回归插补或专家打分（Likert 1–5）。</p>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+
+# AHP：两两比较 6 个 IOC 准则，得到权重
+criteria = [&#x27;popularity&#x27;,&#x27;gender&#x27;,&#x27;sustainability&#x27;,
+            &#x27;inclusivity&#x27;,&#x27;relevance&#x27;,&#x27;safety&#x27;]
+# 成对比较矩阵（示例）
+A = np.array([
+    [1,   2,   3,   2,   1/2, 2],
+    [1/2, 1,   2,   2,   1/2, 1],
+    [1/3, 1/2, 1,   1,   1/3, 1/2],
+    [1/2, 1/2, 1,   1,   1/2, 1],
+    [2,   2,   3,   2,   1,   2],
+    [1/2, 1,   2,   1,   1/2, 1]
+])
+
+# 特征向量法求权重
+w, v = np.linalg.eig(A)
+idx = w.argmax()
+weights = v[:, idx].real
+weights = weights / weights.sum()
+print(&#x27;准则权重:&#x27;, dict(zip(criteria, np.round(weights,3))))
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="p2-goals" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>目标
+      </h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">评估目标</div>
+          <p class="text-slate-600 mt-1">为每个 SDE 计算一个综合得分，衡量其与 IOC 六大准则的匹配程度。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">预测/分类目标</div>
+          <p class="text-slate-600 mt-1">根据历史数据判断：给定 SDE 应“加入 / 移除 / 继续观察”。</p>
+        </div>
+        <div class="p-4 border rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-900">决策目标</div>
+          <p class="text-slate-600 mt-1">为 2032 推荐排名前三的新增/回归 SDE，并讨论 2036 潜力项目。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：从“打分”到“决策”</div>
+        <p class="text-slate-700">很多学生会止步于排序。要强调：IOC 需要可操作的阈值。例如设定 <span class="math">S_j ≥ 0.75</span> 为“强烈推荐加入”，<span class="math">S_j ≤ 0.35</span> 为“建议移除”，中间为“观察”。</p>
+      </div>
+    </section>
+
+    <section id="p2-decompose" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>问题拆解
+      </h2>
+      <div class="space-y-4">
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="font-bold text-slate-900">准则 → 因子 → 指标</div>
+            <p class="text-sm text-slate-700">把每条 IOC 准则拆成可量化的指标。例如 Inclusivity → 参与国家数、洲际分布熵、发展中国家参与度。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="font-bold text-slate-900">数据收集与清洗</div>
+            <p class="text-sm text-slate-700">利用提供的 Olympic 数据，补全外部数据（如维基百科、IOC 报告、Google Trends）。处理缺失值、量纲统一。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="font-bold text-slate-900">权重确定</div>
+            <p class="text-sm text-slate-700">AHP 专家打分、熵权法（数据驱动）、或两者组合，得到六大准则权重。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">4</div>
+          <div>
+            <div class="font-bold text-slate-900">综合评分与排序</div>
+            <p class="text-sm text-slate-700">加权求和、TOPSIS、ELECTRE 等多准则方法，输出每个 SDE 的综合得分。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">5</div>
+          <div>
+            <div class="font-bold text-slate-900">回测与验证</div>
+            <p class="text-sm text-slate-700">用 2020/2024/2028 实际新增/移除 SDE 检验模型预测能力；用 1988 前存在的经典项目验证稳定性。</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">6</div>
+          <div>
+            <div class="font-bold text-slate-900">推荐与灵敏度</div>
+            <p class="text-sm text-slate-700">推荐 2032 前三项，讨论 2036 潜力；对权重和指标做灵敏度分析。</p>
+          </div>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
+        <div class="font-semibold text-amber-900 mb-2">启发提问</div>
+        <p class="text-sm text-slate-800"><strong>Q2：</strong>如果回测时发现模型把 2024 实际加入的 Breaking 排得很低，说明什么？</p>
+        <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可能是权重不合理，也可能是模型遗漏了“青年文化 / 社交媒体热度”等隐藏因子。应利用此发现改进指标或引入时间趋势项。</p>
+      </div>
+    </section>
+
+    <section id="p2-brain" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>脑暴可行模型：引导式提问
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q3：六个准则都能量化吗？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>都能。 popularity 用收视/参与国；gender equity 用男女项目数比；sustainability 用碳足迹/场馆复用率；inclusivity 用洲际熵；relevance 用社交媒体增长；safety 用兴奋剂违规率/受伤率。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q4：权重该由谁定？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>可用 AHP 请专家打分，也可用熵权法让数据自己说话。组合方法：AHP 定主观权重，熵权法定客观权重，再几何平均。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q5：如何处理量纲不一致？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>Min-Max 归一化、Z-score、熵值法。注意：成本型指标（如碳排放）需反向处理。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q6：怎样把模型变成“加入/移除/观察”三类决策？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>设定阈值；或用 logistic 回归估计入选概率 <span class="math">P(add|SDE_j)</span>。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q7：回测时选哪些 SDE？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>新增：Skateboarding、Sport Climbing、Surfing、Breaking、Karate；移除：Karate（2024）；经典：Athletics、Swimming、Gymnastics。</p>
+        </div>
+        <div class="qa-block bg-amber-50 p-4 rounded-lg">
+          <div class="font-semibold text-amber-900 mb-2">Q8：2032 推荐需要考虑东道主因素吗？</div>
+          <p class="text-sm text-slate-700"><strong>参考方向：</strong>应加入“地区流行度”或“东道国优势”因子，如板球在澳大利亚/印度的高人气可提升 Cricket 的优先级。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="p2-framework" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>模型基本框架
+      </h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p><strong>评分矩阵：</strong></p>
+          <p class="math text-center">X = [x_{jk}]_{M&times;6}</p>
+          <p class="text-slate-700">其中 <span class="math">x_{jk}</span> 为第 j 个 SDE 在第 k 个准则上的得分。</p>
+          <p class="mt-4"><strong>归一化：</strong></p>
+          <p class="math text-center">v_{jk} = (x_{jk} - min_k)/(max_k - min_k)  （效益型）</p>
+          <p class="mt-4"><strong>加权综合得分：</strong></p>
+          <p class="math text-center">S_j = Σ_{k=1}^6 w_k · v_{jk}</p>
+          <p class="text-slate-700">其中 <span class="math">w_k</span> 为准则权重，可用 AHP 或熵权法确定。</p>
+          <p class="mt-4"><strong>决策规则：</strong></p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">
+            <li><span class="math">S_j ≥ θ_{high}</span>：强烈推荐加入</li>
+            <li><span class="math">S_j ≤ θ_{low}</span>：建议移除</li>
+            <li>中间：继续观察</li>
+          </ul>
+          <p class="mt-4"><strong>可选扩展：</strong> logistic 回归</p>
+          <p class="math text-center">P(add_j) = 1/(1 + e^{-(β_0 + Σ β_k v_{jk})})</p>
+        </div>
+        <div class="space-y-4">
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+
+# TOPSIS：对候选 SDE 进行综合排序
+sdes = [&#x27;Skateboarding&#x27;,&#x27;Breaking&#x27;,&#x27;Surfing&#x27;,&#x27;Karate&#x27;,&#x27;Cricket&#x27;]
+# 5 个 SDE × 6 个准则的评分矩阵（已归一化）
+X = np.array([
+    [0.9, 0.8, 0.7, 0.6, 0.95, 0.8],
+    [0.7, 0.9, 0.6, 0.5, 0.90, 0.7],
+    [0.8, 0.7, 0.8, 0.7, 0.85, 0.9],
+    [0.6, 0.6, 0.5, 0.8, 0.50, 0.6],
+    [0.85,0.5, 0.6, 0.9, 0.70, 0.75]
+])
+w = np.array([0.25,0.15,0.10,0.15,0.25,0.10])
+
+# 加权归一化
+V = X * w
+ideal = V.max(axis=0); nadir = V.min(axis=0)
+d_pos = np.linalg.norm(V - ideal, axis=1)
+d_neg = np.linalg.norm(V - nadir, axis=1)
+score = d_neg / (d_pos + d_neg)
+print(&#x27;TOPSIS 得分:&#x27;, dict(zip(sdes, np.round(score,3))))
+</code></pre>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# 灵敏度：改变权重看排序是否稳健
+base_w = np.array([0.25,0.15,0.10,0.15,0.25,0.10])
+X = np.array([...])  # 评分矩阵
+
+def rank_score(w):
+    s = (X * w).sum(axis=1)
+    return np.argsort(-s)  # 从高到低排序索引
+
+# 对 popularity 权重做 ±30% 扰动
+perturb = np.linspace(-0.3, 0.3, 13)
+for k in range(X.shape[1]):
+    ranks = []
+    for p in perturb:
+        w = base_w.copy()
+        w[k] *= (1 + p)
+        w /= w.sum()
+        ranks.append(rank_score(w)[0])  # 第一名索引
+    plt.plot(perturb, ranks, label=criteria[k])
+plt.legend(); plt.show()
+</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="p2-vars" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>变量和方法的讨论
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr><td class="px-4 py-2 font-semibold">准则层</td><td class="px-4 py-2"> popularity, gender, sustainability, inclusivity, relevance, safety</td><td class="px-4 py-2">AHP、德尔菲法、熵权法</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">指标层</td><td class="px-4 py-2">收视人数、参与国数、洲际熵、男女项目比、碳足迹、社交媒体增长率</td><td class="px-4 py-2">数据归一化、主成分分析 PCA</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">评分层</td><td class="px-4 py-2">x_jk（SDE j 在准则 k 的得分）、S_j（综合得分）</td><td class="px-4 py-2">加权求和、TOPSIS、ELECTRE</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">决策层</td><td class="px-4 py-2">θ_high, θ_low、P(add_j)</td><td class="px-4 py-2">阈值法、logistic 回归、随机森林分类</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">验证层</td><td class="px-4 py-2">准确率、召回率、排序一致性 Kendall τ</td><td class="px-4 py-2">回测、交叉验证、灵敏度分析</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：避免“黑箱”</div>
+        <p class="text-slate-700">提醒学生：MCDA 的弱点是权重主观。应在论文中明确说明权重来源，并用 tornado diagram 展示关键准则变化如何影响前三名排序。</p>
+      </div>
+    </section>
+
+    <!-- Synthesis -->
+    <section id="synthesis" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">综合备课备忘</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr><th class="px-4 py-2 text-left">维度</th><th class="px-4 py-2 text-left">2025A 疏散搜索</th><th class="px-4 py-2 text-left">2024A 奥运评估</th></tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr><td class="px-4 py-2 font-semibold">核心数学</td><td class="px-4 py-2">图论 + 优化 + ODE</td><td class="px-4 py-2">多准则决策 + 回归/分类</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">第一步</td><td class="px-4 py-2">建筑 → 图 G=(V,E,w)</td><td class="px-4 py-2">准则 → 指标 → 评分矩阵</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">关键假设</td><td class="px-4 py-2">房间已知、通行时间可测、烟雾演化可预测</td><td class="px-4 py-2">准则可独立量化、历史决策合理、权重稳定</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">验证方式</td><td class="px-4 py-2">不同布局、不同 responder 数、动态 hazards</td><td class="px-4 py-2">回测 2020/2024/2028，灵敏度分析</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">写作重点</td><td class="px-4 py-2">LEPC 信：路径、人员、时间、安全</td><td class="px-4 py-2">IOC 信：评分、排序、推荐、敏感性</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 p-4 bg-indigo-50 rounded-lg text-sm text-slate-700">
+        <div class="font-semibold text-indigo-900 mb-2">课堂建议</div>
+        <p>可先让学生分组：一组从“图论+优化”切入 2025A，另一组从“MCDA+回归”切入 2024A。两节课后交换，讨论：哪些工具可以互相借鉴？（例如 2025A 也可用 AHP 确定房间优先级；2024A 也可用图网络分析 SDE 之间的替代关系。）</p>
+      </div>
+    </section>
+
+    <footer class="text-center text-slate-500 text-sm py-8">
+      <p>Generated for HiMCM classroom notes · 2025A + 2024A problem decomposition</p>
+    </footer>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.nextElementSibling.querySelector('code');
+      navigator.clipboard.writeText(code.innerText).then(() => {
+        const old = btn.innerText; btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = old, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
