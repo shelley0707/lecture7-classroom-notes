@@ -1137,6 +1137,97 @@ plt.show()
 
       <div class="grid lg:grid-cols-2 gap-8 mb-8">
         <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">1.5 三维直角坐标：直接定义 (x, y, z) 与可旋转交互图</h3>
+          <p class="text-slate-700 mb-3">
+            二维坐标不够用时，可以直接给每个节点赋予 <code>(x, y, z)</code> 三维直角坐标。
+            这在多层建筑、立体仓库、无人机路径、分子结构等场景中很常见。
+          </p>
+          <div class="p-3 bg-purple-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-purple-900 mb-2">关键概念</div>
+            三维欧氏距离：
+            <p class="math text-center my-1">d = √((x₂−x₁)² + (y₂−y₁)² + (z₂−z₁)²)</p>
+            用 Plotly 画出的 3D 图可以用鼠标旋转、缩放，适合向学生展示空间关系。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import math
+import plotly.graph_objects as go
+
+# Define 3D Cartesian coordinates (x, y, z) for each node directly
+pos3d = {
+    'A': (0, 0, 0),
+    'B': (3, 0, 0),
+    'C': (3, 4, 0),
+    'D': (3, 4, 2),
+    'E': (0, 0, 2)
+}
+
+# Compute 3D Euclidean distance between every pair as edge weight
+edges = []
+weights = {}
+for u in pos3d:
+    for v in pos3d:
+        if u &lt; v:
+            x1, y1, z1 = pos3d[u]
+            x2, y2, z2 = pos3d[v]
+            d = math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+            edges.append((u, v))
+            weights[(u, v)] = round(d, 2)
+
+print('3D edge weights:', weights)
+
+# Build interactive Plotly 3D plot
+node_x, node_y, node_z, node_text = [], [], [], []
+for name, (x, y, z) in pos3d.items():
+    node_x.append(x)
+    node_y.append(y)
+    node_z.append(z)
+    node_text.append(f'{name}: ({x}, {y}, {z})')
+
+edge_traces = []
+for u, v in edges:
+    x0, y0, z0 = pos3d[u]
+    x1, y1, z1 = pos3d[v]
+    edge_traces.append(go.Scatter3d(
+        x=[x0, x1, None],
+        y=[y0, y1, None],
+        z=[z0, z1, None],
+        mode='lines',
+        line=dict(color='gray', width=2),
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+node_trace = go.Scatter3d(
+    x=node_x, y=node_y, z=node_z,
+    mode='markers+text',
+    marker=dict(size=8, color='steelblue'),
+    text=list(pos3d.keys()),
+    textposition='top center',
+    hovertext=node_text,
+    name='Nodes'
+)
+
+fig = go.Figure(data=edge_traces + [node_trace])
+fig.update_layout(
+    title='Interactive 3D Cartesian Node Positions (drag to rotate)',
+    scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z',
+        aspectmode='data'
+    ),
+    width=700,
+    height=600
+)
+fig.show()
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
           <h3 class="text-lg font-bold text-slate-900 mb-3">2. 地理坐标 → 平面直角坐标：投影</h3>
           <p class="text-slate-700 mb-3">
             真实地球上的点用 <strong>纬度 φ、经度 λ</strong> 表示。若要在二维平面上计算距离，需要先做一次投影。
