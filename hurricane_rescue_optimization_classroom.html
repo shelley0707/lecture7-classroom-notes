@@ -172,96 +172,26 @@ print(f"Minimum cost: ${pulp.value(prob.objective):.2f}")
       
       <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-800 mb-4">
         <strong>课堂过渡：</strong>我们已经知道变量、约束、目标分别是什么。现在把它们拼成一个可以运行的完整模型。这个模型不一定完美——它更像“第一稿”，接下来我们会看到它为什么可能崩溃，以及如何修复。
-      </div><div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate text-sm">
-          <p><strong>决策变量：</strong></p>
-          <ul class="list-disc pl-5 mb-3">
-            <li>x<sub>w,t,h</sub>：第 t 小时从仓库 w 运往城镇 h 的物资吨数（连续 ≥ 0）</li>
-            <li>y：额外租用的直升机架次（整数 ≥ 0）</li>
-            <li>shortage<sub>h</sub>：城镇 h 的最终缺货量（连续 ≥ 0）</li>
-          </ul>
-          <p><strong>目标函数（最小化总损失）：</strong></p>
-          <p class="math text-center my-2">
-            min Σ cost<sub>w,h</sub>·x<sub>w,t,h</sub> + R·y + P·Σ shortage<sub>h</sub> + D·Σ t·x<sub>w,t,h</sub>
-          </p>
-          <p><strong>约束条件：</strong></p>
-          <ol class="list-decimal pl-5 mb-3 space-y-1">
-            <li>仓库库存：Σ<sub>t,h</sub> x<sub>w,t,h</sub> ≤ 库存<sub>w</sub></li>
-            <li>直升机运力：Σ<sub>w,t,h</sub> x<sub>w,t,h</sub> ≤ (5 + y)·2·(72/3)</li>
-            <li>需求平衡：Σ<sub>w,t</sub> x<sub>w,t,h</sub> + shortage<sub>h</sub> = 需求<sub>h</sub></li>
-            <li>公平性：Σ<sub>w,t</sub> x<sub>w,t,B</sub> ≥ 0.5·需求<sub>B</sub></li>
-            <li>整数与非负：y ∈ Z<sub>≥0</sub>，所有变量 ≥ 0</li>
-          </ol>
-          <p class="text-xs text-slate-500 mt-4"><strong>注：</strong>右侧代码为了演示清晰，使用 12 小时窗口与 3 架自有直升机；完整 72 小时场景只需把 HOURS 改成 range(72) 并调整库存与需求。</p>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import pulp
-import pandas as pd
-
-# --- Demo data (scaled-down for clarity) ---
-WAREHOUSES = ['W1', 'W2', 'W3']
-TOWNS = ['A', 'B', 'C']
-HOURS = list(range(12))   # 12-hour window
-ROUND_TRIP = 3            # hours per round trip
-LOAD = 2                  # tons per helicopter trip
-OWN_HELI = 3              # owned helicopters
-RENTAL_COST = 100         # $ per rented helicopter
-SHORTAGE_PENALTY = 1000   # $ per ton unmet
-DELAY_PENALTY = 1         # $ per ton-hour
-
-inventory = {'W1': 12, 'W2': 15, 'W3': 10}
-demand = {'A': 10, 'B': 12, 'C': 8}
-
-cost = {                    # $ per ton from w to h
-    'W1': {'A': 3, 'B': 5, 'C': 7},
-    'W2': {'A': 6, 'B': 2, 'C': 4},
-    'W3': {'A': 8, 'B': 4, 'C': 3},
-}
-
-# --- Build model ---
-prob = pulp.LpProblem("Hurricane_Rescue", pulp.LpMinimize)
-
-x = pulp.LpVariable.dicts("x", (WAREHOUSES, HOURS, TOWNS), lowBound=0, cat='Continuous')
-y = pulp.LpVariable("rented_helicopters", lowBound=0, cat='Integer')
-shortage = pulp.LpVariable.dicts("shortage", TOWNS, lowBound=0, cat='Continuous')
-
-transport = pulp.lpSum([cost[w][h] * x[w][t][h]
-                        for w in WAREHOUSES for t in HOURS for h in TOWNS])
-rental = RENTAL_COST * y
-short = SHORTAGE_PENALTY * pulp.lpSum([shortage[h] for h in TOWNS])
-delay = DELAY_PENALTY * pulp.lpSum([t * x[w][t][h]
-                                    for w in WAREHOUSES for t in HOURS for h in TOWNS])
-prob += transport + rental + short + delay, "Total_Loss"
-
-# 1. Warehouse inventory
-for w in WAREHOUSES:
-    prob += pulp.lpSum([x[w][t][h] for t in HOURS for h in TOWNS]) <= inventory[w], f"Inv_{w}"
-
-# 2. Helicopter capacity (aggregate over the whole window)
-total_trips = (len(HOURS) / ROUND_TRIP) * (OWN_HELI + y) * LOAD
-prob += pulp.lpSum([x[w][t][h] for w in WAREHOUSES for t in HOURS for h in TOWNS]) <= total_trips, "Heli_cap"
-
-# 3. Demand balance with slack
-for h in TOWNS:
-    prob += pulp.lpSum([x[w][t][h] for w in WAREHOUSES for t in HOURS]) + shortage[h] == demand[h], f"Demand_{h}"
-
-# 4. Fairness for town B
-prob += pulp.lpSum([x[w][t]['B'] for w in WAREHOUSES for t in HOURS]) >= 0.5 * demand['B'], "Fair_B"
-
-# Solve
-prob.solve(pulp.PULP_CBC_CMD(msg=0))
-
-# --- Report ---
-print(f"Status: {pulp.LpStatus[prob.status]}")
-print(f"Rented helicopters: {int(pulp.value(y))}")
-print(f"Total cost: ${pulp.value(prob.objective):.2f}\n")
-
-for h in TOWNS:
-    delivered = sum(pulp.value(x[w][t][h]) for w in WAREHOUSES for t in HOURS)
-    print(f"Town {h}: delivered {delivered:.2f} / {demand[h]}, shortage {pulp.value(shortage[h]):.2f}")
-</code></pre>
-        </div>
+      </div><div class="prose prose-slate text-sm max-w-4xl">
+        <p><strong>决策变量：</strong></p>
+        <ul class="list-disc pl-5 mb-3">
+          <li>x<sub>w,t,h</sub>：第 t 小时从仓库 w 运往城镇 h 的物资吨数（连续 ≥ 0）</li>
+          <li>y：额外租用的直升机架次（整数 ≥ 0）</li>
+          <li>shortage<sub>h</sub>：城镇 h 的最终缺货量（连续 ≥ 0）</li>
+        </ul>
+        <p><strong>目标函数（最小化总损失）：</strong></p>
+        <p class="math text-center my-2">
+          min Σ cost<sub>w,h</sub>·x<sub>w,t,h</sub> + R·y + P·Σ shortage<sub>h</sub> + D·Σ t·x<sub>w,t,h</sub>
+        </p>
+        <p><strong>约束条件：</strong></p>
+        <ol class="list-decimal pl-5 mb-3 space-y-1">
+          <li>仓库库存：Σ<sub>t,h</sub> x<sub>w,t,h</sub> ≤ 库存<sub>w</sub></li>
+          <li>直升机运力：Σ<sub>w,t,h</sub> x<sub>w,t,h</sub> ≤ (5 + y)·2·(72/3)</li>
+          <li>需求平衡：Σ<sub>w,t</sub> x<sub>w,t,h</sub> + shortage<sub>h</sub> = 需求<sub>h</sub></li>
+          <li>公平性：Σ<sub>w,t</sub> x<sub>w,t,B</sub> ≥ 0.5·需求<sub>B</sub></li>
+          <li>整数与非负：y ∈ Z<sub>≥0</sub>，所有变量 ≥ 0</li>
+        </ol>
+        <p class="text-xs text-slate-500 mt-4"><strong>注：</strong>这里的完整可运行代码已集中到第 8 节“L2 中阶模型”。本节重点理解如何把变量、约束、目标拼成第一个完整模型，以及它为什么可能在真实数据下崩溃。</p>
       </div>
 
       <div class="mt-8 p-4 bg-amber-50 rounded-lg text-sm text-slate-700">
@@ -572,110 +502,23 @@ print("both tasks consume the same total flight-time pool.")
       
       <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-800 mb-4">
         <strong>课堂过渡：</strong>基础模型假设只有一种运输方式。现实中道路可能部分损毁：卡车便宜但到不了某些镇，直升机贵但全覆盖。下面把单一变量拆成 x_truck 和 x_heli，看看网络结构如何改变模型。
-      </div><div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate text-sm">
-          <p>现实中，不同运输方式的运力约束是分开的。假设 A、C 两镇道路畅通可用卡车，B 镇道路被毁只能用直升机。</p>
-          <div class="p-3 bg-indigo-50 rounded-lg mb-3">
-            <p><strong>新增变量：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>x_truck[w,t,h]：卡车从仓库 w 到城镇 h 的运量（h ∈ {A, C}）</li>
-              <li>x_heli[w,t,h]：直升机从仓库 w 到城镇 h 的运量（h ∈ {A, B, C}）</li>
-            </ul>
-            <p class="mt-2"><strong>新增约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>卡车总运量 ≤ 卡车总运力</li>
-              <li>直升机总运量 ≤ 直升机总运力</li>
-              <li>B 镇只能靠直升机：x_truck[*,*,B] = 0</li>
-            </ul>
-          </div>
-          <p><strong>启发问题：</strong>如果卡车运力设为 0（道路全毁），模型会自动退化成纯直升机调度吗？</p>
+      </div><div class="prose prose-slate text-sm max-w-4xl">
+        <p>现实中，不同运输方式的运力约束是分开的。假设 A、C 两镇道路畅通可用卡车，B 镇道路被毁只能用直升机。</p>
+        <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+          <p><strong>新增变量：</strong></p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>x_truck[w,t,h]：卡车从仓库 w 到城镇 h 的运量（h ∈ {A, C}）</li>
+            <li>x_heli[w,t,h]：直升机从仓库 w 到城镇 h 的运量（h ∈ {A, B, C}）</li>
+          </ul>
+          <p class="mt-2"><strong>新增约束：</strong></p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>卡车总运量 ≤ 卡车总运力</li>
+            <li>直升机总运量 ≤ 直升机总运力</li>
+            <li>B 镇只能靠直升机：x_truck[*,*,B] = 0</li>
+          </ul>
         </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import pulp
-
-WAREHOUSES = ['W1', 'W2', 'W3']
-TOWNS = ['A', 'B', 'C']
-HOURS = list(range(12))
-ROUND_TRIP = 3
-HELI_LOAD = 2
-OWN_HELI = 3
-TRUCK_CAPACITY = 20       # tons total over horizon
-RENTAL_COST = 100
-SHORTAGE_PENALTY = 1000
-DELAY_PENALTY = 1
-
-inventory = {'W1': 12, 'W2': 15, 'W3': 10}
-demand = {'A': 10, 'B': 12, 'C': 8}
-
-TRUCK_TOWNS = ['A', 'C']
-HELI_TOWNS = ['A', 'B', 'C']
-
-# Truck is cheaper but cannot reach B
-truck_cost = {
-    'W1': {'A': 1, 'C': 2},
-    'W2': {'A': 2, 'C': 1},
-    'W3': {'A': 3, 'C': 2},
-}
-heli_cost = {
-    'W1': {'A': 3, 'B': 5, 'C': 7},
-    'W2': {'A': 6, 'B': 2, 'C': 4},
-    'W3': {'A': 8, 'B': 4, 'C': 3},
-}
-
-prob = pulp.LpProblem("Hurricane_MultiMode", pulp.LpMinimize)
-
-x_truck = pulp.LpVariable.dicts("x_truck", (WAREHOUSES, HOURS, TRUCK_TOWNS), lowBound=0, cat='Continuous')
-x_heli  = pulp.LpVariable.dicts("x_heli",  (WAREHOUSES, HOURS, HELI_TOWNS),  lowBound=0, cat='Continuous')
-y = pulp.LpVariable("rented_helicopters", lowBound=0, cat='Integer')
-shortage = pulp.LpVariable.dicts("shortage", TOWNS, lowBound=0, cat='Continuous')
-
-transport = (
-    pulp.lpSum([truck_cost[w][h] * x_truck[w][t][h]
-                for w in WAREHOUSES for t in HOURS for h in TRUCK_TOWNS]) +
-    pulp.lpSum([heli_cost[w][h] * x_heli[w][t][h]
-                for w in WAREHOUSES for t in HOURS for h in HELI_TOWNS])
-)
-rental = RENTAL_COST * y
-short = SHORTAGE_PENALTY * pulp.lpSum([shortage[h] for h in TOWNS])
-delay = DELAY_PENALTY * (
-    pulp.lpSum([t * x_truck[w][t][h] for w in WAREHOUSES for t in HOURS for h in TRUCK_TOWNS]) +
-    pulp.lpSum([t * x_heli[w][t][h]  for w in WAREHOUSES for t in HOURS for h in HELI_TOWNS])
-)
-prob += transport + rental + short + delay
-
-# Inventory: truck + heli outflows from each warehouse
-for w in WAREHOUSES:
-    prob += (pulp.lpSum([x_truck[w][t][h] for t in HOURS for h in TRUCK_TOWNS]) +
-             pulp.lpSum([x_heli[w][t][h]  for t in HOURS for h in HELI_TOWNS]) <= inventory[w])
-
-# Separate capacity constraints for each transport mode
-prob += pulp.lpSum([x_truck[w][t][h]
-                    for w in WAREHOUSES for t in HOURS for h in TRUCK_TOWNS]) <= TRUCK_CAPACITY
-prob += pulp.lpSum([x_heli[w][t][h]
-                    for w in WAREHOUSES for t in HOURS for h in HELI_TOWNS]) <= (len(HOURS)/ROUND_TRIP)*(OWN_HELI+y)*HELI_LOAD
-
-# Demand balance
-for h in TOWNS:
-    inflow = pulp.lpSum([x_heli[w][t][h] for w in WAREHOUSES for t in HOURS])
-    if h in TRUCK_TOWNS:
-        inflow += pulp.lpSum([x_truck[w][t][h] for w in WAREHOUSES for t in HOURS])
-    prob += inflow + shortage[h] == demand[h]
-
-# Fairness for B (helicopter only)
-prob += pulp.lpSum([x_heli[w][t]['B'] for w in WAREHOUSES for t in HOURS]) >= 0.5 * demand['B']
-
-prob.solve(pulp.PULP_CBC_CMD(msg=0))
-print(f"Status: {pulp.LpStatus[prob.status]}")
-print(f"Rented helicopters: {int(pulp.value(y))}")
-print(f"Total cost: ${pulp.value(prob.objective):.2f}")
-for h in TOWNS:
-    delivered = sum(pulp.value(x_heli[w][t][h]) for w in WAREHOUSES for t in HOURS)
-    if h in TRUCK_TOWNS:
-        delivered += sum(pulp.value(x_truck[w][t][h]) for w in WAREHOUSES for t in HOURS)
-    print(f"Town {h}: delivered {delivered:.2f} / {demand[h]}, shortage {pulp.value(shortage[h]):.2f}")
-</code></pre>
-        </div>
+        <p><strong>启发问题：</strong>如果卡车运力设为 0（道路全毁），模型会自动退化成纯直升机调度吗？</p>
+        <p class="text-xs text-slate-500 mt-4"><strong>注：</strong>含多模式运输的完整可运行代码见第 8 节“L3 高阶模型”。</p>
       </div>
 
       <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
@@ -705,91 +548,16 @@ for h in TOWNS:
       
       <div class="p-3 bg-blue-50 rounded-lg text-sm text-blue-800 mb-4">
         <strong>课堂过渡：</strong>基础模型用线性惩罚 D·t·x 衡量延误。但灾后救援的特点是“前几个小时价值最高”，价值随时间指数衰减。下面把线性惩罚换成指数价值函数，观察解的时间分布如何变化。
-      </div><div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate text-sm">
-          <p>线性惩罚 <code>D·t·x</code> 假设每小时延误的代价相同。现实中，灾后前几个小时救人价值最高，之后价值迅速衰减。</p>
-          <div class="p-3 bg-indigo-50 rounded-lg mb-3">
-            <p><strong>价值函数：</strong></p>
-            <p class="math text-center my-1">第 t 小时送达 1 吨物资的价值 = V<sub>0</sub> · e<sup>-λt</sup></p>
-            <p class="mt-2">目标变为 <strong>最大化总价值 − 总成本</strong>，等价于最小化 <strong>总成本 − 总价值</strong>。</p>
-            <p class="mt-1 text-xs text-slate-500">注意：含 e<sup>-λt</sup> 的目标是非线性的，这里用 scipy 求解连续变量版本。若需保留整数变量（租直升机架次），需要使用 MINLP 求解器。</p>
-          </div>
-          <p><strong>启发问题：</strong>λ 越大，模型越倾向于把物资集中在哪些小时送达？如果把 λ 设为 0，模型行为会变成什么？</p>
+      </div><div class="prose prose-slate text-sm max-w-4xl">
+        <p>线性惩罚 <code>D·t·x</code> 假设每小时延误的代价相同。现实中，灾后前几个小时救人价值最高，之后价值迅速衰减。</p>
+        <div class="p-3 bg-indigo-50 rounded-lg mb-3">
+          <p><strong>价值函数：</strong></p>
+          <p class="math text-center my-1">第 t 小时送达 1 吨物资的价值 = V<sub>0</sub> · e<sup>-λt</sup></p>
+          <p class="mt-2">目标变为 <strong>最大化总价值 − 总成本</strong>，等价于最小化 <strong>总成本 − 总价值</strong>。</p>
+          <p class="mt-1 text-xs text-slate-500">注意：含 e<sup>-λt</sup> 的目标是非线性的，可用 scipy 求解连续变量版本。若需保留整数变量（租直升机架次），需要使用 MINLP 求解器。</p>
         </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import numpy as np
-from scipy.optimize import minimize
-
-WAREHOUSES = ['W1', 'W2', 'W3']
-TOWNS = ['A', 'B', 'C']
-HOURS = list(range(12))
-ROUND_TRIP = 3
-HELI_LOAD = 2
-OWN_HELI = 4            # enough capacity so no rental needed for demo
-HELI_CAPACITY = (len(HOURS) / ROUND_TRIP) * OWN_HELI * HELI_LOAD
-
-inventory = {'W1': 12, 'W2': 15, 'W3': 10}
-demand = {'A': 10, 'B': 12, 'C': 8}
-cost = {
-    'W1': {'A': 3, 'B': 5, 'C': 7},
-    'W2': {'A': 6, 'B': 2, 'C': 4},
-    'W3': {'A': 8, 'B': 4, 'C': 3},
-}
-
-VALUE_PER_TON = 50      # value of delivering 1 ton at t=0
-LAMBDA = 0.15           # decay rate
-
-def idx(w, t, h):
-    return (WAREHOUSES.index(w) * len(HOURS) + t) * len(TOWNS) + TOWNS.index(h)
-
-def objective(x):
-    transport = sum(cost[w][h] * x[idx(w,t,h)]
-                    for w in WAREHOUSES for t in HOURS for h in TOWNS)
-    value = sum(x[idx(w,t,h)] * VALUE_PER_TON * np.exp(-LAMBDA * t)
-                for w in WAREHOUSES for t in HOURS for h in TOWNS)
-    # minimize cost - value  ==  maximize value - cost
-    return transport - value
-
-n_vars = len(WAREHOUSES) * len(HOURS) * len(TOWNS)
-bounds = [(0, None) for _ in range(n_vars)]
-
-constraints = []
-# Inventory
-for w in WAREHOUSES:
-    constraints.append({'type': 'ineq',
-                        'fun': lambda x, w=w: inventory[w] - sum(x[idx(w,t,h)] for t in HOURS for h in TOWNS)})
-# Helicopter capacity: per-hour cap and total cap
-per_hour_cap = OWN_HELI * HELI_LOAD  # assuming each heli can fly one trip per hour
-for t in HOURS:
-    constraints.append({'type': 'ineq',
-                        'fun': lambda x, t=t: per_hour_cap - sum(x[idx(w,t,h)] for w in WAREHOUSES for h in TOWNS)})
-constraints.append({'type': 'ineq',
-                    'fun': lambda x: HELI_CAPACITY - sum(x[idx(w,t,h)] for w in WAREHOUSES for t in HOURS for h in TOWNS)})
-# Demand balance
-for h in TOWNS:
-    constraints.append({'type': 'eq',
-                        'fun': lambda x, h=h: sum(x[idx(w,t,h)] for w in WAREHOUSES for t in HOURS) - demand[h]})
-# Fairness for B
-constraints.append({'type': 'ineq',
-                    'fun': lambda x: sum(x[idx(w,t,'B')] for w in WAREHOUSES for t in HOURS) - 0.5 * demand['B']})
-
-x0 = np.zeros(n_vars)
-res = minimize(objective, x0, method='SLSQP', bounds=bounds, constraints=constraints)
-
-print(f"Success: {res.success}")
-print(f"Objective (cost - value): ${res.fun:.2f}")
-X = res.x.reshape(len(WAREHOUSES), len(HOURS), len(TOWNS))
-for h in TOWNS:
-    j = TOWNS.index(h)
-    delivered = X[:, :, j].sum()
-    print(f"Town {h}: delivered {delivered:.2f} / {demand[h]}")
-
-# Show average delivery hour for each town
-hourly = X.sum(axis=(0, 2))
-print(f"\nHourly total shipment: {hourly.round(2)}")
-</code></pre>
-        </div>
+        <p><strong>启发问题：</strong>λ 越大，模型越倾向于把物资集中在哪些小时送达？如果把 λ 设为 0，模型行为会变成什么？</p>
+        <p class="text-xs text-slate-500 mt-4"><strong>注：</strong>含指数衰减价值的完整可运行代码见第 8 节“L3 高阶模型”。</p>
       </div>
 
       <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
@@ -848,8 +616,19 @@ print(f"\nHourly total shipment: {hourly.round(2)}")
               <p>把问题简化成“从仓库到城镇的最小成本运输”。不考虑时间、不考虑租机、不允许缺货。适合第一次接触优化的学生：变量只有 x[w][h]，目标函数和约束都是线性的。</p>
             </div>
             <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-indigo-900 mb-2">指标定义</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>w ∈ W：</strong>仓库集合，例如 W1、W2、W3。</li>
+                <li><strong>h ∈ H：</strong>受灾城镇集合，例如 A、B、C。</li>
+                <li><strong>x<sub>wh</sub>：</strong>从仓库 w 运往城镇 h 的物资吨数（连续非负决策变量）。</li>
+                <li><strong>c<sub>wh</sub>：</strong>从仓库 w 到城镇 h 的单位运输成本（美元/吨）。</li>
+                <li><strong>inventory<sub>w</sub>：</strong>仓库 w 的初始库存（吨）。</li>
+                <li><strong>demand<sub>h</sub>：</strong>城镇 h 的最低需求量（吨）。</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
               <div class="font-semibold text-indigo-900 mb-2">目标方程</div>
-              <p class="math text-center my-1">min Σ<sub>w,h</sub> c<sub>wh</sub> · x<sub>wh</sub></p>
+              <p class="math text-center my-1">min Σ<sub>w∈W,h∈H</sub> c<sub>wh</sub> · x<sub>wh</sub></p>
               <p class="mt-1">最小化总运输成本。</p>
             </div>
             <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
@@ -865,39 +644,57 @@ print(f"\nHourly total shipment: {hourly.round(2)}")
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import pulp
 
+# ==================== 1. 数据准备 ====================
+# WAREHOUSES: 仓库集合 w
 WAREHOUSES = ['W1', 'W2', 'W3']
+# TOWNS: 受灾城镇集合 h
 TOWNS = ['A', 'B', 'C']
 
-# 数据：库存、需求、单位运输成本
+# inventory[w]: 仓库 w 的初始库存（吨）
 inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+# demand[h]: 城镇 h 的最低需求量（吨）
 demand = {'A': 10, 'B': 12, 'C': 8}
+# cost[w][h]: 从仓库 w 到城镇 h 的单位运输成本（美元/吨）
 cost = {
     'W1': {'A': 3, 'B': 5, 'C': 7},
     'W2': {'A': 6, 'B': 2, 'C': 4},
     'W3': {'A': 8, 'B': 4, 'C': 3},
 }
 
+# ==================== 2. 创建模型 ====================
+# 定义一个最小化问题，命名为 Rescue_Level1
 prob = pulp.LpProblem('Rescue_Level1', pulp.LpMinimize)
 
-# x[w][h]: 从仓库 w 运往城镇 h 的吨数（连续非负）
+# 决策变量 x[w][h]: 从仓库 w 运往城镇 h 的物资吨数
+# lowBound=0 表示运量不能为负（非负约束）
 x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
 
-# 目标函数：最小化总运输成本
+# ==================== 3. 目标函数 ====================
+# 最小化总运输成本 = sum(单位成本 * 运量) 对所有 (w, h) 组合
 prob += pulp.lpSum(cost[w][h] * x[w][h]
                    for w in WAREHOUSES for h in TOWNS)
 
-# 约束 1：每个仓库运出量不超过库存
+# ==================== 4. 约束条件 ====================
+# 约束 1：每个仓库运出量不超过其库存
+# 对每一个仓库 w：sum(x[w][h] for all h) <= inventory[w]
 for w in WAREHOUSES:
     prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w], f'inventory_{w}'
 
-# 约束 2：每个城镇必须恰好满足需求（无短缺）
+# 约束 2：每个城镇必须恰好满足需求（L1 不允许短缺）
+# 对每一个城镇 h：sum(x[w][h] for all w) == demand[h]
 for h in TOWNS:
     prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) == demand[h], f'demand_{h}'
 
+# ==================== 5. 求解并输出结果 ====================
+# 使用 CBC 求解器，msg=0 表示不输出求解器内部日志
 prob.solve(pulp.PULP_CBC_CMD(msg=0))
 
+# prob.status 是数值状态码，LpStatus 把它转成可读字符串（Optimal / Infeasible 等）
 print('Status:', pulp.LpStatus[prob.status])
+# prob.objective 是目标函数表达式，用 pulp.value 取最优值
 print('Total cost:', pulp.value(prob.objective))
+
+# 遍历所有 (w, h) 组合，打印运量大于 0.001 吨的方案
 for w in WAREHOUSES:
     for h in TOWNS:
         val = pulp.value(x[w][h])
@@ -918,8 +715,19 @@ for w in WAREHOUSES:
               <p>在 L1 基础上承认现实：总运力可能不够，需求可能无法 100% 满足。引入短缺变量 shortage[h] 作为“松动的口子”，并允许以整数数量租用额外直升机。目标函数把短缺和租机都变成“钱”，让模型自己权衡。</p>
             </div>
             <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-amber-900 mb-2">指标定义</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>w ∈ W：</strong>仓库集合；h ∈ H：受灾城镇集合。</li>
+                <li><strong>x<sub>wh</sub>：</strong>从仓库 w 运往城镇 h 的物资吨数（连续非负）。</li>
+                <li><strong>shortage<sub>h</sub>：</strong>城镇 h 最终仍未满足的需求量（连续非负松弛变量）。</li>
+                <li><strong>rental：</strong>额外租用的直升机架次（整数非负决策变量）。</li>
+                <li><strong>c<sub>wh</sub>：</strong>单位运输成本；R：每架租机总成本；P：每吨缺货惩罚。</li>
+                <li><strong>OWN_HELI：</strong>自有直升机数量；HELI_LOAD：每架次载重（吨）。</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
               <div class="font-semibold text-amber-900 mb-2">目标方程</div>
-              <p class="math text-center my-1">min Σ c<sub>wh</sub>x<sub>wh</sub> + R·rental + P·Σ shortage<sub>h</sub></p>
+              <p class="math text-center my-1">min Σ<sub>w∈W,h∈H</sub> c<sub>wh</sub>·x<sub>wh</sub> + R·rental + P·Σ<sub>h∈H</sub> shortage<sub>h</sub></p>
               <p class="mt-1">运输成本 + 租机成本 + 缺货惩罚。P 越大，模型越不愿意短缺。</p>
             </div>
             <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
@@ -937,58 +745,72 @@ for w in WAREHOUSES:
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import pulp
 
-WAREHOUSES = ['W1', 'W2', 'W3']
-TOWNS = ['A', 'B', 'C']
+# ==================== 1. 数据准备 ====================
+WAREHOUSES = ['W1', 'W2', 'W3']   # 仓库集合 w
+TOWNS = ['A', 'B', 'C']           # 城镇集合 h
 
-inventory = {'W1': 12, 'W2': 15, 'W3': 10}
-demand = {'A': 10, 'B': 12, 'C': 8}
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}  # inventory[w]: 仓库 w 库存（吨）
+demand = {'A': 10, 'B': 12, 'C': 8}         # demand[h]: 城镇 h 需求量（吨）
+# cost[w][h]: 从仓库 w 到城镇 h 的单位运输成本（美元/吨）
 cost = {
     'W1': {'A': 3, 'B': 5, 'C': 7},
     'W2': {'A': 6, 'B': 2, 'C': 4},
     'W3': {'A': 8, 'B': 4, 'C': 3},
 }
 
-OWN_HELI = 4
-HELI_LOAD = 2
-RENTAL_COST = 50      # 每架租机总成本
-SHORTAGE_PENALTY = 100  # 每吨缺货惩罚
+OWN_HELI = 4          # 自有直升机数量
+HELI_LOAD = 2         # 每架直升机单次可运吨数
+RENTAL_COST = 50      # 租用一架直升机的总成本（美元）
+SHORTAGE_PENALTY = 100  # 每吨未满足需求的惩罚成本（美元/吨）
 
+# ==================== 2. 创建模型 ====================
 prob = pulp.LpProblem('Rescue_Level2', pulp.LpMinimize)
 
-# x[w][h]: 运量；shortage[h]: 城镇 h 的缺货量；rental: 租机数量（整数）
+# x[w][h]: 从仓库 w 运往城镇 h 的物资吨数（连续非负）
 x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
+# shortage[h]: 城镇 h 未被满足的需求量（连续非负松弛变量）
 shortage = pulp.LpVariable.dicts('shortage', TOWNS, lowBound=0)
+# rental: 额外租用的直升机架次（整数非负决策变量）
 rental = pulp.LpVariable('rental', lowBound=0, cat='Integer')
 
-# 目标函数：运输成本 + 租机成本 + 缺货惩罚
+# ==================== 3. 目标函数 ====================
+# 总成本 = 运输成本 + 租机成本 + 缺货惩罚
+# 模型会在这三者之间自动权衡：当缺货惩罚很高时，宁愿多租直升机
 prob += (
     pulp.lpSum(cost[w][h] * x[w][h] for w in WAREHOUSES for h in TOWNS)
     + RENTAL_COST * rental
     + SHORTAGE_PENALTY * pulp.lpSum(shortage[h] for h in TOWNS)
 )
 
-# 约束 1：库存上限
+# ==================== 4. 约束条件 ====================
+# 约束 1：每个仓库运出总量不超过其库存
 for w in WAREHOUSES:
     prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w]
 
-# 约束 2：需求 = 送达 + 短缺
+# 约束 2：需求 = 实际送达量 + 短缺量
+# 允许 shortage[h] > 0，意味着模型可以“接受”部分需求未被满足
 for h in TOWNS:
     prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) + shortage[h] == demand[h]
 
-# 约束 3：总运量受限于（自有 + 租用）直升机运力
+# 约束 3：总运输量不能超过（自有 + 租用）直升机的总运力
+# 注意：rental 是变量，因此总容量 (OWN_HELI + rental) * HELI_LOAD 随决策变化
 total_capacity = (OWN_HELI + rental) * HELI_LOAD
 prob += pulp.lpSum(x[w][h] for w in WAREHOUSES for h in TOWNS) <= total_capacity
 
-# 约束 4：公平性——每个城镇至少获得 50% 需求
+# 约束 4：公平性约束——每个城镇至少获得 50% 的需求
+# 避免模型为了省钱而放弃小城市
 for h in TOWNS:
     prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) >= 0.5 * demand[h]
 
+# ==================== 5. 求解并输出结果 ====================
 prob.solve(pulp.PULP_CBC_CMD(msg=0))
 
 print('Status:', pulp.LpStatus[prob.status])
 print('Total cost:', pulp.value(prob.objective))
 print('Rental helicopters:', pulp.value(rental))
+
 for h in TOWNS:
+    # 计算城镇 h 实际收到的总物资
     delivered = pulp.value(pulp.lpSum(x[w][h] for w in WAREHOUSES))
     print(f'Town {h}: delivered {delivered:.2f}, shortage {pulp.value(shortage[h]):.2f}')
 </code></pre>
@@ -1006,8 +828,19 @@ for h in TOWNS:
               <p>灾后救援的物资价值随时间衰减：第 1 小时送到的水和第 10 小时送到的水价值不同。同时道路可能受损，卡车便宜但到不了某些城镇，直升机贵但全覆盖。L3 把这两个现实因素同时纳入：12 小时时间轴、两种运输方式、指数衰减价值函数。</p>
             </div>
             <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-rose-900 mb-2">指标定义</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>w ∈ W：</strong>仓库；h ∈ H：城镇；t ∈ T：小时（0 到 11）。</li>
+                <li><strong>m ∈ M：</strong>运输方式，m = 0 为卡车，m = 1 为直升机。</li>
+                <li><strong>x<sub>w,t,h,m</sub>：</strong>第 t 小时从仓库 w 用方式 m 运往城镇 h 的物资吨数（连续非负）。</li>
+                <li><strong>c<sub>w,h,m</sub>：</strong>方式 m 从 w 到 h 的单位运输成本；999 表示卡车不可达。</li>
+                <li><strong>V<sub>0</sub>：</strong>第 0 小时送达每吨物资的价值；λ：价值衰减率。</li>
+                <li><strong>TRUCK_CAP / HELI_CAP：</strong>卡车/直升机每小时的总运力上限（吨/小时）。</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
               <div class="font-semibold text-rose-900 mb-2">目标方程</div>
-              <p class="math text-center my-1">min Σ c<sub>w,h,m</sub>·x<sub>w,t,h,m</sub> − V<sub>0</sub>·Σ x<sub>w,t,h,m</sub>·e<sup>−λt</sup></p>
+              <p class="math text-center my-1">min Σ<sub>w,t,h,m</sub> c<sub>w,h,m</sub>·x<sub>w,t,h,m</sub> − V<sub>0</sub>·Σ<sub>w,t,h,m</sub> x<sub>w,t,h,m</sub>·e<sup>−λt</sup></p>
               <p class="mt-1">最小化“成本 − 时间折现价值”。λ 越大，模型越倾向于早送达。</p>
             </div>
             <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
@@ -1027,56 +860,71 @@ for h in TOWNS:
           <div class="relative">
             <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
             <pre><code class="language-python">import warnings
+# scipy 在求解线性目标时可能打印 "delta_grad == 0.0" 的提示，这里忽略它
 warnings.filterwarnings('ignore', message='delta_grad == 0.0')
 import numpy as np
 from scipy.optimize import minimize
 
-WAREHOUSES = ['W1', 'W2', 'W3']
-TOWNS = ['A', 'B', 'C']
-HOURS = list(range(12))
+# ==================== 1. 数据准备 ====================
+WAREHOUSES = ['W1', 'W2', 'W3']   # 仓库集合 w
+TOWNS = ['A', 'B', 'C']           # 城镇集合 h
+HOURS = list(range(12))           # 时间轴 t = 0, 1, ..., 11
 
-inventory = {'W1': 12, 'W2': 15, 'W3': 10}
-demand = {'A': 10, 'B': 12, 'C': 8}
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}  # inventory[w]: 仓库 w 库存
+demand = {'A': 10, 'B': 12, 'C': 8}         # demand[h]: 城镇 h 需求
 
-# 卡车便宜但部分城镇无法到达（用 999 表示不可达）
+# TRUCK_COST[w][h]: 卡车从 w 到 h 的单位成本；999 表示该线路因道路损坏不可达
 TRUCK_COST = {
     'W1': {'A': 1, 'B': 2, 'C': 999},
     'W2': {'A': 2, 'B': 1, 'C': 3},
     'W3': {'A': 999, 'B': 2, 'C': 1},
 }
-# 直升机贵但全覆盖
+# HELI_COST[w][h]: 直升机从 w 到 h 的单位成本（直升机可以到达所有城镇）
 HELI_COST = {
     'W1': {'A': 3, 'B': 5, 'C': 7},
     'W2': {'A': 6, 'B': 2, 'C': 4},
     'W3': {'A': 8, 'B': 4, 'C': 3},
 }
 
-TRUCK_CAP = 5          # 每小时卡车总运力（吨）
-HELI_CAP = 8           # 每小时直升机总运力（吨） = 4 架 × 2 吨
-VALUE_PER_TON = 50     # 第 0 小时送达每吨的价值
-LAMBDA = 0.15          # 价值衰减率
+TRUCK_CAP = 5          # 每小时所有卡车的总运力上限（吨/小时）
+HELI_CAP = 8           # 每小时所有直升机的总运力上限（吨/小时）
+VALUE_PER_TON = 50     # 第 0 小时送达 1 吨物资的价值（美元）
+LAMBDA = 0.15          # 价值衰减率：越大表示越早送达越重要
+
+# ==================== 2. 变量编码 ====================
+# 决策变量 x_{w,t,h,m} 是四维的，但 scipy 只接受一维向量。
+# 因此用 idx() 把 (w, t, h, mode) 映射到一维向量的位置。
+# mode = 0: 卡车；mode = 1: 直升机
 
 def idx(w, t, h, mode):
-    """mode: 0 = truck, 1 = helicopter"""
+    """把四维索引 (仓库, 小时, 城镇, 方式) 映射到一维向量位置。"""
     return ((WAREHOUSES.index(w) * len(HOURS) + t) * len(TOWNS) + TOWNS.index(h)) * 2 + mode
 
+# 总变量数 = 仓库数 × 小时数 × 城镇数 × 方式数
 n_vars = len(WAREHOUSES) * len(HOURS) * len(TOWNS) * 2
 
+# ==================== 3. 目标函数 ====================
+# 目标 = 总运输成本 - 总时间折现价值
+# 其中价值项含 e^{-λt}，使越早送达的物资价值越高
 def objective(x):
+    # 运输成本：根据方式选择对应的成本矩阵
     transport = sum(
         (TRUCK_COST[w][h] if m == 0 else HELI_COST[w][h]) * x[idx(w, t, h, m)]
         for w in WAREHOUSES for t in HOURS for h in TOWNS for m in [0, 1]
     )
+    # 时间折现价值：第 t 小时送达的物资价值为 V0 * e^{-λt}
     value = sum(
         x[idx(w, t, h, m)] * VALUE_PER_TON * np.exp(-LAMBDA * t)
         for w in WAREHOUSES for t in HOURS for h in TOWNS for m in [0, 1]
     )
     return transport - value
 
+# ==================== 4. 变量边界与约束 ====================
+# 所有决策变量非负：0 <= x < +∞
 bounds = [(0, None) for _ in range(n_vars)]
 constraints = []
 
-# 约束 1：每个仓库库存上限
+# 约束 1：每个仓库在所有时间、所有方式运出的总量不超过库存
 for w in WAREHOUSES:
     constraints.append({
         'type': 'ineq',
@@ -1085,7 +933,7 @@ for w in WAREHOUSES:
         )
     })
 
-# 约束 2：每个城镇累计需求被满足
+# 约束 2：每个城镇在所有时间、所有方式累计收到的总量等于需求
 for h in TOWNS:
     constraints.append({
         'type': 'eq',
@@ -1094,7 +942,7 @@ for h in TOWNS:
         ) - demand[h]
     })
 
-# 约束 3：每小时卡车运力上限
+# 约束 3：每小时卡车的总运量不超过卡车运力上限
 for t in HOURS:
     constraints.append({
         'type': 'ineq',
@@ -1103,7 +951,7 @@ for t in HOURS:
         )
     })
 
-# 约束 4：每小时直升机运力上限
+# 约束 4：每小时直升机的总运量不超过直升机运力上限
 for t in HOURS:
     constraints.append({
         'type': 'ineq',
@@ -1112,7 +960,7 @@ for t in HOURS:
         )
     })
 
-# 约束 5：公平性——每个城镇至少 50% 需求
+# 约束 5：公平性约束——每个城镇累计获得量不低于 50% 需求
 for h in TOWNS:
     constraints.append({
         'type': 'ineq',
@@ -1121,16 +969,25 @@ for h in TOWNS:
         ) - 0.5 * demand[h]
     })
 
+# ==================== 5. 求解并输出结果 ====================
+# 初始猜测：全零向量
 x0 = np.zeros(n_vars)
+# 使用 trust-constr 方法求解带约束的非线性优化问题
 res = minimize(objective, x0, method='trust-constr', bounds=bounds, constraints=constraints,
                options={'maxiter': 1000})
 
 print('Success:', res.success)
 print('Objective (cost - value):', f'${res.fun:.2f}')
+
+# 把一维解向量还原为四维数组 (w, t, h, mode)
 X = res.x.reshape(len(WAREHOUSES), len(HOURS), len(TOWNS), 2)
+
+# 检查每个城镇的总送达量
 for h in TOWNS:
     delivered = X[:, :, TOWNS.index(h), :].sum()
     print(f'Town {h}: delivered {delivered:.2f} / {demand[h]}')
+
+# 展示每小时两种运输方式的总运量
 print('\nHourly truck shipment:', X[:, :, :, 0].sum(axis=(0, 2)).round(2))
 print('Hourly heli shipment:', X[:, :, :, 1].sum(axis=(0, 2)).round(2))
 </code></pre>
