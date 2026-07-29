@@ -16,6 +16,7 @@
     pre { max-height: 520px; overflow: auto; }
     .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; }
     .math { font-family: Georgia, 'Times New Roman', serif; }
+    .step-nav .active { background-color: #f59e0b; color: white; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -32,6 +33,14 @@
     <nav class="sticky top-0 z-10 bg-white/95 backdrop-blur border rounded-lg shadow-sm p-4 mb-8">
       <div class="flex flex-wrap gap-3 justify-center text-sm">
         <a href="#m4b" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200">MTSP</a>
+        <a href="#m4b-step1" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S1 概念</a>
+        <a href="#m4b-step2" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S2 数据</a>
+        <a href="#m4b-step3" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S3 变量</a>
+        <a href="#m4b-step4" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S4 约束</a>
+        <a href="#m4b-step5" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S5 求解</a>
+        <a href="#m4b-step6" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S6 可视化</a>
+        <a href="#m4b-step7" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S7 启发式</a>
+        <a href="#m4b-step8" class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100">S8 对比</a>
         <a href="#m11" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">Case: 商场火灾</a>
         <a href="#m12" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">抽象为图</a>
         <a href="#m13" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">SIR 烟雾</a>
@@ -43,94 +52,319 @@
       </div>
     </nav>
 
-    <!-- Module 4b: MTSP -->
     <section id="m4b" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">4b. MTSP：多旅行商与不同起终点</h2>
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">4b. MTSP：多旅行商与不同起终点</h2>
+      <p class="text-slate-700 mb-4">本模块把 MTSP（Multiple Traveling Salesman Problem）拆成 8 个递进步骤。前 6 步用精确优化（MILP）建立可解释的模型；第 7 步讨论“节点变多后为什么精确求解会变慢”，并演示三种经典启发式；第 8 步用 benchmark 比较所有方法的速度与解质量。</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div class="bg-amber-50 rounded p-3"><strong>S1</strong><br>从 TSP 到 MTSP</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S2</strong><br>数据抽象</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S3</strong><br>决策变量</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S4</strong><br>约束设计</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S5</strong><br>目标与求解</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S6</strong><br>可视化</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S7</strong><br>NP-hard 与启发式</div>
+        <div class="bg-amber-50 rounded p-3"><strong>S8</strong><br>性能对比</div>
+      </div>
+    </section>
+
+    <section id="m4b-step1" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S1. 从 TSP 到 MTSP：问题是怎么变难的？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
-        <div class="prose prose-slate">
-          <p class="text-slate-700 mb-4"><strong>问题：</strong>有 K 名销售人员（或搜救人员、车辆），每人有各自的起点和终点。要求所有人合起来恰好访问所有客户节点一次，且任一人员的路径最“长”（用时/距离）尽可能短。</p>
-          <div class="p-4 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
-            <div class="font-semibold text-amber-900 mb-2">MTSP 数学表达</div>
-            <p><strong>集合：</strong>V = 所有节点；S_k = 第 k 个人起点；E_k = 第 k 个人终点；I = V \ ∪_k {{S_k, E_k}}（中间节点）。</p>
-            <p class="mt-2"><strong>决策变量：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>x<sub>ij</sub><sup>k</sup> ∈ {0,1}：第 k 个人是否从 i 直接到 j</li>
-              <li>T ≥ 0：所有人的最大行程（makespan）</li>
-            </ul>
-            <p class="mt-2"><strong>目标函数：</strong></p>
-            <p class="math text-center my-2">min T</p>
-            <p class="mt-2"><strong>约束：</strong></p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>每个中间节点恰好被一个人进入、一个人离开</li>
-              <li>第 k 个人从 S_k 出发、到达 E_k</li>
-              <li>每个人路径流量守恒</li>
-              <li>Σ<sub>i,j</sub> c<sub>ij</sub> · x<sub>ij</sub><sup>k</sup> ≤ T，∀k</li>
-              <li>消除子回路（MTZ）</li>
-            </ul>
-          </div>
-          <div class="p-3 bg-amber-50 rounded-lg text-sm text-amber-800">
-            <strong> takeaway：</strong>把 TSP 的“最短总距离”改成“最短最长单线距离”，立刻对应到搜救、配送、巡逻中的公平与效率平衡。
-          </div>
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>TSP 回顾：</strong>一个人从某点出发，访问所有节点一次，最后回到起点；目标通常是最小化总路程。</p>
+          <p class="text-slate-700 mb-4"><strong>MTSP 变化：</strong>现在有 K 个人（车辆、搜救队、配送员）。每个人有自己的起点和终点，所有人合起来要覆盖所有客户节点；目标从“总路程最短”变成“最长单线路程最短”（makespan），从而保证没有人被分配到一条过长的路线。</p>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>把“总成本”换成“最大成本”，问题就从单纯的排序变成了<strong>分配 + 排序</strong>的组合优化。</div>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import pulp
-import numpy as np
+          <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
-# ===== 1. 数据输入 =====
 # nodes: list[str]，所有节点的标签
 nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-# n: int，节点总数
 n = len(nodes)
 
-# coords: numpy.ndarray, shape (n, 2)，每个节点在二维平面上的随机坐标
+# coords: numpy.ndarray, shape (n, 2)，节点在二维平面上的坐标
 np.random.seed(42)
 coords = np.random.rand(n, 2) * 10
 
-# dist: numpy.ndarray, shape (n, n)，对称距离矩阵；dist[i][j] 表示节点 i 到 j 的欧氏距离
+# salesmen: list[dict]，每名销售人员的起点和终点
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+
+# 可视化问题设定：节点、起点、终点
+plt.figure(figsize=(8, 6))
+plt.scatter(coords[:, 0], coords[:, 1], c='lightgray', s=400, zorder=3)
+for idx, node in enumerate(nodes):
+    plt.text(coords[idx, 0], coords[idx, 1], node,
+             ha='center', va='center', fontsize=10, fontweight='bold')
+
+# 用不同颜色标出每个 salesman 的起点和终点
+colors = ['red', 'blue']
+for k, s in enumerate(salesmen):
+    sk_idx = nodes.index(s['start'])
+    ek_idx = nodes.index(s['end'])
+    plt.scatter(coords[sk_idx, 0], coords[sk_idx, 1],
+                c=colors[k], s=600, marker='o', edgecolors='black', zorder=4,
+                label=f"{s['name']}: {s['start']}→{s['end']}")
+    plt.scatter(coords[ek_idx, 0], coords[ek_idx, 1],
+                c=colors[k], s=600, marker='s', edgecolors='black', zorder=4)
+
+plt.title('MTSP Problem Setup: 2 Salesmen with Different Start/End Points')
+plt.legend()
+plt.axis('off')
+plt.show()
+
+print(f"Total nodes: {n}")
+print(f"Number of salesmen: {K}")
+print(f"Intermediate nodes to visit: {[n for n in nodes if n not in {'A','B','C','D'}]}")
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>TSP 和 MTSP 的根本区别是什么？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>TSP 只需要决定访问顺序；MTSP 还要决定“哪些节点归谁”，并且关心的是所有人中最长的那条路线。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>为什么目标函数通常选“最长路线”而不是“总路线”？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>在搜救、配送、巡逻中，任务完成时间由最后完成的人决定。最小化 makespan 能让负担更均衡，避免某个人被分配到过长路线。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>每个人的起点和终点不同，会带来什么额外困难？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>路径不能简单拼接成一个“大环”；必须分别保证每个人从自己的起点出发、到达自己的终点，并且所有人合起来覆盖所有中间节点。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>你还能想到哪些现实场景适合用 MTSP 建模？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>多架无人机巡检电网，每架从不同的机库起飞、降落。</p>
+          <p><strong>回答 B：</strong>多支搜救队从不同营地出发，覆盖所有受灾点。</p>
+          <p><strong>回答 C：</strong>快递车队从不同的中转站发车，配送全市包裹。</p>
+          <p><strong>回答 D：</strong>夜班保安从不同的值班室出发，巡逻所有楼层。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步重点是让学生意识到 MTSP 比 TSP 多了一个“分配”维度。可以引导学生先手工分配几个节点给两个 salesman，再讨论“怎样才算公平”。makespan 是连接数学模型与现实公平感的关键概念。</p>
+      </div>
+    </section>
+
+    <section id="m4b-step2" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S2. 数据抽象：把地图变成距离矩阵</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>图建模：</strong>把每个地点看成节点，把“从一个地点到另一个地点的通行成本”看成边权。对于平面问题，常用欧氏距离作为成本；对于真实路网，可以用最短路径距离或通行时间。</p>
+          <p class="text-slate-700 mb-4"><strong>关键区分：</strong>起点/终点节点只作为路径端点，不需要被“访问”；其余节点是中间节点（intermediate），必须被恰好访问一次。</p>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>建模的第一步不是写变量，而是明确哪些对象属于图、哪些对象是决策空间。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+# nodes: list[str]，所有节点的标签
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+
+# coords: numpy.ndarray, shape (n, 2)，每个节点在二维平面上的坐标
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+
+# dist: numpy.ndarray, shape (n, n)，对称距离矩阵
+# dist[i][j] 表示节点 i 到节点 j 的欧氏距离
 dist = np.zeros((n, n))
 for i in range(n):
     for j in range(n):
         dist[i][j] = np.linalg.norm(coords[i] - coords[j])
 
-# salesmen: list[dict]，每名销售人员的元信息：姓名、起点、终点
+# salesmen: list[dict]，每名销售人员的起点和终点信息
 salesmen = [
     {'name': 'S1', 'start': 'A', 'end': 'B'},
     {'name': 'S2', 'start': 'C', 'end': 'D'}
 ]
-# K: int，销售人员数量
 K = len(salesmen)
 
-# start_ends: set[str]，所有起点和终点的集合，这些节点不需要被“访问”，只作为路径端点
+# start_ends: set[str]，所有起点和终点的集合
 start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+
 # intermediate: list[str]，需要被访问的中间节点（去掉所有起点/终点）
-intermediate = [n for n in nodes if n not in start_ends]
-# N: int，中间节点数量，用于 MTZ 子回路消除中的位置编号上界
+intermediate = [node for node in nodes if node not in start_ends]
 N = len(intermediate)
 
-# ===== 2. 创建 PuLP 模型 =====
-# prob: pulp.LpProblem 实例，目标是最小化 makespan（所有人中最长的单线路径）
+# 可视化原始图：节点 + 所有可能边（完全图）
+plt.figure(figsize=(8, 6))
+for i in range(n):
+    for j in range(i + 1, n):
+        plt.plot([coords[i, 0], coords[j, 0]],
+                 [coords[i, 1], coords[j, 1]],
+                 'k-', alpha=0.15, linewidth=0.5)
+plt.scatter(coords[:, 0], coords[:, 1], c='lightgray', s=400, zorder=3)
+for idx, node in enumerate(nodes):
+    color = 'darkgreen' if node in intermediate else 'darkred'
+    plt.text(coords[idx, 0], coords[idx, 1], node,
+             ha='center', va='center', fontsize=10, fontweight='bold', color=color)
+plt.title('Complete Graph: Every Pair of Nodes is Connected')
+plt.axis('off')
+plt.show()
+
+print("Distance matrix:")
+print(np.round(dist, 2))
+print(f"\nIntermediate nodes to cover: {intermediate}")
+print(f"Start/end depot nodes: {sorted(start_ends)}")
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么通常使用对称距离矩阵？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>如果道路是双向且通行条件相同，距离就是对称的。但如果遇到单行线、坡度、风速等，就需要非对称距离矩阵，模型也会相应复杂。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>起点和终点为什么要单独列出，而不是也当作“中间节点”？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>起点只出不入、终点只入不出，它们是路径的边界。如果当作普通节点要求“恰好访问一次”，就会破坏每个人从固定起点出发、到达固定终点的设定。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>intermediate 节点的数量 N 为什么很重要？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>N 决定了 MTZ 子回路消除中位置变量的取值范围 [1, N]，也直接影响求解难度。N 越大，可行解空间越大。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>如果真实场景中的距离不是欧氏距离，应该怎么做？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>用路网最短路径算法（如 Dijkstra）计算每对节点之间的实际通行距离。</p>
+          <p><strong>回答 B：</strong>用通行时间代替距离，考虑拥堵、限速、红绿灯等待时间。</p>
+          <p><strong>回答 C：</strong>如果不同 salesman 使用不同交通工具，每个人可以有自己的距离矩阵。</p>
+          <p><strong>回答 D：</strong>距离矩阵可以来自历史 GPS 数据或导航 API。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步强调“抽象”二字。让学生区分几何信息（coords）、组合信息（nodes）和权值信息（dist）。可以讨论：完全图假设是否合理？真实问题中是否所有边都存在？</p>
+      </div>
+    </section>
+
+    <section id="m4b-step3" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S3. 决策变量：我们要决定什么？</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4">MTSP 需要三类变量：</p>
+          <ul class="list-disc pl-5 space-y-1 mb-4 text-slate-700">
+            <li><strong>x<sub>ij</sub><sup>k</sup> ∈ {0,1}</strong>：第 k 个人是否从节点 i 直接前往节点 j。</li>
+            <li><strong>T ≥ 0</strong>：所有 K 条路线中的最大长度（makespan），也是我们最小化的目标。</li>
+            <li><strong>u<sub>i</sub><sup>k</sup> ∈ [1, N]</strong>：MTZ 子回路消除辅助变量，表示节点 i 在第 k 个人路径中的访问序号。</li>
+          </ul>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>变量的设计要能完整描述“谁走哪条边、最长边是多少、有没有子回路”。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+import numpy as np
+
+# --- 数据准备（与 S2 相同）---
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+intermediate = [node for node in nodes if node not in start_ends]
+N = len(intermediate)
+
+# --- 创建模型 ---
 prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
 
-# ===== 3. 决策变量 =====
-# x: dict[str, dict[str, dict[int, pulp.LpVariable]]]，三维二元变量 x[i][j][k]
-#    x[i][j][k] == 1 表示第 k 名 salesman 的路径中包含从节点 i 直接到节点 j 的边
+# x: dict[str, dict[str, dict[int, pulp.LpVariable]]]
+#    三维二元变量 x[i][j][k]
+#    数据类型：字典嵌套字典嵌套字典
+#    用途：x[i][j][k] == 1 表示第 k 名 salesman 从节点 i 直接走到节点 j
 x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
 
-# T: pulp.LpVariable，连续变量，表示所有 salesmen 中单条路径长度的最大值（makespan）
+# T: pulp.LpVariable
+#    数据类型：单个连续型 PuLP 变量
+#    用途：记录所有 salesman 中最长单条路线的长度（makespan）
 T = pulp.LpVariable('T', lowBound=0)
 
-# u: dict[str, dict[int, pulp.LpVariable]]，MTZ 辅助变量 u[i][k]
-#    表示中间节点 i 在第 k 名 salesman 路径中的访问序号，范围 [1, N]
-#    例如 u['E'][0] = 2 表示 E 是 S1 路径中第 2 个访问的中间节点
-u = pulp.LpVariable.dicts('u', (intermediate, range(K)), lowBound=1, upBound=N, cat='Continuous')
+# u: dict[str, dict[int, pulp.LpVariable]]
+#    数据类型：字典嵌套字典
+#    用途：MTZ 辅助变量，u[i][k] 表示中间节点 i 在第 k 名 salesman 路径中的访问序号
+#    取值范围：[1, N]，保证每个 salesman 访问的中间节点都有唯一顺序
+u = pulp.LpVariable.dicts('u', (intermediate, range(K)),
+                          lowBound=1, upBound=N, cat='Continuous')
 
-# ===== 4. 目标函数 =====
-# 最小化 makespan T，即让所有人中最长的那条路径尽可能短
-prob += T
+print(f"x variable dimensions: {len(nodes)} x {len(nodes)} x {K}")
+print(f"u variable dimensions: {len(intermediate)} x {K}")
+print(f"Total x variables: {len(nodes) * len(nodes) * K}")
+print(f"Total u variables: {len(intermediate) * K}")
+print("Variables created successfully.")
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>x 为什么是三维变量，而不是像 TSP 那样二维？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>因为现在有 K 个人，每个人都可能走每条边。第三维 k 区分“谁走这条边”。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>T 为什么不是固定值，而是优化变量？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>因为我们事先不知道最长路线会是多少。模型通过约束让 T 大于等于每个人的路线长度，然后最小化 T。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>u 变量的作用是什么？如果没有它会怎样？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>u 用于 MTZ 约束，给访问的节点编号。如果没有它，模型可能允许出现不连通的子回路，导致某人反复绕小圈而不是从起点走到终点。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>变量数量随节点数和 salesmen 数如何增长？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>x 变量数量 = n² · K，与节点数平方、salesman 数线性相关。</p>
+          <p><strong>回答 B：</strong>u 变量数量 = N · K，与中间节点数和 salesman 数线性相关。</p>
+          <p><strong>回答 C：</strong>约束数量也大致随 n² · K 增长，因此节点稍多，问题规模就会快速膨胀。</p>
+          <p><strong>回答 D：</strong>这正是为什么精确求解在节点多时变慢，需要启发式算法。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步要求学生明确每个变量的数据类型和用途。可以让学生回答：如果目标不是 makespan 而是总距离，变量会如何变化？（答案：可以去掉 T，目标函数改为所有人的路线长度之和。）</p>
+      </div>
+    </section>
 
-# ===== 5. 约束条件 =====
+    <section id="m4b-step4" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S4. 约束条件：让解“看起来像”真实路线</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4">约束分四类：路径端点约束、节点覆盖约束、流量守恒约束、子回路消除约束。每一条都在回答一个问题：“这个解在物理上是否可行？”</p>
+          <ul class="list-disc pl-5 space-y-1 mb-4 text-slate-700">
+            <li><strong>端点约束：</strong>每个人必须从自己的起点出发一次，到达自己的终点一次；不能进入自己的起点，也不能离开自己的终点。</li>
+            <li><strong>覆盖约束：</strong>每个中间节点恰好被一个人进入、一个人离开。</li>
+            <li><strong>流量守恒：</strong>每个人在中间节点的入度等于出度，保证路径连续。</li>
+            <li><strong>MTZ 约束：</strong>给节点编号，避免出现不连通的子回路。</li>
+          </ul>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>约束不是越多越好，而是要把“可行路线”的数学定义精确写出来。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+import numpy as np
+
+# --- 数据准备 ---
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+intermediate = [node for node in nodes if node not in start_ends]
+N = len(intermediate)
+
+prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
+x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
+T = pulp.LpVariable('T', lowBound=0)
+u = pulp.LpVariable.dicts('u', (intermediate, range(K)),
+                          lowBound=1, upBound=N, cat='Continuous')
+
+prob += T  # 目标函数先占位，下一节展开
+
 # 约束 1：禁止自环
 # 含义：不允许从节点 i 直接走回 i，避免无意义的零长度边
 for i in nodes:
@@ -138,18 +372,18 @@ for i in nodes:
         prob += x[i][i][k] == 0
 
 # 约束 2：每名 salesman 必须从自己的起点出发一次
-# 含义：对第 k 个人，从 sk 出发的出边中只能选一条
+# 含义：对第 k 个人，从起点 sk 出发的出边中恰好有一条被选中
 for k, s in enumerate(salesmen):
     sk = s['start']
     prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
 
 # 约束 3：每名 salesman 必须到达自己的终点一次
-# 含义：对第 k 个人，进入 ek 的入边中只能选一条
+# 含义：对第 k 个人，进入终点 ek 的入边中恰好有一条被选中
 for k, s in enumerate(salesmen):
     ek = s['end']
     prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
 
-# 约束 4：salesman 不能进入自己的起点、也不能离开自己的终点
+# 约束 4：salesman 不能进入自己的起点，也不能离开自己的终点
 # 含义：起点只出不入，终点只入不出，保证路径方向是从起点到终点
 for k, s in enumerate(salesmen):
     sk, ek = s['start'], s['end']
@@ -191,14 +425,120 @@ for k in range(K):
             if i != j:
                 prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
 
-# ===== 6. 求解 =====
+print(f"Model has {len(prob.constraints)} constraints.")
+print("Constraint categories: no-self-loop, start/end, coverage, flow, makespan, MTZ.")
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么禁止自环？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>自环的距离为 0，选择它不会改变路线长度，但会浪费一个“进入/离开”的机会，可能破坏覆盖约束，也容易产生无意义的解。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>约束 5、6 和约束 7 有什么区别？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>约束 5、6 从全局角度看：每个中间节点被所有人恰好进入/离开一次；约束 7 从个人角度看：第 k 个人在某节点的入边数等于出边数，保证他自己的路径是连续的。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>MTZ 约束为什么能消除子回路？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>它强制每条被选中的边 i→j 都满足 u_j ≥ u_i + 1。如果存在子回路，绕一圈后要求 u_i ≥ u_i + 1，矛盾，因此子回路不可能出现。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>如果某个 salesman 的起点和终点相同，约束要改吗？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>起点=终点时，这个人形成一个闭合回路，类似 TSP。</p>
+          <p><strong>回答 B：</strong>端点约束需要调整：这个人从该点出发一次、回到该点一次，流量在该点为 0（进入=离开）。</p>
+          <p><strong>回答 C：</strong>MTZ 约束仍然适用，但需要把起点/终点也纳入位置编号体系。</p>
+          <p><strong>回答 D：</strong>这种变体有时称为“多旅行商回路问题”（multi-depot MTSP）。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步每条约束都附有“含义”注释。建议让学生逐条验证：如果删除某条约束，会出现什么样的非法解？例如删除流量守恒，可能出现“只进不出”的断点；删除 MTZ，可能出现不连通的子回路。</p>
+      </div>
+    </section>
+
+    <section id="m4b-step5" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S5. 目标函数与求解：得到具体路线</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4">目标函数只有一个：<strong>min T</strong>。由于约束已经保证 T 不小于每个人的路线长度，最小化 T 就等价于让最长路线尽可能短。</p>
+          <p class="text-slate-700 mb-4">求解后，需要从 x 变量中把每个人的路径“读”出来：从起点出发，沿着 x=1 的边一直走到终点。</p>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>求解器给出的是变量的值，模型使用者需要把变量值翻译成人类可读的路线。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+import numpy as np
+
+# --- 完整数据与模型 ---
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+intermediate = [node for node in nodes if node not in start_ends]
+N = len(intermediate)
+
+prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
+x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
+T = pulp.LpVariable('T', lowBound=0)
+u = pulp.LpVariable.dicts('u', (intermediate, range(K)),
+                          lowBound=1, upBound=N, cat='Continuous')
+
+# 目标函数：最小化 makespan T
+prob += T
+
+# 约束（完整版）
+for i in nodes:
+    for k in range(K):
+        prob += x[i][i][k] == 0
+
+for k, s in enumerate(salesmen):
+    sk = s['start']
+    prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
+
+for k, s in enumerate(salesmen):
+    ek = s['end']
+    prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
+
+for k, s in enumerate(salesmen):
+    sk, ek = s['start'], s['end']
+    prob += pulp.lpSum(x[i][sk][k] for i in nodes if i != sk) == 0
+    prob += pulp.lpSum(x[ek][j][k] for j in nodes if j != ek) == 0
+
+for v in intermediate:
+    prob += pulp.lpSum(x[i][v][k] for i in nodes if i != v for k in range(K)) == 1
+    prob += pulp.lpSum(x[v][j][k] for j in nodes if j != v for k in range(K)) == 1
+
+for k in range(K):
+    for v in intermediate:
+        prob += (pulp.lpSum(x[i][v][k] for i in nodes if i != v)
+                 == pulp.lpSum(x[v][j][k] for j in nodes if j != v))
+
+for k in range(K):
+    prob += T >= pulp.lpSum(
+        dist[i][j] * x[nodes[i]][nodes[j]][k]
+        for i in range(n) for j in range(n) if i != j
+    )
+
+for k in range(K):
+    for i in intermediate:
+        for j in intermediate:
+            if i != j:
+                prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
+
+# 求解
 prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=60))
 print('Status:', pulp.LpStatus[prob.status])
 print('Makespan T =', pulp.value(T))
 
-# ===== 7. 从解中提取每个人的路径 =====
+# 从解中提取每个人的路径
 for k, s in enumerate(salesmen):
-    # route: list[str]，第 k 名 salesman 按顺序访问的节点列表
     route = [s['start']]
     current = s['start']
     # 沿着 x[current][j][k] == 1 的边从起点走到终点
@@ -212,16 +552,107 @@ for k, s in enumerate(salesmen):
             break
         route.append(nxt)
         current = nxt
-    # cost: float，该 salesman 路径的总长度
+
     cost = sum(
         dist[nodes.index(route[i])][nodes.index(route[i+1])]
         for i in range(len(route) - 1)
     )
     print(f"{s['name']}: {' -> '.join(route)} = {cost:.2f}")
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>目标函数 min T 的实际含义是什么？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>让所有 salesman 中最长的那一条路线的长度尽可能小。它体现了“任务完成时间”或“最慢那个人”的公平性。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>如何判断模型找到了最优解？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>查看求解器状态：Optimal 表示找到了可证明的最优解；Feasible 表示只找到可行解；Infeasible 表示约束冲突无解。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>如果求解时间太长，可以怎么做？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>可以缩短 timeLimit、放松最优性 gap、减少节点数、使用更聪明的子回路消除方法，或者换用启发式算法。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>怎么从 x 变量还原出实际路径？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>从该 salesman 的起点出发，找到 x=1 的出边，走到下一个节点。</p>
+          <p><strong>回答 B：</strong>重复“找当前节点的出边”直到到达终点。</p>
+          <p><strong>回答 C：</strong>如果某节点有多条出边 x≈1，说明解不纯，需要检查约束或求解精度。</p>
+          <p><strong>回答 D：</strong>也可以用 NetworkX 把选中的边建成有向图，再查找起点到终点的路径。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步把前几步串成完整可运行代码。建议让学生运行后观察：T 是否等于最长路线？每个人走了多少节点？如果手动分配节点，能否得到更短的 makespan？</p>
+      </div>
+    </section>
 
-# ===== 8. 可视化 =====
+    <section id="m4b-step6" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S6. 可视化：把数值解画成路线</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4">可视化帮助我们验证解的合理性：路线是否交叉、负担是否均衡、起点/终点是否标对。下面把 S5 的求解结果用不同颜色画出来。</p>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>好的可视化能迅速暴露模型错误，比如路线不连通、节点被遗漏、颜色分配混乱。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 数据与模型求解（完整复用 S5）---
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+intermediate = [node for node in nodes if node not in start_ends]
+N = len(intermediate)
+
+prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
+x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
+T = pulp.LpVariable('T', lowBound=0)
+u = pulp.LpVariable.dicts('u', (intermediate, range(K)),
+                          lowBound=1, upBound=N, cat='Continuous')
+prob += T
+for i in nodes:
+    for k in range(K):
+        prob += x[i][i][k] == 0
+for k, s in enumerate(salesmen):
+    sk = s['start']
+    prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
+    ek = s['end']
+    prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
+    prob += pulp.lpSum(x[i][sk][k] for i in nodes if i != sk) == 0
+    prob += pulp.lpSum(x[ek][j][k] for j in nodes if j != ek) == 0
+for v in intermediate:
+    prob += pulp.lpSum(x[i][v][k] for i in nodes if i != v for k in range(K)) == 1
+    prob += pulp.lpSum(x[v][j][k] for j in nodes if j != v for k in range(K)) == 1
+for k in range(K):
+    for v in intermediate:
+        prob += (pulp.lpSum(x[i][v][k] for i in nodes if i != v)
+                 == pulp.lpSum(x[v][j][k] for j in nodes if j != v))
+for k in range(K):
+    prob += T >= pulp.lpSum(
+        dist[i][j] * x[nodes[i]][nodes[j]][k]
+        for i in range(n) for j in range(n) if i != j
+    )
+for k in range(K):
+    for i in intermediate:
+        for j in intermediate:
+            if i != j:
+                prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
+
+prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=60))
+
+# --- 可视化 ---
 plt.figure(figsize=(8, 6))
-# colors: list[str]，每名 salesman 的路径颜色
 colors = ['red', 'blue']
 for k, s in enumerate(salesmen):
     # edges: list[tuple[str, str]]，第 k 名 salesman 被选中的所有边
@@ -229,26 +660,746 @@ for k, s in enumerate(salesmen):
              if i != j and pulp.value(x[i][j][k]) > 0.5]
     for (u_node, v_node) in edges:
         ui, vi = nodes.index(u_node), nodes.index(v_node)
-        plt.plot([coords[ui, 0], coords[vi, 0]], [coords[ui, 1], coords[vi, 1]],
+        plt.plot([coords[ui, 0], coords[vi, 0]],
+                 [coords[ui, 1], coords[vi, 1]],
                  color=colors[k], linewidth=2, alpha=0.7)
-    # 绘制所有节点作为背景点
-    plt.scatter(coords[:, 0], coords[:, 1], c='lightgray', s=300, zorder=3)
-    # 标注节点标签；起点/终点用该 salesman 的颜色高亮
+
+# 绘制所有节点作为背景点
+plt.scatter(coords[:, 0], coords[:, 1], c='lightgray', s=300, zorder=3)
+
+# 标注节点标签；起点/终点用对应 salesman 的颜色高亮
+for k, s in enumerate(salesmen):
     for idx, node in enumerate(nodes):
         color = colors[k] if node in [s['start'], s['end']] else 'black'
         plt.text(coords[idx, 0], coords[idx, 1], node,
                  ha='center', va='center', fontsize=10,
                  color=color, fontweight='bold', zorder=4)
-plt.title('MTSP: Minimize Maximum Tour Length')
+
+plt.title(f'MTSP Solution: Min Makespan = {pulp.value(T):.2f}')
 plt.axis('off')
 plt.show()
 </code></pre>
         </div>
       </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>可视化能告诉我们什么？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>可以快速检查路线是否连续、起点/终点是否正确、是否有明显交叉、两个 salesman 的负担是否均衡。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>为什么起点/终点要特别标注？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>它们是路径的边界，如果不标注，很难一眼看出每条路线从哪里开始、到哪里结束。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3（开放）：</strong>如果两条路线交叉，是否说明解不好？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>不一定。在欧氏距离下，交叉的两条边有时可以通过 2-opt 交换来缩短总长；但在 makespan 目标下，消除交叉不一定降低最大值。</p>
+          <p><strong>回答 B：</strong>对于单条 TSP 路线，交叉通常意味着可以改进；对于 MTSP，需要看是哪条路线在交叉。</p>
+          <p><strong>回答 C：</strong>可视化更多是检查可行性，而不是判断最优性。</p>
+          <p><strong>回答 D：</strong>可以结合数值目标（makespan）来评估，而不是只看图。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步让学生把“变量的解”翻译成“图上的路线”。可以引导学生讨论：如果让程序自动输出文字路线和图，哪一种更容易发现错误？</p>
+      </div>
     </section>
 
-    
-    <section id="m11" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
+    <section id="m4b-step7" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S7. NP-hard 与启发式：节点变多怎么办？</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4"><strong>为什么精确求解会变慢？</strong>TSP/MTSP 属于 NP-hard 问题。节点数 n 增加时，可行解的数量大致按 (n-1)!/2（TSP）或更快（MTSP）增长。精确求解器需要枚举或隐式搜索指数级空间，因此 n=20 就可能很慢，n=50 往往不可行。</p>
+          <p class="text-slate-700 mb-4"><strong>启发式思想：</strong>不保证最优，但在可接受时间内找到“足够好”的解。下面演示三种经典启发式：</p>
+          <ul class="list-disc pl-5 space-y-1 mb-4 text-slate-700">
+            <li><strong>模拟退火（SA）：</strong>从一个初始解出发，随机做局部改动；以一定概率接受“变差的改动”，避免陷入局部最优。</li>
+            <li><strong>遗传算法（GA）：</strong>维护一组解（种群），通过选择、交叉、 mutation 逐代进化。</li>
+            <li><strong>蚁群算法（ACO）：</strong>模拟蚂蚁在边上释放信息素，信息素越高的边越容易被后续蚂蚁选择，同时距离短的边更有吸引力。</li>
+          </ul>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>启发式不承诺最优，但能在节点多时给出可行且质量可接受的解。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+import random
+import matplotlib.pyplot as plt
+
+# ============================================================
+# 公共数据与工具函数
+# ============================================================
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+n = len(nodes)
+np.random.seed(42)
+coords = np.random.rand(n, 2) * 10
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+
+salesmen = [
+    {'name': 'S1', 'start': 'A', 'end': 'B'},
+    {'name': 'S2', 'start': 'C', 'end': 'D'}
+]
+K = len(salesmen)
+start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+intermediate = [node for node in nodes if node not in start_ends]
+N = len(intermediate)
+node_idx = {node: i for i, node in enumerate(nodes)}
+
+
+def route_cost(route):
+    """计算一条路线（list[str]）的总长度。"""
+    cost = 0.0
+    for i in range(len(route) - 1):
+        cost += dist[node_idx[route[i]]][node_idx[route[i+1]]]
+    return cost
+
+
+def makespan(routes):
+    """routes: list[list[str]]，返回所有路线中的最大长度。"""
+    return max(route_cost(r) for r in routes)
+
+
+def total_length(routes):
+    """返回所有路线的总长度。"""
+    return sum(route_cost(r) for r in routes)
+
+
+def random_initial_routes():
+    """随机把中间节点分配给 K 个 salesman，每个 route 内部用最近邻排序。"""
+    random.shuffle(intermediate)
+    routes = [[s['start'], s['end']] for s in salesmen]
+    for idx, node in enumerate(intermediate):
+        routes[idx % K].insert(-1, node)
+    for r in routes:
+        # 简单最近邻重排中间段
+        middle = r[1:-1]
+        if len(middle) <= 1:
+            continue
+        ordered = [middle[0]]
+        remaining = set(middle[1:])
+        while remaining:
+            last = ordered[-1]
+            nxt = min(remaining, key=lambda v: dist[node_idx[last]][node_idx[v]])
+            ordered.append(nxt)
+            remaining.remove(nxt)
+        r[1:-1] = ordered
+    return routes
+
+
+# ============================================================
+# 1. 模拟退火 Simulated Annealing (SA)
+# ============================================================
+def sa_mtsp(iterations=3000, init_temp=100.0, cooling=0.995):
+    """用模拟退火求解 MTSP，返回最佳路线和 best cost 历史。"""
+    best = current = random_initial_routes()
+    best_cost = current_cost = makespan(current)
+    temp = init_temp
+    history = [best_cost]
+
+    def neighbor(routes):
+        """产生邻域解：随机移动一个节点到另一条路线，或同一路线内 2-opt。"""
+        r = [list(rt) for rt in routes]
+        move_type = random.choice(['move', 'swap', 'two_opt'])
+        if move_type == 'move' and N >= 1:
+            # 从一条路线随机选一个中间节点，移到另一条路线的随机位置
+            src = random.randrange(K)
+            if len(r[src]) <= 2:
+                return r
+            idx = random.randrange(1, len(r[src]) - 1)
+            node = r[src].pop(idx)
+            dst = random.randrange(K)
+            pos = random.randint(1, len(r[dst]) - 1)
+            r[dst].insert(pos, node)
+        elif move_type == 'swap' and N >= 2:
+            # 交换两个不同路线的中间节点
+            a, b = random.sample(range(K), 2)
+            if len(r[a]) <= 2 or len(r[b]) <= 2:
+                return r
+            ia = random.randrange(1, len(r[a]) - 1)
+            ib = random.randrange(1, len(r[b]) - 1)
+            r[a][ia], r[b][ib] = r[b][ib], r[a][ia]
+        elif move_type == 'two_opt':
+            # 同一路线内 2-opt
+            k = random.randrange(K)
+            if len(r[k]) <= 4:
+                return r
+            i, j = sorted(random.sample(range(1, len(r[k]) - 1), 2))
+            r[k] = r[k][:i] + r[k][i:j+1][::-1] + r[k][j+1:]
+        return r
+
+    for _ in range(iterations):
+        nxt = neighbor(current)
+        nxt_cost = makespan(nxt)
+        delta = nxt_cost - current_cost
+        if delta < 0 or random.random() < np.exp(-delta / temp):
+            current, current_cost = nxt, nxt_cost
+            if current_cost < best_cost:
+                best, best_cost = current, current_cost
+        temp *= cooling
+        history.append(best_cost)
+    return best, history
+
+
+# ============================================================
+# 2. 遗传算法 Genetic Algorithm (GA)
+# ============================================================
+def decode(chromosome):
+    """chromosome: intermediate 节点的一个排列。
+    用贪心策略把每个节点分配给当前 route 增加成本最少的 salesman。"""
+    routes = [[s['start'], s['end']] for s in salesmen]
+    for node in chromosome:
+        best_k = 0
+        best_incr = float('inf')
+        for k in range(K):
+            old = route_cost(routes[k])
+            routes[k].insert(-1, node)
+            new = route_cost(routes[k])
+            routes[k].pop(-2)
+            incr = new - old
+            if incr < best_incr:
+                best_incr = incr
+                best_k = k
+        routes[best_k].insert(-1, node)
+    return routes
+
+
+def ga_mtsp(pop_size=80, generations=200, mut_rate=0.2):
+    """用遗传算法求解 MTSP。"""
+    population = [random.sample(intermediate, len(intermediate)) for _ in range(pop_size)]
+    best_chrom = None
+    best_cost = float('inf')
+    history = []
+
+    def fitness(chrom):
+        return makespan(decode(chrom))
+
+    for _ in range(generations):
+        scored = [(chrom, fitness(chrom)) for chrom in population]
+        scored.sort(key=lambda x: x[1])
+        if scored[0][1] < best_cost:
+            best_cost = scored[0][1]
+            best_chrom = scored[0][0]
+        history.append(best_cost)
+
+        # 选择：保留前一半
+        survivors = [c for c, _ in scored[:pop_size // 2]]
+
+        # 交叉：Order Crossover (OX)
+        offspring = []
+        while len(offspring) < pop_size - len(survivors):
+            p1, p2 = random.sample(survivors, 2)
+            size = len(p1)
+            a, b = sorted(random.sample(range(size), 2))
+            child = [None] * size
+            child[a:b+1] = p1[a:b+1]
+            fill = [g for g in p2 if g not in child[a:b+1]]
+            idx = 0
+            for i in range(size):
+                if child[i] is None:
+                    child[i] = fill[idx]
+                    idx += 1
+            # mutation
+            if random.random() < mut_rate:
+                i, j = random.sample(range(size), 2)
+                child[i], child[j] = child[j], child[i]
+            offspring.append(child)
+        population = survivors + offspring
+    return decode(best_chrom), history
+
+
+# ============================================================
+# 3. 蚁群算法 Ant Colony Optimization (ACO)
+# ============================================================
+def aco_mtsp(n_ants=30, n_iter=100, alpha=1.0, beta=2.0, evap=0.5, Q=100.0):
+    """用蚁群算法求解 MTSP。每只蚂蚁构造 K 条路线。"""
+    all_nodes = list(nodes)
+    pheromone = np.ones((n, n))
+    best_routes = None
+    best_cost = float('inf')
+    history = []
+
+    for _ in range(n_iter):
+        ant_solutions = []
+        for _ in range(n_ants):
+            unvisited = set(intermediate)
+            routes = [[s['start'], s['end']] for s in salesmen]
+            while unvisited:
+                # 每次把当前最短的路线尽量加长一点，简单实现负载均衡
+                lens = [route_cost(r) for r in routes]
+                k = lens.index(min(lens))
+                current = routes[k][-2]  # 当前倒数第二个，即最后一个中间节点
+                candidates = list(unvisited)
+                if not candidates:
+                    break
+                # 概率与 pheromone^alpha * (1/dist)^beta 成正比
+                probs = []
+                for v in candidates:
+                    tau = pheromone[node_idx[current]][node_idx[v]]
+                    eta = 1.0 / (dist[node_idx[current]][node_idx[v]] + 1e-9)
+                    probs.append((tau ** alpha) * (eta ** beta))
+                total = sum(probs)
+                probs = [p / total for p in probs]
+                chosen = np.random.choice(candidates, p=probs)
+                routes[k].insert(-1, chosen)
+                unvisited.remove(chosen)
+            cost = makespan(routes)
+            ant_solutions.append((routes, cost))
+            if cost < best_cost:
+                best_cost = cost
+                best_routes = [list(r) for r in routes]
+        history.append(best_cost)
+
+        # 信息素蒸发
+        pheromone *= (1 - evap)
+        # 信息素增强：按解的质量更新
+        for routes, cost in ant_solutions:
+            deposit = Q / (cost + 1e-9)
+            for r in routes:
+                for i in range(len(r) - 1):
+                    a, b = node_idx[r[i]], node_idx[r[i+1]]
+                    pheromone[a][b] += deposit
+                    pheromone[b][a] += deposit
+    return best_routes, history
+
+
+# ============================================================
+# 运行三种启发式并打印结果
+# ============================================================
+random.seed(0)
+np.random.seed(0)
+
+sa_routes, sa_hist = sa_mtsp()
+print("=== Simulated Annealing ===")
+for k, s in enumerate(salesmen):
+    print(f"{s['name']}: {' -> '.join(sa_routes[k])} = {route_cost(sa_routes[k]):.2f}")
+print(f"Makespan = {makespan(sa_routes):.2f}")
+
+ga_routes, ga_hist = ga_mtsp()
+print("\n=== Genetic Algorithm ===")
+for k, s in enumerate(salesmen):
+    print(f"{s['name']}: {' -> '.join(ga_routes[k])} = {route_cost(ga_routes[k]):.2f}")
+print(f"Makespan = {makespan(ga_routes):.2f}")
+
+aco_routes, aco_hist = aco_mtsp()
+print("\n=== Ant Colony Optimization ===")
+for k, s in enumerate(salesmen):
+    print(f"{s['name']}: {' -> '.join(aco_routes[k])} = {route_cost(aco_routes[k]):.2f}")
+print(f"Makespan = {makespan(aco_routes):.2f}")
+
+# 绘制收敛曲线
+plt.figure(figsize=(10, 5))
+plt.plot(sa_hist, label='SA', alpha=0.8)
+plt.plot(ga_hist, label='GA', alpha=0.8)
+plt.plot(aco_hist, label='ACO', alpha=0.8)
+plt.xlabel('Iteration')
+plt.ylabel('Best makespan')
+plt.title('Heuristic Convergence Curves')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么节点变多后精确求解会变慢？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>TSP/MTSP 是 NP-hard 问题，可行解数量随节点数指数增长。精确求解器需要搜索或证明大量分支，因此节点稍多就会超时。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>启发式算法一定找到最优解吗？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>不一定。启发式通过牺牲最优性保证来换取速度，通常只能找到“足够好”的解，但无法证明没有更好的解。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>三种启发式的核心思想分别是什么？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>SA 模拟物理退火，允许暂时接受差解以跳出局部最优；GA 模拟自然选择，通过种群的交叉和变异进化；ACO 模拟蚂蚁觅食，用信息素引导后续搜索。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>什么时候应该选择启发式而不是精确算法？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>节点很多（例如超过 30 个），精确求解无法在合理时间内完成。</p>
+          <p><strong>回答 B：</strong>只需要一个“足够好”的解，不需要最优性证明。</p>
+          <p><strong>回答 C：</strong>需要快速响应，例如实时调度、在线路径规划。</p>
+          <p><strong>回答 D：</strong>问题需要频繁重新求解，每次输入略有变化。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步代码较长，但三种算法彼此独立。建议先让学生运行并观察收敛曲线，再逐段阅读。重点是理解每种算法的“搜索机制”而不是背诵代码。</p>
+      </div>
+    </section>
+"""
+    <section id="m4b-step8" class="module-card formula bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">S8. 性能对比：精确算法 vs 三种启发式</h2>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <p class="text-slate-700 mb-4">为了公平比较，我们在两个规模上测试：</p>
+          <ul class="list-disc pl-5 space-y-1 mb-4 text-slate-700">
+            <li><strong>小规模 n=8：</strong>精确求解器能找到最优解，用来检验启发式与最优解的差距。</li>
+            <li><strong>中等规模 n=12：</strong>精确求解器可能开始变慢，启发式的速度优势更明显。</li>
+          </ul>
+          <p class="text-slate-700 mb-4">对比指标：计算时间（秒）和得到的 makespan。</p>
+          <div class="p-3 bg-amber-50 rounded-lg text-amber-800 mb-4"><strong> takeaway：</strong>没有 universally 最好的算法，只有在特定规模、精度要求和时间预算下最合适的方法。</div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import time
+import random
+import numpy as np
+import pulp
+import matplotlib.pyplot as plt
+
+
+def build_instance(n_nodes, n_salesmen, seed=42):
+    """构造一个随机 MTSP 实例。
+    返回 nodes, coords, dist, salesmen, intermediate。
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    nodes = [chr(ord('A') + i) for i in range(n_nodes)]
+    coords = np.random.rand(n_nodes, 2) * 10
+    dist = np.zeros((n_nodes, n_nodes))
+    for i in range(n_nodes):
+        for j in range(n_nodes):
+            dist[i][j] = np.linalg.norm(coords[i] - coords[j])
+    salesmen = [
+        {'name': f'S{k+1}', 'start': nodes[2*k], 'end': nodes[2*k+1]}
+        for k in range(n_salesmen)
+    ]
+    start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+    intermediate = [node for node in nodes if node not in start_ends]
+    return nodes, coords, dist, salesmen, intermediate
+
+
+def solve_pulp(nodes, dist, salesmen, intermediate, time_limit=60):
+    """用 PuLP/CBC 求解 MTSP，返回 (makespan, time_seconds, routes)。"""
+    n = len(nodes)
+    K = len(salesmen)
+    N = len(intermediate)
+    node_idx = {node: i for i, node in enumerate(nodes)}
+
+    prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
+    x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
+    T = pulp.LpVariable('T', lowBound=0)
+    u = pulp.LpVariable.dicts('u', (intermediate, range(K)),
+                              lowBound=1, upBound=N, cat='Continuous')
+
+    prob += T
+    for i in nodes:
+        for k in range(K):
+            prob += x[i][i][k] == 0
+    for k, s in enumerate(salesmen):
+        sk, ek = s['start'], s['end']
+        prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
+        prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
+        prob += pulp.lpSum(x[i][sk][k] for i in nodes if i != sk) == 0
+        prob += pulp.lpSum(x[ek][j][k] for j in nodes if j != ek) == 0
+    for v in intermediate:
+        prob += pulp.lpSum(x[i][v][k] for i in nodes if i != v for k in range(K)) == 1
+        prob += pulp.lpSum(x[v][j][k] for j in nodes if j != v for k in range(K)) == 1
+    for k in range(K):
+        for v in intermediate:
+            prob += (pulp.lpSum(x[i][v][k] for i in nodes if i != v)
+                     == pulp.lpSum(x[v][j][k] for j in nodes if j != v))
+    for k in range(K):
+        prob += T >= pulp.lpSum(
+            dist[i][j] * x[nodes[i]][nodes[j]][k]
+            for i in range(n) for j in range(n) if i != j
+        )
+    for k in range(K):
+        for i in intermediate:
+            for j in intermediate:
+                if i != j:
+                    prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
+
+    start = time.time()
+    prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=time_limit))
+    elapsed = time.time() - start
+
+    if prob.status != pulp.LpStatusOptimal and prob.status != pulp.LpStatusNotSolved:
+        return None, elapsed, None
+
+    routes = []
+    for k, s in enumerate(salesmen):
+        route = [s['start']]
+        current = s['start']
+        while current != s['end']:
+            nxt = None
+            for j in nodes:
+                if j != current and pulp.value(x[current][j][k]) is not None and pulp.value(x[current][j][k]) > 0.5:
+                    nxt = j
+                    break
+            if nxt is None:
+                break
+            route.append(nxt)
+            current = nxt
+        routes.append(route)
+    return pulp.value(T), elapsed, routes
+
+
+def route_cost_general(route, dist, node_idx):
+    """通用路线成本函数。"""
+    cost = 0.0
+    for i in range(len(route) - 1):
+        cost += dist[node_idx[route[i]]][node_idx[route[i+1]]]
+    return cost
+
+
+def makespan_general(routes, dist, node_idx):
+    return max(route_cost_general(r, dist, node_idx) for r in routes)
+
+
+def sa_mtsp_general(nodes, dist, salesmen, intermediate, iterations=3000):
+    """通用 SA，返回 routes 和 elapsed time。"""
+    n = len(nodes)
+    K = len(salesmen)
+    node_idx = {node: i for i, node in enumerate(nodes)}
+    random.seed(0)
+    np.random.seed(0)
+
+    def random_routes():
+        shuffled = list(intermediate)
+        random.shuffle(shuffled)
+        routes = [[s['start'], s['end']] for s in salesmen]
+        for idx, node in enumerate(shuffled):
+            routes[idx % K].insert(-1, node)
+        for r in routes:
+            mid = r[1:-1]
+            if len(mid) <= 1:
+                continue
+            ordered = [mid[0]]
+            remaining = set(mid[1:])
+            while remaining:
+                last = ordered[-1]
+                nxt = min(remaining, key=lambda v: dist[node_idx[last]][node_idx[v]])
+                ordered.append(nxt)
+                remaining.remove(nxt)
+            r[1:-1] = ordered
+        return routes
+
+    def cost(routes):
+        return makespan_general(routes, dist, node_idx)
+
+    def neighbor(routes):
+        r = [list(rt) for rt in routes]
+        move_type = random.choice(['move', 'swap', 'two_opt'])
+        if move_type == 'move' and len(intermediate) >= 1:
+            src = random.randrange(K)
+            if len(r[src]) <= 2:
+                return r
+            idx = random.randrange(1, len(r[src]) - 1)
+            node = r[src].pop(idx)
+            dst = random.randrange(K)
+            pos = random.randint(1, len(r[dst]) - 1)
+            r[dst].insert(pos, node)
+        elif move_type == 'swap' and len(intermediate) >= 2:
+            a, b = random.sample(range(K), 2)
+            if len(r[a]) <= 2 or len(r[b]) <= 2:
+                return r
+            ia = random.randrange(1, len(r[a]) - 1)
+            ib = random.randrange(1, len(r[b]) - 1)
+            r[a][ia], r[b][ib] = r[b][ib], r[a][ia]
+        elif move_type == 'two_opt':
+            k = random.randrange(K)
+            if len(r[k]) <= 4:
+                return r
+            i, j = sorted(random.sample(range(1, len(r[k]) - 1), 2))
+            r[k] = r[k][:i] + r[k][i:j+1][::-1] + r[k][j+1:]
+        return r
+
+    best = current = random_routes()
+    best_cost = current_cost = cost(current)
+    temp = 100.0
+    start = time.time()
+    for _ in range(iterations):
+        nxt = neighbor(current)
+        nxt_cost = cost(nxt)
+        delta = nxt_cost - current_cost
+        if delta < 0 or random.random() < np.exp(-delta / temp):
+            current, current_cost = nxt, nxt_cost
+            if current_cost < best_cost:
+                best, best_cost = current, current_cost
+        temp *= 0.995
+    elapsed = time.time() - start
+    return best, elapsed
+
+
+def ga_mtsp_general(nodes, dist, salesmen, intermediate, pop_size=80, generations=200):
+    """通用 GA，返回 routes 和 elapsed time。"""
+    K = len(salesmen)
+    node_idx = {node: i for i, node in enumerate(nodes)}
+    random.seed(0)
+
+    def decode(chrom):
+        routes = [[s['start'], s['end']] for s in salesmen]
+        for node in chrom:
+            best_k, best_incr = 0, float('inf')
+            for k in range(K):
+                old = route_cost_general(routes[k], dist, node_idx)
+                routes[k].insert(-1, node)
+                new = route_cost_general(routes[k], dist, node_idx)
+                routes[k].pop(-2)
+                incr = new - old
+                if incr < best_incr:
+                    best_incr = incr
+                    best_k = k
+            routes[best_k].insert(-1, node)
+        return routes
+
+    def fitness(chrom):
+        return makespan_general(decode(chrom), dist, node_idx)
+
+    population = [random.sample(intermediate, len(intermediate)) for _ in range(pop_size)]
+    best_chrom, best_cost = None, float('inf')
+    start = time.time()
+    for _ in range(generations):
+        scored = [(c, fitness(c)) for c in population]
+        scored.sort(key=lambda x: x[1])
+        if scored[0][1] < best_cost:
+            best_cost = scored[0][1]
+            best_chrom = scored[0][0]
+        survivors = [c for c, _ in scored[:pop_size // 2]]
+        offspring = []
+        while len(offspring) < pop_size - len(survivors):
+            p1, p2 = random.sample(survivors, 2)
+            size = len(p1)
+            a, b = sorted(random.sample(range(size), 2))
+            child = [None] * size
+            child[a:b+1] = p1[a:b+1]
+            fill = [g for g in p2 if g not in child[a:b+1]]
+            idx = 0
+            for i in range(size):
+                if child[i] is None:
+                    child[i] = fill[idx]
+                    idx += 1
+            if random.random() < 0.2:
+                i, j = random.sample(range(size), 2)
+                child[i], child[j] = child[j], child[i]
+            offspring.append(child)
+        population = survivors + offspring
+    elapsed = time.time() - start
+    return decode(best_chrom), elapsed
+
+
+def aco_mtsp_general(nodes, dist, salesmen, intermediate, n_ants=30, n_iter=80):
+    """通用 ACO，返回 routes 和 elapsed time。"""
+    n = len(nodes)
+    K = len(salesmen)
+    node_idx = {node: i for i, node in enumerate(nodes)}
+    np.random.seed(0)
+    random.seed(0)
+    pheromone = np.ones((n, n))
+    best_routes, best_cost = None, float('inf')
+    start = time.time()
+    for _ in range(n_iter):
+        for _ in range(n_ants):
+            unvisited = set(intermediate)
+            routes = [[s['start'], s['end']] for s in salesmen]
+            while unvisited:
+                lens = [route_cost_general(r, dist, node_idx) for r in routes]
+                k = lens.index(min(lens))
+                current = routes[k][-2]
+                candidates = list(unvisited)
+                if not candidates:
+                    break
+                probs = []
+                for v in candidates:
+                    tau = pheromone[node_idx[current]][node_idx[v]]
+                    eta = 1.0 / (dist[node_idx[current]][node_idx[v]] + 1e-9)
+                    probs.append((tau ** 1.0) * (eta ** 2.0))
+                total = sum(probs)
+                probs = [p / total for p in probs]
+                chosen = np.random.choice(candidates, p=probs)
+                routes[k].insert(-1, chosen)
+                unvisited.remove(chosen)
+            cost = makespan_general(routes, dist, node_idx)
+            if cost < best_cost:
+                best_cost = cost
+                best_routes = [list(r) for r in routes]
+        pheromone *= 0.5
+        if best_routes:
+            deposit = 100.0 / (best_cost + 1e-9)
+            for r in best_routes:
+                for i in range(len(r) - 1):
+                    a, b = node_idx[r[i]], node_idx[r[i+1]]
+                    pheromone[a][b] += deposit
+                    pheromone[b][a] += deposit
+    elapsed = time.time() - start
+    return best_routes, elapsed
+
+# ============================================================
+# Benchmark 主程序
+# ============================================================
+results = []
+for n_nodes, n_salesmen in [(8, 2), (12, 2)]:
+    nodes, coords, dist, salesmen, intermediate = build_instance(n_nodes, n_salesmen)
+    node_idx = {node: i for i, node in enumerate(nodes)}
+    print(f"\n=== Instance: n={n_nodes}, K={n_salesmen} ===")
+
+    # PuLP
+    ms, t, routes = solve_pulp(nodes, dist, salesmen, intermediate, time_limit=60)
+    if ms is not None:
+        results.append({'n': n_nodes, 'method': 'PuLP', 'makespan': ms, 'time': t})
+        print(f"PuLP  makespan={ms:.2f}  time={t:.3f}s")
+    else:
+        print("PuLP  failed to find feasible solution within time limit.")
+
+    # SA
+    sa_routes, t = sa_mtsp_general(nodes, dist, salesmen, intermediate)
+    ms = makespan_general(sa_routes, dist, node_idx)
+    results.append({'n': n_nodes, 'method': 'SA', 'makespan': ms, 'time': t})
+    print(f"SA    makespan={ms:.2f}  time={t:.3f}s")
+
+    # GA
+    ga_routes, t = ga_mtsp_general(nodes, dist, salesmen, intermediate)
+    ms = makespan_general(ga_routes, dist, node_idx)
+    results.append({'n': n_nodes, 'method': 'GA', 'makespan': ms, 'time': t})
+    print(f"GA    makespan={ms:.2f}  time={t:.3f}s")
+
+    # ACO
+    aco_routes, t = aco_mtsp_general(nodes, dist, salesmen, intermediate)
+    ms = makespan_general(aco_routes, dist, node_idx)
+    results.append({'n': n_nodes, 'method': 'ACO', 'makespan': ms, 'time': t})
+    print(f"ACO   makespan={ms:.2f}  time={t:.3f}s")
+
+# 可视化对比
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+methods = ['PuLP', 'SA', 'GA', 'ACO']
+for idx, n_nodes in enumerate([8, 12]):
+    ax = axes[idx]
+    subset = [r for r in results if r['n'] == n_nodes]
+    ms = [next(r['makespan'] for r in subset if r['method'] == m) for m in methods]
+    ts = [next(r['time'] for r in subset if r['method'] == m) for m in methods]
+    x = np.arange(len(methods))
+    width = 0.35
+    ax2 = ax.twinx()
+    bars1 = ax.bar(x - width/2, ms, width, label='Makespan', color='steelblue')
+    bars2 = ax2.bar(x + width/2, ts, width, label='Time (s)', color='coral')
+    ax.set_xticks(x)
+    ax.set_xticklabels(methods)
+    ax.set_ylabel('Makespan')
+    ax2.set_ylabel('Time (s)')
+    ax.set_title(f'n = {n_nodes}')
+    ax.set_ylim(0, max(ms) * 1.2)
+    ax2.set_ylim(0, max(ts) * 1.2 if max(ts) > 0 else 1)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">启发式提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>为什么不同方法得到的解质量不同？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>每种方法的搜索策略不同：PuLP 是系统搜索，能找到最优但可能很慢；SA、GA、ACO 是随机/启发式搜索，容易停在局部最优或受参数影响。</p>
+        <p class="text-slate-800 mb-2"><strong>Q2：</strong>计算时间和解质量通常如何权衡？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>通常精确算法时间长但质量好；启发式时间短但质量可能稍差。节点越多，这种权衡越明显。</p>
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>benchmark 中应该控制哪些变量？</p>
+        <p class="text-sm text-slate-700 mb-4"><strong>参考方向：</strong>应该控制随机种子、节点数、salesman 数、距离矩阵、迭代次数/时间限制，否则比较不公平。</p>
+        <p class="text-slate-800 mb-2"><strong>Q4（开放）：</strong>如果你要在真实项目中选择算法，会考虑哪些因素？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>问题规模：节点少选精确，节点多选启发式。</p>
+          <p><strong>回答 B：</strong>精度要求：是否需要最优性证明或只是可行解。</p>
+          <p><strong>回答 C：</strong>时间预算：实时系统只能接受毫秒级响应。</p>
+          <p><strong>回答 D：</strong>实现成本：有些启发式参数多、调参困难，需要权衡开发和维护成本。</p>
+        </div>
+      </div>
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">本步是模块的高潮。建议让学生先预测哪种方法最快、哪种解最好，再运行验证。n=12 时 PuLP 可能接近或超过时间限制，这是讨论 NP-hard 规模效应的好时机。</p>
+      </div>
+    </section>
+
+<section id="m11" class="module-card bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-6">0. 案例导入：商场起火，为什么要用图论？</h2>
       <div class="grid lg:grid-cols-2 gap-8">
         <div class="prose prose-slate text-sm">
@@ -1252,7 +2403,8 @@ plt.show()
     </section>
 
     
-        <footer class="text-center text-sm text-slate-500 mt-10">
+    
+    <footer class="text-center text-sm text-slate-500 mt-10">
       Graph Theory Advanced Cases · MTSP + Mall Fire
     </footer>
   </div>
