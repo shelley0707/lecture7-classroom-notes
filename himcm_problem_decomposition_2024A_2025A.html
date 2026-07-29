@@ -35,14 +35,14 @@
         <a href="#p1-goals" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 目标</a>
         <a href="#p1-decompose" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 拆解</a>
         <a href="#p1-brain" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 脑暴</a>
-        <a href="#p1-framework" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 框架</a>
         <a href="#p1-vars" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 变量方法</a>
+        <a href="#p1-framework" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 框架</a>
         <a href="#p2-review" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 重点</a>
         <a href="#p2-goals" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 目标</a>
         <a href="#p2-decompose" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 拆解</a>
         <a href="#p2-brain" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 脑暴</a>
-        <a href="#p2-framework" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 框架</a>
         <a href="#p2-vars" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 变量方法</a>
+        <a href="#p2-framework" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 框架</a>
         <a href="#synthesis" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">综合备课</a>
       </div>
     </nav>
@@ -269,6 +269,58 @@ print(&#x27;边:&#x27;, list(G.edges(data=True)))
       </div>
     </section>
 
+    <section id="p1-vars" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>变量和方法的讨论
+      </h2>
+
+      <!-- Variable/Parameter Selection Process -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-red-800 mb-3">变量与参数是怎么被选出来的？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 1：从目标出发决定核心决策变量</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>目标是最小化 makespan 并保证全覆盖，因此核心决策变量包括：每个 responder 的路径序列、每个房间被访问的时间、以及启用的 responder 数量 R。这些变量直接回答“谁去哪、何时到”。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 2：从建筑平面图提取图参数</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>节点集合 V 来自 CAD/平面图中的房间、走廊交叉口、楼梯、出口；边 E 来自门和通道；边权 w_ij 通常取“距离 / 行走速度”，也可加入宽度（容量）和转弯延迟。如果缺少精确图纸，可用标准建筑规范估计。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 3：从灾害物理确定动态参数</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>烟雾传播率 β、固化率 γ、温度阈值、能见度阈值等可通过火灾工程文献或实验数据标定。若无法获得真实数据，可做参数扫描（sensitivity sweep），给出“当 β 在什么范围时结论仍成立”。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 4：从人员行为确定agent参数</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>responder 速度 v_r 可引用 NFPA 标准；清理时间 c_i 与房间面积、人员密度相关；疲劳系数可设为随时间递增的惩罚项；疏散人员服从率可用 Monte Carlo 抽样。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 5：简化与标定</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>对无法直接测量的参数（如恐慌导致的移动速度下降），先做合理假设并在论文中明确列出，再通过灵敏度分析检验结论对该参数的依赖程度。若结论对某参数高度敏感，应优先收集该数据。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr><td class="px-4 py-2 font-semibold">空间</td><td class="px-4 py-2">节点 V、边 E、边权 w、房间面积、容量</td><td class="px-4 py-2">NetworkX 建图、Floyd-Warshall 全源最短路径</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">时间</td><td class="px-4 py-2">makespan T、通行时间 t_ij、清理时间 c_i</td><td class="px-4 py-2">PuLP / OR-Tools MILP、遗传算法、启发式</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">动态</td><td class="px-4 py-2">烟雾浓度 s_i(t)、温度、能见度</td><td class="px-4 py-2">SIR/SEIR ODE、元胞自动机、Monte Carlo</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">人员</td><td class="px-4 py-2">responder 数量 R、速度 v_r、疲劳系数</td><td class="px-4 py-2">多智能体仿真（Agent-Based Modeling）</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">不确定</td><td class="px-4 py-2">人员位置分布、火源位置、疏散服从率</td><td class="px-4 py-2">鲁棒优化、随机规划、情景分析</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：方法取舍</div>
+        <p class="text-slate-700">小规模建筑可用 MILP 求最优；大规模或动态环境建议用启发式 + 仿真验证。提醒学生：没有“唯一正确模型”，关键是假设透明、灵敏度充分、结论稳健。</p>
+      </div>
+    </section>
+
     <section id="p1-framework" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-4">
         <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>模型基本框架
@@ -359,58 +411,6 @@ sol = odeint(smoke, y0, t, args=(beta, gamma, adj))
 </code></pre>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="p1-vars" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-4">
-        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>变量和方法的讨论
-      </h2>
-
-      <!-- Variable/Parameter Selection Process -->
-      <div class="mb-6">
-        <h3 class="text-lg font-bold text-red-800 mb-3">变量与参数是怎么被选出来的？</h3>
-        <div class="space-y-3">
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 1：从目标出发决定核心决策变量</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>目标是最小化 makespan 并保证全覆盖，因此核心决策变量包括：每个 responder 的路径序列、每个房间被访问的时间、以及启用的 responder 数量 R。这些变量直接回答“谁去哪、何时到”。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 2：从建筑平面图提取图参数</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>节点集合 V 来自 CAD/平面图中的房间、走廊交叉口、楼梯、出口；边 E 来自门和通道；边权 w_ij 通常取“距离 / 行走速度”，也可加入宽度（容量）和转弯延迟。如果缺少精确图纸，可用标准建筑规范估计。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 3：从灾害物理确定动态参数</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>烟雾传播率 β、固化率 γ、温度阈值、能见度阈值等可通过火灾工程文献或实验数据标定。若无法获得真实数据，可做参数扫描（sensitivity sweep），给出“当 β 在什么范围时结论仍成立”。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 4：从人员行为确定agent参数</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>responder 速度 v_r 可引用 NFPA 标准；清理时间 c_i 与房间面积、人员密度相关；疲劳系数可设为随时间递增的惩罚项；疏散人员服从率可用 Monte Carlo 抽样。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 5：简化与标定</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>对无法直接测量的参数（如恐慌导致的移动速度下降），先做合理假设并在论文中明确列出，再通过灵敏度分析检验结论对该参数的依赖程度。若结论对某参数高度敏感，应优先收集该数据。</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
-          <thead class="bg-slate-100">
-            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
-          </thead>
-          <tbody class="divide-y">
-            <tr><td class="px-4 py-2 font-semibold">空间</td><td class="px-4 py-2">节点 V、边 E、边权 w、房间面积、容量</td><td class="px-4 py-2">NetworkX 建图、Floyd-Warshall 全源最短路径</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">时间</td><td class="px-4 py-2">makespan T、通行时间 t_ij、清理时间 c_i</td><td class="px-4 py-2">PuLP / OR-Tools MILP、遗传算法、启发式</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">动态</td><td class="px-4 py-2">烟雾浓度 s_i(t)、温度、能见度</td><td class="px-4 py-2">SIR/SEIR ODE、元胞自动机、Monte Carlo</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">人员</td><td class="px-4 py-2">responder 数量 R、速度 v_r、疲劳系数</td><td class="px-4 py-2">多智能体仿真（Agent-Based Modeling）</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">不确定</td><td class="px-4 py-2">人员位置分布、火源位置、疏散服从率</td><td class="px-4 py-2">鲁棒优化、随机规划、情景分析</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
-        <div class="font-semibold text-emerald-900 mb-2">教师参考：方法取舍</div>
-        <p class="text-slate-700">小规模建筑可用 MILP 求最优；大规模或动态环境建议用启发式 + 仿真验证。提醒学生：没有“唯一正确模型”，关键是假设透明、灵敏度充分、结论稳健。</p>
       </div>
     </section>
 
@@ -617,6 +617,58 @@ print(&#x27;准则权重:&#x27;, dict(zip(criteria, np.round(weights,3))))
       </div>
     </section>
 
+    <section id="p2-vars" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>变量和方法的讨论
+      </h2>
+
+      <!-- Variable/Parameter Selection Process -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-green-800 mb-3">变量与参数是怎么被选出来的？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 1：从 IOC 六大准则推导变量类别</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>每个准则对应一个变量维度。例如 Inclusivity 需要“空间分布”变量，Gender Equity 需要“男女项目平衡”变量，Sustainability 需要“资源消耗”变量。这一步把定性的“准则”转化为定量的“维度”。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 2：从数据可得性选择代理指标</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>理想指标可能无法获取，需用代理变量。例如“全球 popularity”可用 Google Trends、维基百科浏览量、或国际联合会会员国数代替；”relevance to youth" 可用社交媒体增速代理。每个代理都应在论文中说明局限性。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 3：从量纲和方向确定标准化变量</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>原始指标量纲不同，需生成无量纲标准化变量 v_jk。效益型用 v=(x-min)/(max-min)；成本型用反向公式。若数据分布偏斜严重，可先用 log 变换或 Z-score。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 4：从聚合方法确定权重与阈值参数</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>权重 w_k 反映 IOC 价值取向，可用 AHP（主观）或熵权法（数据驱动）得到；决策阈值 θ_high、θ_low 把连续得分映射为“加入 / 观察 / 移除”，通常通过回测历史 SDE 来标定。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Step 5：从验证需求确定评估参数</div>
+            <p class="text-sm text-slate-700"><strong>思路：</strong>为验证模型有效性，需要定义评估指标：准确率、召回率、Kendall τ 排序一致性等。这些不是模型输入，而是模型诊断参数，帮助判断变量选择是否合理。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr><td class="px-4 py-2 font-semibold">准则层</td><td class="px-4 py-2"> popularity, gender, sustainability, inclusivity, relevance, safety</td><td class="px-4 py-2">AHP、德尔菲法、熵权法</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">指标层</td><td class="px-4 py-2">收视人数、参与国数、洲际熵、男女项目比、碳足迹、社交媒体增长率</td><td class="px-4 py-2">数据归一化、主成分分析 PCA</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">评分层</td><td class="px-4 py-2">x_jk（SDE j 在准则 k 的得分）、S_j（综合得分）</td><td class="px-4 py-2">加权求和、TOPSIS、ELECTRE</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">决策层</td><td class="px-4 py-2">θ_high, θ_low、P(add_j)</td><td class="px-4 py-2">阈值法、logistic 回归、随机森林分类</td></tr>
+            <tr><td class="px-4 py-2 font-semibold">验证层</td><td class="px-4 py-2">准确率、召回率、排序一致性 Kendall τ</td><td class="px-4 py-2">回测、交叉验证、灵敏度分析</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：避免“黑箱”</div>
+        <p class="text-slate-700">提醒学生：MCDA 的弱点是权重主观。应在论文中明确说明权重来源，并用 tornado diagram 展示关键准则变化如何影响前三名排序。</p>
+      </div>
+    </section>
+
     <section id="p2-framework" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-4">
         <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>模型基本框架
@@ -693,58 +745,6 @@ plt.legend(); plt.show()
 </code></pre>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="p2-vars" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-4">
-        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>变量和方法的讨论
-      </h2>
-
-      <!-- Variable/Parameter Selection Process -->
-      <div class="mb-6">
-        <h3 class="text-lg font-bold text-green-800 mb-3">变量与参数是怎么被选出来的？</h3>
-        <div class="space-y-3">
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 1：从 IOC 六大准则推导变量类别</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>每个准则对应一个变量维度。例如 Inclusivity 需要“空间分布”变量，Gender Equity 需要“男女项目平衡”变量，Sustainability 需要“资源消耗”变量。这一步把定性的“准则”转化为定量的“维度”。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 2：从数据可得性选择代理指标</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>理想指标可能无法获取，需用代理变量。例如“全球 popularity”可用 Google Trends、维基百科浏览量、或国际联合会会员国数代替；”relevance to youth" 可用社交媒体增速代理。每个代理都应在论文中说明局限性。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 3：从量纲和方向确定标准化变量</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>原始指标量纲不同，需生成无量纲标准化变量 v_jk。效益型用 v=(x-min)/(max-min)；成本型用反向公式。若数据分布偏斜严重，可先用 log 变换或 Z-score。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 4：从聚合方法确定权重与阈值参数</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>权重 w_k 反映 IOC 价值取向，可用 AHP（主观）或熵权法（数据驱动）得到；决策阈值 θ_high、θ_low 把连续得分映射为“加入 / 观察 / 移除”，通常通过回测历史 SDE 来标定。</p>
-          </div>
-          <div class="qa-block bg-amber-50 p-4 rounded-lg">
-            <div class="font-semibold text-amber-900 mb-2">Step 5：从验证需求确定评估参数</div>
-            <p class="text-sm text-slate-700"><strong>思路：</strong>为验证模型有效性，需要定义评估指标：准确率、召回率、Kendall τ 排序一致性等。这些不是模型输入，而是模型诊断参数，帮助判断变量选择是否合理。</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border rounded-lg overflow-hidden">
-          <thead class="bg-slate-100">
-            <tr><th class="px-4 py-2 text-left">类别</th><th class="px-4 py-2 text-left">变量 / 参数</th><th class="px-4 py-2 text-left">常用方法</th></tr>
-          </thead>
-          <tbody class="divide-y">
-            <tr><td class="px-4 py-2 font-semibold">准则层</td><td class="px-4 py-2"> popularity, gender, sustainability, inclusivity, relevance, safety</td><td class="px-4 py-2">AHP、德尔菲法、熵权法</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">指标层</td><td class="px-4 py-2">收视人数、参与国数、洲际熵、男女项目比、碳足迹、社交媒体增长率</td><td class="px-4 py-2">数据归一化、主成分分析 PCA</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">评分层</td><td class="px-4 py-2">x_jk（SDE j 在准则 k 的得分）、S_j（综合得分）</td><td class="px-4 py-2">加权求和、TOPSIS、ELECTRE</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">决策层</td><td class="px-4 py-2">θ_high, θ_low、P(add_j)</td><td class="px-4 py-2">阈值法、logistic 回归、随机森林分类</td></tr>
-            <tr><td class="px-4 py-2 font-semibold">验证层</td><td class="px-4 py-2">准确率、召回率、排序一致性 Kendall τ</td><td class="px-4 py-2">回测、交叉验证、灵敏度分析</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="teacher-block bg-emerald-50 p-4 rounded-lg mt-4 text-sm">
-        <div class="font-semibold text-emerald-900 mb-2">教师参考：避免“黑箱”</div>
-        <p class="text-slate-700">提醒学生：MCDA 的弱点是权重主观。应在论文中明确说明权重来源，并用 tornado diagram 展示关键准则变化如何影响前三名排序。</p>
       </div>
     </section>
 
