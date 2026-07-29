@@ -347,12 +347,17 @@ plt.show()
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import itertools
+          <pre><code class="language-python">import pulp
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
+# ===== 1. 数据输入 =====
+# nodes: list[str]，城市/节点标签，用于打印和可视化
 nodes = ['A', 'B', 'C', 'D']
+# n: int，节点总数
+n = len(nodes)
+# dist: numpy.ndarray, shape (n, n)，对称距离矩阵；dist[i][j] 表示节点 i 到 j 的行驶距离
 dist = np.array([
     [0, 10, 15, 20],
     [10, 0, 35, 25],
@@ -360,33 +365,97 @@ dist = np.array([
     [20, 25, 30, 0]
 ])
 
-# 暴力枚举最优 TSP 回路
-best = None
-best_cost = float('inf')
-for perm in itertools.permutations(range(1, len(nodes))):
-    route = (0,) + perm + (0,)
-    cost = sum(dist[route[i]][route[i+1]] for i in range(len(route)-1))
-    if cost < best_cost:
-        best_cost = cost
-        best = route
+# ===== 2. 创建 PuLP 模型 =====
+# prob: pulp.LpProblem 实例，优化方向为最小化总路程
+prob = pulp.LpProblem('TSP_MILP', pulp.LpMinimize)
 
-best_route = [nodes[i] for i in best]
-print('Best TSP route:', best_route)
-print('Minimum distance:', best_cost)
+# ===== 3. 决策变量 =====
+# x: dict[str, dict[str, pulp.LpVariable]]，二元变量 x[i][j]
+#    x[i][j] == 1 表示路径中存在从节点 i 直接到节点 j 的有向边
+#    变量下标 i, j 取值为 nodes 中的字符串标签
+x = pulp.LpVariable.dicts('x', (nodes, nodes), cat='Binary')
 
-# 可视化最优回路
-G = nx.complete_graph(len(nodes))
+# u: dict[str, pulp.LpVariable]，MTZ 子回路消除辅助变量
+#    仅对除起点外的每个节点记录它在回路中的“访问序号”，范围 [2, n]
+#    例如 u['B'] = 2 表示 B 是回路中第 2 个访问的节点（起点 A 固定为 1）
+u = pulp.LpVariable.dicts('u', nodes, lowBound=2, upBound=n, cat='Continuous')
+
+# ===== 4. 目标函数 =====
+# 最小化整个 TSP 回路的总行驶距离：
+# sum_{i,j} dist[i][j] * x[i][j]
+prob += pulp.lpSum(dist[nodes.index(i)][nodes.index(j)] * x[i][j]
+                   for i in nodes for j in nodes)
+
+# ===== 5. 约束条件 =====
+# 约束 1：没有自环
+# 含义：路径中不允许出现从节点 i 直接回到 i 的边
+for i in nodes:
+    prob += x[i][i] == 0
+
+# 约束 2：每个节点恰好离开一次
+# 含义：对于每个节点 i，在所有出边中只能选一条，保证 salesman 从每个城市只出发一次
+for i in nodes:
+    prob += pulp.lpSum(x[i][j] for j in nodes) == 1
+
+# 约束 3：每个节点恰好进入一次
+# 含义：对于每个节点 j，在所有入边中只能选一条，保证 salesman 到达每个城市只一次
+for j in nodes:
+    prob += pulp.lpSum(x[i][j] for i in nodes) == 1
+
+# 约束 4：MTZ 子回路消除（Miller-Tucker-Zemlin）
+# 含义：若边 (i, j) 被选中（x[i][j] == 1），则 j 的访问序号必须比 i 大 1 以上；
+#      这样任意两个被选中的节点之间都有明确的先后顺序，避免出现多个不连通的小圈。
+# 数学形式：u_i - u_j + n * x_{ij} <= n - 1，对所有 i, j 且 i != 起点, j != 起点
+start = nodes[0]  # 这里把 A 固定为起点
+for i in nodes:
+    if i == start:
+        continue
+    for j in nodes:
+        if j == start:
+            continue
+        prob += u[i] - u[j] + n * x[i][j] <= n - 1
+
+# ===== 6. 求解 =====
+prob.solve(pulp.PULP_CBC_CMD(msg=False))
+print('Status:', pulp.LpStatus[prob.status])
+print('Minimum distance:', pulp.value(prob.objective))
+
+# ===== 7. 从解中提取回路 =====
+# next_node: dict[str, str]，记录每个节点的下一个节点，用于还原完整路径
+next_node = {}
+for i in nodes:
+    for j in nodes:
+        if pulp.value(x[i][j]) > 0.5:  # 二元变量，取值为 1 表示被选中
+            next_node[i] = j
+
+# route: list[str]，按访问顺序排列的节点列表
+route = [start]
+current = start
+while True:
+    current = next_node[current]
+    route.append(current)
+    if current == start:
+        break
+print('Best TSP route:', ' -> '.join(route))
+
+# ===== 8. 可视化 =====
+# G: networkx.Graph，仅用于布局，节点编号 0..n-1
+G = nx.complete_graph(n)
+# pos: dict[int, np.ndarray]，每个节点在二维平面上的坐标
 pos = nx.circular_layout(G)
-plt.figure(figsize=(6, 6))
-nx.draw_networkx_nodes(G, pos, node_color='lightyellow', node_size=1500)
-nx.draw_networkx_labels(G, pos, labels={i: nodes[i] for i in range(len(nodes))}, font_size=14)
 
-# 画所有边（灰色）
+plt.figure(figsize=(6, 6))
+# 绘制节点
+nx.draw_networkx_nodes(G, pos, node_color='lightyellow', node_size=1500)
+# 绘制节点标签
+nx.draw_networkx_labels(G, pos, labels={i: nodes[i] for i in range(n)}, font_size=14)
+# 绘制所有可能边（浅灰色，作背景）
 nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# 画 TSP 回路（红色）
-tour_edges = list(zip(best, best[1:]))
+# 绘制被选中的 TSP 边（红色）
+# tour_edges: list[tuple[int, int]]，将 route 中的节点名转换为 networkx 节点编号
+tour_edges = [(nodes.index(route[i]), nodes.index(route[i+1])) for i in range(len(route)-1)]
 nx.draw_networkx_edges(G, pos, edgelist=tour_edges, edge_color='red', width=3)
-plt.title(f'TSP Optimal Tour: {" → ".join(best_route)} = {best_cost}')
+plt.title(f'TSP Optimal Tour: {" -> ".join(route)} = {pulp.value(prob.objective):.0f}')
 plt.axis('off')
 plt.show()
 </code></pre>
@@ -429,86 +498,130 @@ plt.show()
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 8 个节点，2 名销售人员，各自有不同起点/终点
+# ===== 1. 数据输入 =====
+# nodes: list[str]，所有节点的标签
 nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-# 完全图距离矩阵（对称）
+# n: int，节点总数
+n = len(nodes)
+
+# coords: numpy.ndarray, shape (n, 2)，每个节点在二维平面上的随机坐标
 np.random.seed(42)
-coords = np.random.rand(len(nodes), 2) * 10
-dist = np.zeros((len(nodes), len(nodes)))
-for i in range(len(nodes)):
-    for j in range(len(nodes)):
+coords = np.random.rand(n, 2) * 10
+
+# dist: numpy.ndarray, shape (n, n)，对称距离矩阵；dist[i][j] 表示节点 i 到 j 的欧氏距离
+dist = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
         dist[i][j] = np.linalg.norm(coords[i] - coords[j])
 
+# salesmen: list[dict]，每名销售人员的元信息：姓名、起点、终点
 salesmen = [
     {'name': 'S1', 'start': 'A', 'end': 'B'},
     {'name': 'S2', 'start': 'C', 'end': 'D'}
 ]
+# K: int，销售人员数量
 K = len(salesmen)
 
-# 中间节点：去掉所有起点/终点
+# start_ends: set[str]，所有起点和终点的集合，这些节点不需要被“访问”，只作为路径端点
 start_ends = set(s['start'] for s in salesmen) | set(s['end'] for s in salesmen)
+# intermediate: list[str]，需要被访问的中间节点（去掉所有起点/终点）
 intermediate = [n for n in nodes if n not in start_ends]
+# N: int，中间节点数量，用于 MTZ 子回路消除中的位置编号上界
 N = len(intermediate)
 
+# ===== 2. 创建 PuLP 模型 =====
+# prob: pulp.LpProblem 实例，目标是最小化 makespan（所有人中最长的单线路径）
 prob = pulp.LpProblem('MTSP_makespan', pulp.LpMinimize)
 
-# x[i][j][k]：salesman k 是否走 i -> j
+# ===== 3. 决策变量 =====
+# x: dict[str, dict[str, dict[int, pulp.LpVariable]]]，三维二元变量 x[i][j][k]
+#    x[i][j][k] == 1 表示第 k 名 salesman 的路径中包含从节点 i 直接到节点 j 的边
 x = pulp.LpVariable.dicts('x', (nodes, nodes, range(K)), cat='Binary')
-# T：makespan
+
+# T: pulp.LpVariable，连续变量，表示所有 salesmen 中单条路径长度的最大值（makespan）
 T = pulp.LpVariable('T', lowBound=0)
-# MTZ 位置变量 u[i][k]（仅对中间节点）
+
+# u: dict[str, dict[int, pulp.LpVariable]]，MTZ 辅助变量 u[i][k]
+#    表示中间节点 i 在第 k 名 salesman 路径中的访问序号，范围 [1, N]
+#    例如 u['E'][0] = 2 表示 E 是 S1 路径中第 2 个访问的中间节点
 u = pulp.LpVariable.dicts('u', (intermediate, range(K)), lowBound=1, upBound=N, cat='Continuous')
 
+# ===== 4. 目标函数 =====
+# 最小化 makespan T，即让所有人中最长的那条路径尽可能短
 prob += T
 
-for k, s in enumerate(salesmen):
-    sk, ek = s['start'], s['end']
-    # 从起点出发
-    prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
-    # 到达终点
-    prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
-    # 不进入起点、不离开终点
-    prob += pulp.lpSum(x[i][sk][k] for i in nodes if i != sk) == 0
-    prob += pulp.lpSum(x[ek][j][k] for j in nodes if j != ek) == 0
-
-# 每个中间节点恰好被一个人进入/离开
-for v in intermediate:
-    prob += pulp.lpSum(x[i][v][k] for i in nodes if i != v for k in range(K)) == 1
-    prob += pulp.lpSum(x[v][j][k] for j in nodes if j != v for k in range(K)) == 1
-
-# 每个人的流量守恒
-for k in range(K):
-    for v in nodes:
-        if v in start_ends:
-            continue
-        prob += (pulp.lpSum(x[i][v][k] for i in nodes if i != v)
-                 == pulp.lpSum(x[v][j][k] for j in nodes if j != v))
-
-# 每个人的总路程 ≤ T
-for k in range(K):
-    prob += T >= pulp.lpSum(dist[i][j] * x[nodes[i]][nodes[j]][k]
-                            for i in range(len(nodes)) for j in range(len(nodes)) if i != j)
-
-# MTZ 子回路消除
-for k in range(K):
-    for i_idx, i in enumerate(intermediate):
-        for j_idx, j in enumerate(intermediate):
-            if i != j:
-                prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
-
-# 禁止自环
+# ===== 5. 约束条件 =====
+# 约束 1：禁止自环
+# 含义：不允许从节点 i 直接走回 i，避免无意义的零长度边
 for i in nodes:
     for k in range(K):
         prob += x[i][i][k] == 0
 
+# 约束 2：每名 salesman 必须从自己的起点出发一次
+# 含义：对第 k 个人，从 sk 出发的出边中只能选一条
+for k, s in enumerate(salesmen):
+    sk = s['start']
+    prob += pulp.lpSum(x[sk][j][k] for j in nodes if j != sk) == 1
+
+# 约束 3：每名 salesman 必须到达自己的终点一次
+# 含义：对第 k 个人，进入 ek 的入边中只能选一条
+for k, s in enumerate(salesmen):
+    ek = s['end']
+    prob += pulp.lpSum(x[i][ek][k] for i in nodes if i != ek) == 1
+
+# 约束 4：salesman 不能进入自己的起点、也不能离开自己的终点
+# 含义：起点只出不入，终点只入不出，保证路径方向是从起点到终点
+for k, s in enumerate(salesmen):
+    sk, ek = s['start'], s['end']
+    prob += pulp.lpSum(x[i][sk][k] for i in nodes if i != sk) == 0
+    prob += pulp.lpSum(x[ek][j][k] for j in nodes if j != ek) == 0
+
+# 约束 5：每个中间节点恰好被一个人进入一次
+# 含义：客户/中间节点不能被遗漏，也不能被两个人重复访问
+for v in intermediate:
+    prob += pulp.lpSum(x[i][v][k] for i in nodes if i != v for k in range(K)) == 1
+
+# 约束 6：每个中间节点恰好被一个人离开一次
+# 含义：与约束 5 配对，保证中间节点在路径中出现且仅出现一次
+for v in intermediate:
+    prob += pulp.lpSum(x[v][j][k] for j in nodes if j != v for k in range(K)) == 1
+
+# 约束 7：每名 salesman 在每个中间节点流量守恒
+# 含义：若第 k 个人进入了节点 v，则他也必须从 v 离开；保证路径连续不断开
+for k in range(K):
+    for v in intermediate:
+        prob += (pulp.lpSum(x[i][v][k] for i in nodes if i != v)
+                 == pulp.lpSum(x[v][j][k] for j in nodes if j != v))
+
+# 约束 8：每名 salesman 的总路程不超过 makespan T
+# 含义：T 必须大于等于每个人路径长度，因此最小化 T 就是最小化最长路径
+for k in range(K):
+    prob += T >= pulp.lpSum(
+        dist[i][j] * x[nodes[i]][nodes[j]][k]
+        for i in range(n) for j in range(n) if i != j
+    )
+
+# 约束 9：MTZ 子回路消除（每名 salesman 独立）
+# 含义：若第 k 个人走了边 i -> j，则 j 在路径中的序号必须比 i 大；
+#      这样任意两个被选中的节点之间都有明确的先后顺序，避免形成不连通的小圈。
+# 数学形式：u_i^k - u_j^k + N * x_{ij}^k <= N - 1
+for k in range(K):
+    for i in intermediate:
+        for j in intermediate:
+            if i != j:
+                prob += u[i][k] - u[j][k] + N * x[i][j][k] <= N - 1
+
+# ===== 6. 求解 =====
 prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=60))
 print('Status:', pulp.LpStatus[prob.status])
 print('Makespan T =', pulp.value(T))
 
-# 输出每个人的路径
+# ===== 7. 从解中提取每个人的路径 =====
 for k, s in enumerate(salesmen):
+    # route: list[str]，第 k 名 salesman 按顺序访问的节点列表
     route = [s['start']]
     current = s['start']
+    # 沿着 x[current][j][k] == 1 的边从起点走到终点
     while current != s['end']:
         nxt = None
         for j in nodes:
@@ -519,24 +632,33 @@ for k, s in enumerate(salesmen):
             break
         route.append(nxt)
         current = nxt
-    cost = sum(dist[nodes.index(route[i])][nodes.index(route[i+1])] for i in range(len(route)-1))
+    # cost: float，该 salesman 路径的总长度
+    cost = sum(
+        dist[nodes.index(route[i])][nodes.index(route[i+1])]
+        for i in range(len(route) - 1)
+    )
     print(f"{s['name']}: {' -> '.join(route)} = {cost:.2f}")
 
-# 可视化
+# ===== 8. 可视化 =====
 plt.figure(figsize=(8, 6))
+# colors: list[str]，每名 salesman 的路径颜色
 colors = ['red', 'blue']
 for k, s in enumerate(salesmen):
+    # edges: list[tuple[str, str]]，第 k 名 salesman 被选中的所有边
     edges = [(i, j) for i in nodes for j in nodes
              if i != j and pulp.value(x[i][j][k]) > 0.5]
     for (u_node, v_node) in edges:
         ui, vi = nodes.index(u_node), nodes.index(v_node)
-        plt.plot([coords[ui,0], coords[vi,0]], [coords[ui,1], coords[vi,1]],
+        plt.plot([coords[ui, 0], coords[vi, 0]], [coords[ui, 1], coords[vi, 1]],
                  color=colors[k], linewidth=2, alpha=0.7)
-    plt.scatter(coords[:,0], coords[:,1], c='lightgray', s=300, zorder=3)
-    for idx, n in enumerate(nodes):
-        color = colors[k] if n in [s['start'], s['end']] else 'black'
-        plt.text(coords[idx,0], coords[idx,1], n, ha='center', va='center',
-                 fontsize=10, color=color, fontweight='bold', zorder=4)
+    # 绘制所有节点作为背景点
+    plt.scatter(coords[:, 0], coords[:, 1], c='lightgray', s=300, zorder=3)
+    # 标注节点标签；起点/终点用该 salesman 的颜色高亮
+    for idx, node in enumerate(nodes):
+        color = colors[k] if node in [s['start'], s['end']] else 'black'
+        plt.text(coords[idx, 0], coords[idx, 1], node,
+                 ha='center', va='center', fontsize=10,
+                 color=color, fontweight='bold', zorder=4)
 plt.title('MTSP: Minimize Maximum Tour Length')
 plt.axis('off')
 plt.show()
