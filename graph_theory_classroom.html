@@ -86,7 +86,7 @@
           <pre><code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
 
-# 创建一个无向图
+# Create an undirected graph
 G = nx.Graph()
 G.add_nodes_from(['A', 'B', 'C', 'D'])
 G.add_weighted_edges_from([
@@ -168,27 +168,27 @@ print('Edges:', list(G.edges(data=True)))
           <pre><code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
 
-# 四块陆地 A/B/C/D，七座桥
+# Four land masses A/B/C/D and seven bridges
 G = nx.MultiGraph()
 G.add_nodes_from(['A', 'B', 'C', 'D'])
-# 历史上的 Königsberg 桥连接关系
+# Historical Königsberg bridge connections
 bridges = [
-    ('A', 'B'), ('A', 'B'),  # A-B 两座桥
-    ('A', 'C'), ('A', 'C'),  # A-C 两座桥
-    ('A', 'D'),              # A-D 一座桥
-    ('B', 'D'),              # B-D 一座桥
-    ('C', 'D')               # C-D 一座桥
+    ('A', 'B'), ('A', 'B'),  # A-B two bridges
+    ('A', 'C'), ('A', 'C'),  # A-C two bridges
+    ('A', 'D'),              # A-D one bridge
+    ('B', 'D'),              # B-D one bridge
+    ('C', 'D')               # C-D one bridge
 ]
 G.add_edges_from(bridges)
 
-# 检查 Eulerian 路径
+# Check for an Eulerian path
 print('Degrees:', dict(G.degree()))
 odd = [n for n, d in G.degree() if d % 2 == 1]
 print(f'Odd-degree vertices: {odd} ({len(odd)} total)')
 print('Has Eulerian path:', nx.has_eulerian_path(G))
 print('Has Eulerian circuit:', nx.is_eulerian(G))
 
-# 可视化：用弯曲的边表示 Multiple edges
+# Visualization: use curved edges to show multiple edges
 pos = {
     'A': (0, 1),
     'B': (-1, 0),
@@ -198,7 +198,7 @@ pos = {
 plt.figure(figsize=(7, 6))
 nx.draw_networkx_nodes(G, pos, node_color='lightcoral', node_size=2000)
 nx.draw_networkx_labels(G, pos, font_size=14, font_weight='bold')
-# 画边，multi-edge 用弧线
+# Draw edges; multi-edges are shown as arcs
 ax = plt.gca()
 for u, v, key in G.edges(keys=True):
     rad = 0.3 * (key + 1)
@@ -248,17 +248,17 @@ length, path = nx.single_source_dijkstra(G, start, end)
 print(f'Shortest path from {start} to {end}: {path}')
 print(f'Total distance: {length}')
 
-# 可视化最短路径
+# Visualize the shortest path
 pos = nx.spring_layout(G, seed=42)
 plt.figure(figsize=(8, 5))
 path_edges = list(zip(path, path[1:]))
 
-# 画所有节点和边
+# Draw all nodes and edges
 nx.draw_networkx_nodes(G, pos, node_color='lightgray', node_size=1200)
 nx.draw_networkx_nodes(G, pos, nodelist=path, node_color='lightgreen', node_size=1500)
 nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
 nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1.5)
-# 高亮最短路径
+# Highlight the shortest path
 nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='green', width=3)
 edge_labels = nx.get_edge_attributes(G, 'weight')
 nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
@@ -308,14 +308,14 @@ mst = nx.minimum_spanning_tree(G, weight='weight')
 print('MST edges:', list(mst.edges(data=True)))
 print('Total MST weight:', mst.size(weight='weight'))
 
-# 可视化
+# Visualize
 pos = nx.spring_layout(G, seed=42)
 plt.figure(figsize=(8, 5))
 nx.draw_networkx_nodes(G, pos, node_color='lightblue', node_size=1000)
 nx.draw_networkx_labels(G, pos)
-# 非 MST 边灰色
+# Non-MST edges in gray
 nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# MST 边红色
+# MST edges in red
 nx.draw_networkx_edges(mst, pos, edge_color='red', width=2.5)
 edge_labels = nx.get_edge_attributes(G, 'weight')
 nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
@@ -356,12 +356,12 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# ===== 1. 数据输入 =====
-# nodes: list[str]，城市/节点标签，用于打印和可视化
+# ===== 1. Data input =====
+# nodes: list[str], city/node labels for printing and visualization
 nodes = ['A', 'B', 'C', 'D']
-# n: int，节点总数
+# n: int, total number of nodes
 n = len(nodes)
-# dist: numpy.ndarray, shape (n, n)，对称距离矩阵；dist[i][j] 表示节点 i 到 j 的行驶距离
+# dist: numpy.ndarray, shape (n, n), symmetric distance matrix; dist[i][j] is the travel distance from node i to j
 dist = np.array([
     [0, 10, 15, 20],
     [10, 0, 35, 25],
@@ -369,70 +369,70 @@ dist = np.array([
     [20, 25, 30, 0]
 ])
 
-# ===== 2. 创建 PuLP 模型 =====
-# prob: pulp.LpProblem 实例，优化方向为最小化总路程
+# ===== 2. Create PuLP model =====
+# prob: pulp.LpProblem instance, objective is to minimize total distance
 prob = pulp.LpProblem('TSP_MILP', pulp.LpMinimize)
 
-# ===== 3. 决策变量 =====
-# x: dict[str, dict[str, pulp.LpVariable]]，二元变量 x[i][j]
-#    x[i][j] == 1 表示路径中存在从节点 i 直接到节点 j 的有向边
-#    变量下标 i, j 取值为 nodes 中的字符串标签
+# ===== 3. Decision variables =====
+# x: dict[str, dict[str, pulp.LpVariable]], binary variable x[i][j]
+#    x[i][j] == 1 means the route contains a directed edge from node i to node j
+#    Indices i, j are string labels from nodes
 x = pulp.LpVariable.dicts('x', (nodes, nodes), cat='Binary')
 
-# u: dict[str, pulp.LpVariable]，MTZ 子回路消除辅助变量
-#    仅对除起点外的每个节点记录它在回路中的“访问序号”，范围 [2, n]
-#    例如 u['B'] = 2 表示 B 是回路中第 2 个访问的节点（起点 A 固定为 1）
+# u: dict[str, pulp.LpVariable], MTZ subtour elimination auxiliary variables
+#    Records the "visit order" of each node except the start, in range [2, n]
+#    e.g. u['B'] = 2 means B is the 2nd visited node (start A is fixed at 1)
 u = pulp.LpVariable.dicts('u', nodes, lowBound=2, upBound=n, cat='Continuous')
 
-# ===== 4. 目标函数 =====
-# 最小化整个 TSP 回路的总行驶距离：
+# ===== 4. Objective function =====
+# Minimize the total travel distance of the TSP tour:
 # sum_{i,j} dist[i][j] * x[i][j]
 prob += pulp.lpSum(dist[nodes.index(i)][nodes.index(j)] * x[i][j]
                    for i in nodes for j in nodes)
 
-# ===== 5. 约束条件 =====
-# 约束 1：没有自环
-# 含义：路径中不允许出现从节点 i 直接回到 i 的边
+# ===== 5. Constraints =====
+# Constraint 1: no self-loops
+# Meaning: the route cannot contain an edge from node i directly back to i
 for i in nodes:
     prob += x[i][i] == 0
 
-# 约束 2：每个节点恰好离开一次
-# 含义：对于每个节点 i，在所有出边中只能选一条，保证 salesman 从每个城市只出发一次
+# Constraint 2: each node leaves exactly once
+# Meaning: for each node i, exactly one outgoing edge is selected
 for i in nodes:
     prob += pulp.lpSum(x[i][j] for j in nodes) == 1
 
-# 约束 3：每个节点恰好进入一次
-# 含义：对于每个节点 j，在所有入边中只能选一条，保证 salesman 到达每个城市只一次
+# Constraint 3: each node enters exactly once
+# Meaning: for each node j, exactly one incoming edge is selected
 for j in nodes:
     prob += pulp.lpSum(x[i][j] for i in nodes) == 1
 
-# 约束 4：MTZ 子回路消除（Miller-Tucker-Zemlin）
-# 含义：若边 (i, j) 被选中（x[i][j] == 1），则 j 的访问序号必须比 i 大 1 以上；
-#      这样任意两个被选中的节点之间都有明确的先后顺序，避免出现多个不连通的小圈。
-# 数学形式：u_i - u_j + n * x_{ij} <= n - 1，对所有 i, j 且 i != 起点, j != 起点
-start = nodes[0]  # 这里把 A 固定为起点
+# Constraint 4: MTZ subtour elimination (Miller-Tucker-Zemlin)
+# Meaning: if edge (i, j) is selected (x[i][j] == 1), then j's visit order must be at least 1 greater than i's;
+#          this ensures a clear ordering and prevents multiple disconnected small cycles.
+# Math form: u_i - u_j + n * x_{ij} &lt;= n - 1, for all i, j != start
+start = nodes[0]  # Fix A as the start
 for i in nodes:
     if i == start:
         continue
     for j in nodes:
         if j == start:
             continue
-        prob += u[i] - u[j] + n * x[i][j] <= n - 1
+        prob += u[i] - u[j] + n * x[i][j] &lt;= n - 1
 
-# ===== 6. 求解 =====
+# ===== 6. Solve =====
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 print('Status:', pulp.LpStatus[prob.status])
 print('Minimum distance:', pulp.value(prob.objective))
 
-# ===== 7. 从解中提取回路 =====
-# next_node: dict[str, str]，记录每个节点的下一个节点，用于还原完整路径
+# ===== 7. Extract the tour from the solution =====
+# next_node: dict[str, str], records the next node of each node to reconstruct the full route
 next_node = {}
 for i in nodes:
     for j in nodes:
-        if pulp.value(x[i][j]) > 0.5:  # 二元变量，取值为 1 表示被选中
+        if pulp.value(x[i][j]) &gt; 0.5:  # binary variable, 1 means selected
             next_node[i] = j
 
-# route: list[str]，按访问顺序排列的节点列表
+# route: list[str], nodes in visiting order
 route = [start]
 current = start
 while True:
@@ -440,26 +440,26 @@ while True:
     route.append(current)
     if current == start:
         break
-print('Best TSP route:', ' -> '.join(route))
+print('Best TSP route:', ' -&gt; '.join(route))
 
-# ===== 8. 可视化 =====
-# G: networkx.Graph，仅用于布局，节点编号 0..n-1
+# ===== 8. Visualize =====
+# G: networkx.Graph, only used for layout, node ids 0..n-1
 G = nx.complete_graph(n)
-# pos: dict[int, np.ndarray]，每个节点在二维平面上的坐标
+# pos: dict[int, np.ndarray], 2D coordinates of each node
 pos = nx.circular_layout(G)
 
 plt.figure(figsize=(6, 6))
-# 绘制节点
+# Draw nodes
 nx.draw_networkx_nodes(G, pos, node_color='lightyellow', node_size=1500)
-# 绘制节点标签
+# Draw node labels
 nx.draw_networkx_labels(G, pos, labels={i: nodes[i] for i in range(n)}, font_size=14)
-# 绘制所有可能边（浅灰色，作背景）
+# Draw all possible edges (light gray background)
 nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# 绘制被选中的 TSP 边（红色）
-# tour_edges: list[tuple[int, int]]，将 route 中的节点名转换为 networkx 节点编号
+# Draw selected TSP edges (red)
+# tour_edges: list[tuple[int, int]], convert route node names to networkx node ids
 tour_edges = [(nodes.index(route[i]), nodes.index(route[i+1])) for i in range(len(route)-1)]
 nx.draw_networkx_edges(G, pos, edgelist=tour_edges, edge_color='red', width=3)
-plt.title(f'TSP Optimal Tour: {" -> ".join(route)} = {pulp.value(prob.objective):.0f}')
+plt.title(f'TSP Optimal Tour: {" -&gt; ".join(route)} = {pulp.value(prob.objective):.0f}')
 plt.axis('off')
 plt.show()
 </code></pre>
@@ -506,12 +506,12 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# ===== 1. 数据输入 =====
-# nodes: list[str]，节点标签
+# ===== 1. Data input =====
+# nodes: list[str], node labels
 nodes = ['A', 'B', 'C', 'D', 'E']
-# n: int，节点总数
+# n: int, total number of nodes
 n = len(nodes)
-# dist: numpy.ndarray, shape (n, n)，对称距离矩阵
+# dist: numpy.ndarray, shape (n, n), symmetric distance matrix
 dist = np.array([
     [0,  8, 12, 18,  7],
     [8,  0, 15, 10, 11],
@@ -520,71 +520,71 @@ dist = np.array([
     [7,  11, 13, 9,  0]
 ])
 
-# 指定起点和终点
+# Specify start and end nodes
 start = 'A'
 end = 'E'
 
-# ===== 2. 创建模型 =====
+# ===== 2. Create model =====
 prob = pulp.LpProblem('Hamiltonian_Path', pulp.LpMinimize)
 
-# ===== 3. 决策变量 =====
-# x: dict[str, dict[str, pulp.LpVariable]]，二元变量 x[i][j]
-#    x[i][j] == 1 表示路径中存在从节点 i 直接到节点 j 的边
+# ===== 3. Decision variables =====
+# x: dict[str, dict[str, pulp.LpVariable]], binary variable x[i][j]
+#    x[i][j] == 1 means the path contains an edge from node i to node j
 x = pulp.LpVariable.dicts('x', (nodes, nodes), cat='Binary')
 
-# u: dict[str, pulp.LpVariable]，MTZ 子回路消除辅助变量
-#    记录节点在路径中的访问序号；起点固定为 1，其余节点范围 [2, n]
-#    数据类型：字典，值为连续型 PuLP 变量
+# u: dict[str, pulp.LpVariable], MTZ subtour elimination auxiliary variables
+#    Records visit order; start fixed at 1, others in range [2, n]
+#    Data type: dict of continuous PuLP variables
 u = pulp.LpVariable.dicts('u', nodes, lowBound=1, upBound=n, cat='Continuous')
 
-# ===== 4. 目标函数 =====
-# 最小化整条 Hamiltonian Path 的总行驶距离
+# ===== 4. Objective function =====
+# Minimize the total travel distance of the Hamiltonian path
 prob += pulp.lpSum(dist[nodes.index(i)][nodes.index(j)] * x[i][j]
                    for i in nodes for j in nodes)
 
-# ===== 5. 约束条件 =====
-# 约束 1：没有自环
+# ===== 5. Constraints =====
+# Constraint 1: no self-loops
 for i in nodes:
     prob += x[i][i] == 0
 
-# 约束 2：起点只能出去一次，不能进入
+# Constraint 2: start leaves exactly once and never enters
 prob += pulp.lpSum(x[start][j] for j in nodes if j != start) == 1
 prob += pulp.lpSum(x[i][start] for i in nodes if i != start) == 0
 
-# 约束 3：终点只能进入一次，不能出去
+# Constraint 3: end enters exactly once and never leaves
 prob += pulp.lpSum(x[i][end] for i in nodes if i != end) == 1
 prob += pulp.lpSum(x[end][j] for j in nodes if j != end) == 0
 
-# 约束 4：中间节点恰好进入一次、离开一次
+# Constraint 4: intermediate nodes enter once and leave once
 for v in nodes:
     if v == start or v == end:
         continue
     prob += pulp.lpSum(x[i][v] for i in nodes if i != v) == 1
     prob += pulp.lpSum(x[v][j] for j in nodes if j != v) == 1
 
-# 约束 5：起点访问序号固定为 1
+# Constraint 5: fix start visit order to 1
 prob += u[start] == 1
 
-# 约束 6：MTZ 子回路消除
-# 含义：若边 (i, j) 被选中，则 j 的访问序号必须比 i 大；
-#      注意 j 不能是起点（起点序号已固定）。
+# Constraint 6: MTZ subtour elimination
+# Meaning: if edge (i, j) is selected, j's visit order must be greater than i's;
+#          note j cannot be the start (its order is fixed).
 for i in nodes:
     for j in nodes:
         if i == j or j == start:
             continue
-        prob += u[i] - u[j] + n * x[i][j] <= n - 1
+        prob += u[i] - u[j] + n * x[i][j] &lt;= n - 1
 
-# ===== 6. 求解 =====
+# ===== 6. Solve =====
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 print('Status:', pulp.LpStatus[prob.status])
 print('Minimum distance:', pulp.value(prob.objective))
 
-# ===== 7. 从解中提取路径 =====
-# next_node: dict[str, str]，记录每个节点的下一个节点
+# ===== 7. Extract the path from the solution =====
+# next_node: dict[str, str], records the next node of each node
 next_node = {}
 for i in nodes:
     for j in nodes:
-        if pulp.value(x[i][j]) > 0.5:
+        if pulp.value(x[i][j]) &gt; 0.5:
             next_node[i] = j
 
 route = [start]
@@ -592,30 +592,30 @@ current = start
 while current != end:
     current = next_node[current]
     route.append(current)
-print('Best Hamiltonian path:', ' -> '.join(route))
+print('Best Hamiltonian path:', ' -&gt; '.join(route))
 
-# ===== 8. 可视化 =====
+# ===== 8. Visualize =====
 G = nx.complete_graph(n)
 pos = nx.circular_layout(G)
 
 plt.figure(figsize=(6, 6))
 nx.draw_networkx_nodes(G, pos, node_color='lightyellow', node_size=1500)
-# 起点用绿色、终点用红色、其余用默认标签
+# Start green, end red, others default labels
 labels = {i: nodes[i] for i in range(n)}
 nx.draw_networkx_labels(G, pos, labels=labels, font_size=14)
-# 所有可能边作背景
+# All possible edges as background
 nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1)
-# 绘制 Hamiltonian Path 边（红色）
+# Draw Hamiltonian path edges (red)
 path_edges = [(nodes.index(route[i]), nodes.index(route[i+1]))
               for i in range(len(route) - 1)]
 nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='red', width=3,
-                       arrows=True, arrowstyle='->', arrowsize=20)
-# 高亮起点和终点
+                       arrows=True, arrowstyle='-&gt;', arrowsize=20)
+# Highlight start and end
 nx.draw_networkx_nodes(G, pos, nodelist=[nodes.index(start)],
                        node_color='lightgreen', node_size=1800)
 nx.draw_networkx_nodes(G, pos, nodelist=[nodes.index(end)],
                        node_color='lightcoral', node_size=1800)
-plt.title(f'Hamiltonian Path {start} → {end}: {" -> ".join(route)} = {pulp.value(prob.objective):.0f}')
+plt.title(f'Hamiltonian Path {start} → {end}: {" -&gt; ".join(route)} = {pulp.value(prob.objective):.0f}')
 plt.axis('off')
 plt.show()
 </code></pre>
@@ -652,7 +652,7 @@ plt.show()
           <pre><code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
 
-# 考试排期：课程为节点，有共同学生的课程连边
+# Exam scheduling: courses are nodes; edges connect courses with common students
 G = nx.Graph()
 G.add_nodes_from(['Math', 'Physics', 'CS', 'English', 'History'])
 G.add_edges_from([
@@ -661,13 +661,13 @@ G.add_edges_from([
     ('English', 'History')
 ])
 
-# 贪心着色
+# Greedy coloring
 coloring = nx.coloring.greedy_color(G, strategy='largest_first')
 num_colors = max(coloring.values()) + 1
 print('Color assignment:', coloring)
 print('Minimum time slots needed (greedy):', num_colors)
 
-# 可视化
+# Visualize
 colors = ['#fca5a5', '#93c5fd', '#86efac', '#fde047', '#d8b4fe']
 node_colors = [colors[coloring[n] % len(colors)] for n in G.nodes]
 pos = nx.spring_layout(G, seed=42)
@@ -710,7 +710,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from scipy.optimize import linear_sum_assignment
 
-# 成本矩阵：行 = 志愿者队伍，列 = 污染河段
+# Cost matrix: rows = volunteer teams, columns = polluted river sections
 teams = ['T1', 'T2', 'T3', 'T4']
 sections = ['S1', 'S2', 'S3', 'S4']
 cost = np.array([
@@ -726,7 +726,7 @@ for r, c in zip(row_ind, col_ind):
     print(f'  {teams[r]} → {sections[c]}, cost = {cost[r, c]}')
 print('Total minimum cost:', cost[row_ind, col_ind].sum())
 
-# 可视化二分图匹配
+# Visualize bipartite matching
 B = nx.DiGraph()
 B.add_nodes_from([f't_{t}' for t in teams], bipartite=0)
 B.add_nodes_from([f's_{s}' for s in sections], bipartite=1)
@@ -789,43 +789,42 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from scipy.optimize import linprog
 
-# 数据
+# Data
 students = ['S1', 'S2', 'S3', 'S4', 'S5']
 courses = ['C1', 'C2', 'C3']
 capacity = {'C1': 3, 'C2': 3, 'C3': 2}
 max_courses_per_student = 2
 
-# 随机满意度矩阵
+# Random satisfaction matrix
 np.random.seed(42)
 satisfaction = np.random.randint(1, 10, size=(len(students), len(courses)))
 print('Satisfaction matrix:')
 print(satisfaction)
 
-# 用 PuLP 求解最大化满意度
-# pip install pulp
+# Solve maximum satisfaction with PuLP
 import pulp
 prob = pulp.LpProblem('Course_Registration', pulp.LpMaximize)
 x = pulp.LpVariable.dicts('x', ((i, j) for i in range(len(students)) for j in range(len(courses))), cat='Binary')
-# 目标
+# Objective
 prob += pulp.lpSum(satisfaction[i][j] * x[i, j] for i in range(len(students)) for j in range(len(courses)))
-# 每名学生最多选 2 门
+# Each student selects at most 2 courses
 for i in range(len(students)):
-    prob += pulp.lpSum(x[i, j] for j in range(len(courses))) <= max_courses_per_student
-# 每门课不超过容量
+    prob += pulp.lpSum(x[i, j] for j in range(len(courses))) &lt;= max_courses_per_student
+# Each course does not exceed capacity
 for j, c in enumerate(courses):
-    prob += pulp.lpSum(x[i, j] for i in range(len(students))) <= capacity[c]
+    prob += pulp.lpSum(x[i, j] for i in range(len(students))) &lt;= capacity[c]
 
 prob.solve(pulp.PULP_CBC_CMD(msg=False))
 print('\nOptimal assignments:')
 assignments = []
 for i, s in enumerate(students):
     for j, c in enumerate(courses):
-        if pulp.value(x[i, j]) > 0.5:
+        if pulp.value(x[i, j]) &gt; 0.5:
             print(f'  {s} → {c} (satisfaction={satisfaction[i][j]})')
             assignments.append((s, c))
 print('Total satisfaction:', pulp.value(prob.objective))
 
-# 可视化
+# Visualize
 B = nx.DiGraph()
 B.add_nodes_from([f's_{s}' for s in students], bipartite=0)
 B.add_nodes_from([f'c_{c}' for c in courses], bipartite=1)
@@ -889,23 +888,23 @@ from scipy.optimize import linprog
 factories = ['F1', 'F2', 'F3']
 suppliers = ['S1', 'S2', 'S3', 'S4']
 
-# 单位运输成本矩阵
+# Unit transportation cost matrix
 cost = np.array([
     [4, 6, 9, 5],
     [7, 3, 5, 8],
     [5, 8, 4, 6]
 ], dtype=float)
 
-supply = np.array([40, 50, 60], dtype=float)   # 工厂产能
-demand = np.array([30, 40, 35, 45], dtype=float) # 供应商需求
+supply = np.array([40, 50, 60], dtype=float)    # Factory capacity
+demand = np.array([30, 40, 35, 45], dtype=float) # Supplier demand
 
-# 平衡检查
+# Balance check
 print('Total supply:', supply.sum(), 'Total demand:', demand.sum())
 
-# 用 scipy.optimize.linprog 求解（变量展平为 x_ij）
+# Solve with scipy.optimize.linprog (variables flattened as x_ij)
 n_f, n_s = cost.shape
 c = cost.flatten()
-# 工厂供应约束：A_eq @ x = supply
+# Factory supply constraints: A_eq @ x = supply
 A_eq = np.zeros((n_f + n_s, n_f * n_s))
 b_eq = np.concatenate([supply, demand])
 for i in range(n_f):
@@ -920,7 +919,7 @@ print('\nOptimal shipment plan:')
 print(np.round(x_opt, 2))
 print('Minimum total cost:', res.fun)
 
-# 可视化运输网络
+# Visualize transportation network
 G = nx.DiGraph()
 for f in factories:
     G.add_node(f, bipartite=0)
@@ -929,7 +928,7 @@ for s in suppliers:
 
 for i, f in enumerate(factories):
     for j, s in enumerate(suppliers):
-        if x_opt[i, j] > 0.01:
+        if x_opt[i, j] &gt; 0.01:
             G.add_edge(f, s, weight=cost[i, j], amount=x_opt[i, j])
 
 pos = {}
@@ -943,7 +942,7 @@ nx.draw_networkx_nodes(G, pos, nodelist=left, node_color='lightblue', node_size=
 nx.draw_networkx_nodes(G, pos, nodelist=right, node_color='lightgreen', node_size=1500)
 nx.draw_networkx_labels(G, pos, font_size=12)
 
-# 边宽按运量
+# Edge width proportional to shipment amount
 amounts = [G[u][v]['amount'] for u, v in G.edges]
 max_amt = max(amounts) if amounts else 1
 widths = [1 + 4 * amt / max_amt for amt in amounts]
@@ -1099,7 +1098,7 @@ num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
 import matplotlib.pyplot as plt
 import math
 
-# 用字典直接定义每个节点的二维直角坐标 (x, y)
+# Define 2D Cartesian coordinates (x, y) for each node directly
 pos = {
     'A': (0, 0),
     'B': (3, 0),
@@ -1111,7 +1110,7 @@ pos = {
 G = nx.Graph()
 G.add_nodes_from(pos.keys())
 
-# 计算任意两点之间的欧氏距离，作为边权
+# Compute Euclidean distance between every pair and use it as edge weight
 for u in pos:
     for v in pos:
         if u &lt; v:
@@ -1120,11 +1119,11 @@ for u in pos:
             d = math.hypot(x2 - x1, y2 - y1)
             G.add_edge(u, v, weight=round(d, 2))
 
-# 把坐标存为节点属性，便于后续读取
+# Store coordinates as node attributes for later use
 nx.set_node_attributes(G, pos, 'pos')
 
-print('节点位置属性：', dict(G.nodes(data='pos')))
-print('边权重：', dict(nx.get_edge_attributes(G, 'weight')))
+print('Node position attributes:', dict(G.nodes(data='pos')))
+print('Edge weights:', dict(nx.get_edge_attributes(G, 'weight')))
 
 nx.draw(G, pos, with_labels=True, node_color='lightblue',
         node_size=1200, font_size=11, font_weight='bold')
@@ -1160,16 +1159,16 @@ def to_rad(deg):
     return deg * math.pi / 180
 
 def equirectangular(lat, lon, ref_lat):
-    """把 lat/lon (度) 转成以 km 为单位的局部平面坐标。"""
+    """Convert lat/lon (degrees) to local planar coordinates in km."""
     R = 6371.0
     x = R * to_rad(lon) * math.cos(to_rad(ref_lat))
     y = R * to_rad(lat)
     return x, y
 
 cities = {
-    '北京': (39.9042, 116.4074),
-    '上海': (31.2304, 121.4737),
-    '东京': (35.6762, 139.6503)
+    'Beijing': (39.9042, 116.4074),
+    'Shanghai': (31.2304, 121.4737),
+    'Tokyo': (35.6762, 139.6503)
 }
 
 ref_lat = sum(c[0] for c in cities.values()) / len(cities)
@@ -1181,7 +1180,7 @@ for name, (lat, lon) in cities.items():
 
 pos = {n: (G.nodes[n]['x'], G.nodes[n]['y']) for n in G.nodes}
 
-# 加上边并计算投影后的平面距离
+# Add edges and compute planar distances after projection
 for u in G.nodes:
     for v in G.nodes:
         if u &lt; v:
@@ -1223,7 +1222,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 def to_ecef(lat, lon, alt=0):
-    """简化的球体 ECEF 转换（lat/lon 为度，alt 为 km）。"""
+    """Simplified spherical ECEF conversion (lat/lon in degrees, alt in km)."""
     R = 6371.0
     lat_r = math.radians(lat)
     lon_r = math.radians(lon)
@@ -1234,18 +1233,18 @@ def to_ecef(lat, lon, alt=0):
     return np.array([x, y, z])
 
 cities = {
-    '北京': (39.9042, 116.4074, 0),
-    '伦敦': (51.5074, -0.1278, 0),
-    '纽约': (40.7128, -74.0060, 0)
+    'Beijing': (39.9042, 116.4074, 0),
+    'London': (51.5074, -0.1278, 0),
+    'New York': (40.7128, -74.0060, 0)
 }
 
 coords = {name: to_ecef(lat, lon, alt) for name, (lat, lon, alt) in cities.items()}
 
-print('ECEF 坐标 (km):')
+print('ECEF coordinates (km):')
 for name, c in coords.items():
     print(f'{name}: ({c[0]:.1f}, {c[1]:.1f}, {c[2]:.1f})')
 
-# 三维直线距离（弦长）
+# 3D straight-line distance (chord length)
 def chord_distance(c1, c2):
     return np.linalg.norm(c1 - c2)
 
@@ -1253,9 +1252,9 @@ names = list(coords.keys())
 for i in range(len(names)):
     for j in range(i + 1, len(names)):
         d = chord_distance(coords[names[i]], coords[names[j]])
-        print(f'{names[i]} — {names[j]} 三维弦长: {d:.1f} km')
+        print(f'{names[i]} — {names[j]} 3D chord distance: {d:.1f} km')
 
-# 简单 3D 可视化
+# Simple 3D visualization
 fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(111, projection='3d')
 for name, c in coords.items():
@@ -1285,7 +1284,7 @@ plt.show()
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python"># @skip-test 本段需要 osmnx 与网络连接
+          <pre><code class="language-python"># @skip-test Requires osmnx and internet connection
 import osmnx as ox
 import networkx as nx
 import matplotlib
@@ -1293,25 +1292,25 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.show = lambda: None
 
-# 1. 下载城市街道网络（drive = 可车行道路）
+# 1. Download city street network (drive = drivable roads)
 place_name = "Cambridge, UK"
 G = ox.graph_from_place(place_name, network_type="drive")
 
-# 2. 给定起点和终点的经纬度
-origin_point = (52.2053, 0.1192)        # 近 King's College
-destination_point = (52.2150, 0.1380)   # 近 Cambridge North Station
+# 2. Given origin and destination lat/lon
+origin_point = (52.2053, 0.1192)        # near King's College
+destination_point = (52.2150, 0.1380)   # near Cambridge North Station
 
-# 3. 找到最近的道路网络节点
+# 3. Find nearest road network nodes
 orig_node = ox.distance.nearest_nodes(G, origin_point[1], origin_point[0])
 dest_node = ox.distance.nearest_nodes(G, destination_point[1], destination_point[0])
 print(f"Origin node: {orig_node}")
 print(f"Destination node: {dest_node}")
 
-# 4. 用 Dijkstra 求最短路径（按道路长度 weight='length'）
+# 4. Use Dijkstra to find shortest path (by road length weight='length')
 shortest_path = nx.shortest_path(G, orig_node, dest_node, weight='length')
 print(f"Shortest path has {len(shortest_path)} nodes.")
 
-# 5. 在地图上画出路径
+# 5. Plot the route on the map
 fig, ax = ox.plot_graph(G, show=False, close=False, bgcolor='k',
                         node_size=10, edge_color='w', edge_linewidth=0.5,
                         figsize=(10, 10))
