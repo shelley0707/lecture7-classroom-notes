@@ -152,49 +152,88 @@ print(&#x27;边:&#x27;, list(G.edges(data=True)))
 
     <section id="p1-decompose" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-4">
-        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>问题拆解
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>问题拆解：从概念到细节的层层推进
       </h2>
-      <div class="space-y-4">
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">1</div>
-          <div>
-            <div class="font-bold text-slate-900">环境抽象</div>
-            <p class="text-sm text-slate-700">将建筑平面转化为图 <span class="math">G=(V,E)</span>：房间、走廊段、楼梯口、出口为节点；门/通道为边；边权 = 通行时间或风险。</p>
+
+      <!-- Layer 1: Conceptual -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-red-800 mb-3">第一层：任务概念 —— “Sweep” 到底是什么？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q1：Sweep 的最终状态应该如何定义？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>可定义为一个状态向量：每个房间为“未检查 / 正在检查 / 已清空且安全 / 危险隔离 / 人员已疏散”。开放回答：也可加入概率状态，如“95% 置信度认为该房间无滞留人员”。</p>
           </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">2</div>
-          <div>
-            <div class="font-bold text-slate-900">静态基准模型</div>
-            <p class="text-sm text-slate-700">给定 responders 数量与起点，求解覆盖所有房间的最短 makespan。这是多旅行商问题（mTSP）/ 弧路由问题（Arc Routing）的变种。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">3</div>
-          <div>
-            <div class="font-bold text-slate-900">动态 hazards</div>
-            <p class="text-sm text-slate-700">引入烟雾/火势/威胁随时间演化：用 SIR/PDE/元胞自动机更新边权与节点可通行性，重新规划路径。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">4</div>
-          <div>
-            <div class="font-bold text-slate-900">人员因素</div>
-            <p class="text-sm text-slate-700">考虑 responder 异质性、疲劳、通信延迟、装备限制（如热成像仪）；以及被疏散人员的移动速度与服从率。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold">5</div>
-          <div>
-            <div class="font-bold text-slate-900">灵敏度与推广</div>
-            <p class="text-sm text-slate-700">改变建筑层数、房间数、紧急类型，测试模型稳健性；给出不同场景下的 responder 数量建议表。</p>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q2：时间、安全、彻底性，三者如何取舍？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>可构建多目标函数：min makespan、max 人员生还率、min 遗漏房间数。然后用加权求和或 Pareto 前沿展示不同方案；例如火灾场景安全权重更高，威胁场景速度权重更高。</p>
           </div>
         </div>
       </div>
-      <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
-        <div class="font-semibold text-amber-900 mb-2">启发提问</div>
-        <p class="text-sm text-slate-800"><strong>Q2：</strong>当烟雾让某条走廊在 90 秒后不可通行时，你的模型还能保证覆盖所有房间吗？</p>
-        <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可引入时间依赖图 <span class="math">G(t)</span>，或两阶段规划：先算理想路径，再用滚动时域（receding horizon）每 30 秒重算一次。</p>
+
+      <!-- Layer 2: Structural -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-red-800 mb-3">第二层：空间结构 —— 建筑如何变成数学对象？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q3：节点和边分别该代表什么？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>粗粒度：每个房间是一个节点；细粒度：房间 + 走廊交叉口 + 楼梯平台 + 出口都是节点。边代表可通行路径，权重可以是距离、预计通行时间、拥堵系数或综合风险。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q4：同一层楼和跨楼层在图模型中有什么不同？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>同一层用无向边；楼梯/电梯用跨层边，可带方向（如火灾时电梯禁用，只允许下行）。多层建筑会出现“垂直瓶颈”，需特别标注楼梯容量。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q5：边权能不能是动态的？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>可以。静态权重视为基线；动态权重 <span class="math">w_{ij}(t)</span> 随烟雾浓度、温度、人员密度变化。例如能见度低于 5 米时边权 ×3，温度超过阈值时该边关闭。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: Operational -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-red-800 mb-3">第三层：执行层面 —— 一个人、一组人、一场动态灾难</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q6：一名 responder 的最优路径是什么数学问题？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>若只需访问所有房间一次 → Rural Postman / Chinese Postman；若从入口出发访问后返回安全区 → 旅行商问题（TSP）；若边权随时间变化 → 时间依赖最短路径。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q7：多名 responder 如何分工才能避免重复和遗漏？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>引入分区（zone partitioning）或任务分配变量 <span class="math">x_{r,i}</span>。MILP 约束：Σ_r x_{r,i} ≥ 1 保证每个房间至少被覆盖；再设均衡约束使各 responder 工作量相近。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q8：烟雾/火势如何与路径规划耦合？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>用 SIR/SEIR 或对流-扩散方程模拟烟雾在节点间传播；每过一段时间重算边权，采用滚动时域（receding horizon）或在线重规划。也可把“被火封锁”视为边被删除。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q9：电梯在模型中应如何处理？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>火灾场景通常禁用电梯，可设电梯边权为 ∞ 或从图中移除；active threat 等其他紧急情况可考虑电梯作为快速垂直通道，但需加容量和等待时间约束。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 4: Decision & Validation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-red-800 mb-3">第四层：决策输出与模型验证</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q10：模型最终要给 LEPC 什么具体建议？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>建议应包括：不同建筑规模下推荐 responder 数量、最优入口与分区、预计完成时间、关键瓶颈通道、以及极端场景下的备用方案。可用表格或热图呈现。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q11：如何验证模型没有“漏掉”某个房间？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>在 MILP 中加入全覆盖约束；在仿真中记录每个房间的进入时间戳；对关键区域（如大礼堂、实验室）设置冗余检查（≥2 名 responder 或二次确认）。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q12：改变建筑布局后模型还能用吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>只要输入是新建筑的图 <span class="math">G'</span>，同一套算法可复用。灵敏度分析应测试：房间数 ±20%、楼梯位置变化、紧急类型变化，观察 makespan 和 responder 需求如何变化。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：拆解节奏</div>
+        <p class="text-slate-700">建议课堂从 Q1 开始讨论 5 分钟，让学生自己定义“sweep 完成”的状态；然后进入 Q3–Q5 的建筑抽象；再讨论 Q6–Q9 的算法；最后用 Q10–Q12 带出交付物和验证。这样从概念到代码层层落地。</p>
       </div>
     </section>
 
@@ -429,56 +468,92 @@ print(&#x27;准则权重:&#x27;, dict(zip(criteria, np.round(weights,3))))
 
     <section id="p2-decompose" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-4">
-        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>问题拆解
+        <span class="problem-badge bg-green-600 text-white px-2 py-1 rounded mr-2">2024A</span>问题拆解：从概念到细节的层层推进
       </h2>
-      <div class="space-y-4">
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">1</div>
-          <div>
-            <div class="font-bold text-slate-900">准则 → 因子 → 指标</div>
-            <p class="text-sm text-slate-700">把每条 IOC 准则拆成可量化的指标。例如 Inclusivity → 参与国家数、洲际分布熵、发展中国家参与度。</p>
+
+      <!-- Layer 1: Conceptual -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-green-800 mb-3">第一层：任务概念 —— IOC 到底要我们回答什么？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q1：这是一个“预测”问题还是“评估”问题？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>两者兼有。评估：给每个 SDE 打分；预测/决策：判断它应“加入 / 移除 / 观察”。可先用 MCDA 评估，再用阈值或 logistic 回归做分类决策。</p>
           </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">2</div>
-          <div>
-            <div class="font-bold text-slate-900">数据收集与清洗</div>
-            <p class="text-sm text-slate-700">利用提供的 Olympic 数据，补全外部数据（如维基百科、IOC 报告、Google Trends）。处理缺失值、量纲统一。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">3</div>
-          <div>
-            <div class="font-bold text-slate-900">权重确定</div>
-            <p class="text-sm text-slate-700">AHP 专家打分、熵权法（数据驱动）、或两者组合，得到六大准则权重。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">4</div>
-          <div>
-            <div class="font-bold text-slate-900">综合评分与排序</div>
-            <p class="text-sm text-slate-700">加权求和、TOPSIS、ELECTRE 等多准则方法，输出每个 SDE 的综合得分。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">5</div>
-          <div>
-            <div class="font-bold text-slate-900">回测与验证</div>
-            <p class="text-sm text-slate-700">用 2020/2024/2028 实际新增/移除 SDE 检验模型预测能力；用 1988 前存在的经典项目验证稳定性。</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex-none w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">6</div>
-          <div>
-            <div class="font-bold text-slate-900">推荐与灵敏度</div>
-            <p class="text-sm text-slate-700">推荐 2032 前三项，讨论 2036 潜力；对权重和指标做灵敏度分析。</p>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q2：六大准则之间会不会冲突？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>会。例如电子竞技 relevance 高但 safety/fair play 争议大；马术历史悠久（inclusivity 连续性强）但 sustainability 差。模型需要权衡机制，不能简单看单一指标。</p>
           </div>
         </div>
       </div>
-      <div class="qa-block bg-amber-50 p-4 rounded-lg mt-4">
-        <div class="font-semibold text-amber-900 mb-2">启发提问</div>
-        <p class="text-sm text-slate-800"><strong>Q2：</strong>如果回测时发现模型把 2024 实际加入的 Breaking 排得很低，说明什么？</p>
-        <p class="text-sm text-slate-700 mt-2"><strong>参考方向：</strong>可能是权重不合理，也可能是模型遗漏了“青年文化 / 社交媒体热度”等隐藏因子。应利用此发现改进指标或引入时间趋势项。</p>
+
+      <!-- Layer 2: Measurement -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-green-800 mb-3">第二层：测量体系 —— 从抽象准则到可操作指标</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q3：每个 IOC 准则可以拆成哪些具体指标？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>Popularity→收视/票房/搜索指数；Gender Equity→男女项目/奖牌机会比；Sustainability→碳排放/场馆复用/旅行距离；Inclusivity→参与国数、洲际熵、发展中国家比例；Relevance→青年受众增长、社交媒体增速；Safety→药检阳性率、受伤率。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q4：定性和定量数据如何统一？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>定性指标可通过 Likert 量表（1–5 或 1–10）或德尔菲专家打分转化为定量；再用 Min-Max 或 Z-score 归一化到同一区间，才能加权。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q5：指标方向不一致怎么办？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>区分“效益型”（越大越好，如 popularity）和“成本型”（越小越好，如碳排放）。成本型指标需先反向：v = (max - x)/(max - min)，再参与加权。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q6：缺少数据时怎么办？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>寻找代理变量（proxy），如用 Google Trends 替代全球收视；用国际联合会会员国数替代实际参赛国数；也可用回归插补或删除该 SDE 的该指标（但需在论文中说明）。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: Aggregation & Decision -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-green-800 mb-3">第三层：聚合与决策 —— 如何把分数变成 IOC 行动？</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q7：准则权重应该怎么确定？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>主观法：AHP 专家成对比较；客观法：熵权法依据数据离散度；组合法：两者几何平均。应在论文中说明理由，并做权重灵敏度分析。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q8：加权求和、TOPSIS、ELECTRE 各适合什么场景？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>加权求和简单直观，适合指标独立；TOPSIS 考虑与理想解的距离，适合需要相对排序；ELECTRE 处理准则冲突，适合存在“否决项”（如 safety 不达标直接出局）。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q9：如何从“得分”得到“加入/移除/观察”？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>设定阈值：S_j ≥ θ_high → 加入；S_j ≤ θ_low → 移除；中间 → 观察。也可用 logistic 回归 P(add_j) = 1/(1+e^{-(β_0+Σβ_k v_{jk})})，输出概率更平滑。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 4: Validation & Recommendation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-green-800 mb-3">第四层：验证、推荐与灵敏度</h3>
+        <div class="space-y-3">
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q10：回测应该选哪些 SDE？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>新增/移除组：Skateboarding、Sport Climbing、Surfing、Breaking、Karate；经典稳定组：Athletics、Swimming、Gymnastics、Wrestling。这样可验证模型对“变”与“不变”的识别能力。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q11：如果模型把 2024 实际加入的 Breaking 排得很低，说明什么？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>可能是权重低估了 relevance/innovation，或指标遗漏了社交媒体热度/青年文化。应据此补充指标或引入时间趋势项，而不是强行调参数拟合。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q12：2032 推荐需要考虑东道主（澳大利亚）吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>可以加入“地区流行度”或“东道国基础设施/文化契合度”因子。例如板球在澳印英人气极高，游泳/冲浪也契合澳大利亚体育传统，这些都会提升推荐优先级。</p>
+          </div>
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q13：灵敏度分析该怎么做才有说服力？</div>
+            <p class="text-sm text-slate-700"><strong>参考方向：</strong>（1）Tornado diagram：逐个准则权重 ±20% 看排序变化；（2）Monte Carlo：对所有指标加 5%–10% 噪声，看前三名稳定性；（3）比较不同聚合方法（加权求和 vs TOPSIS）的一致性。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg text-sm">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：拆解节奏</div>
+        <p class="text-slate-700">建议先让学生分组辩论 Q1–Q2，明确“评估 + 决策”双重目标；再用 Q3–Q6 把 IOC 准则落地为可量化的指标表；接着用 Q7–Q9 进入权重和聚合方法；最后用 Q10–Q13 完成回测、推荐与灵敏度。整个过程从“IOC 的一句话要求”推进到“可复现的评分表与排序结果”。</p>
       </div>
     </section>
 
