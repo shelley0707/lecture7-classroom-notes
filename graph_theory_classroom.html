@@ -8,6 +8,8 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     .module-card { border-left: 4px solid #3b82f6; }
     .module-card.formula { border-left-color: #10b981; }
@@ -46,6 +48,7 @@
         <a href="#m8" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">8. Factory Cost</a>
         <a href="#m9" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">9. Practice</a>
         <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. Summary</a>
+        <a href="#m-plot" class="px-3 py-1 rounded-full bg-lime-100 text-lime-700 hover:bg-lime-200">附录：可视化</a>
         <a href="#m11" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">Case: 商场火灾</a>
         <a href="#m12" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">Case: 抽象成图</a>
         <a href="#m13" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">Case: SIR 烟扩散</a>
@@ -1066,6 +1069,169 @@ num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
 
 
     <hr class="my-10 border-slate-300">
+
+    <!-- Appendix: Visualization Methods -->
+    <section id="m-plot" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">附录：图论建模常用可视化方法</h2>
+      <p class="text-slate-700 mb-6">
+        图论建模不只是“算出来”，更要“画出来”。不同的可视化方法服务于不同的教学目的：
+        抽象网络看结构，加权图看代价，路径高亮看方案，GIS 看真实地理关系。
+        下面给出课堂中最常用的几类绘图方法，所有代码都可以直接复制运行。
+      </p>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">1. 坐标布局：把图“摆”得可读</h3>
+          <p class="text-slate-700 mb-3">
+            <code>networkx</code> 提供多种布局算法。spring 布局适合一般网络；circular 适合强调环状结构；
+            kamada-kawai 适合带权距离图；也可以手动传入 <code>pos</code> 字典来自定义坐标。
+          </p>
+          <div class="p-3 bg-blue-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-blue-900 mb-2">课堂提示</div>
+            让学生比较同一图的不同布局：为什么 TSP 常用 circular？为什么 Dijkstra 常用 spring？
+            布局本身不会改答案，但会改变学生对“远近”“聚类”的直觉。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+
+G = nx.Graph()
+G.add_weighted_edges_from([
+    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
+    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
+    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
+])
+
+fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+layouts = [
+    ('spring', nx.spring_layout(G, seed=42)),
+    ('circular', nx.circular_layout(G)),
+    ('kamada_kawai', nx.kamada_kawai_layout(G)),
+    ('custom', {'A': (0, 1), 'B': (1, 1), 'C': (0, 0), 'D': (1, 0), 'E': (2, 0), 'F': (2, 1)})
+]
+
+for ax, (name, pos) in zip(axes.flat, layouts):
+    nx.draw(G, pos, ax=ax, with_labels=True, node_color='lightblue',
+            node_size=1200, font_size=10, font_weight='bold',
+            edge_color='gray', width=1.5)
+    ax.set_title(f'{name} layout')
+    ax.axis('off')
+
+plt.suptitle('Common Layouts for Graph Visualization', fontsize=14)
+plt.tight_layout()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">2. 加权边、标签与高亮路径</h3>
+          <p class="text-slate-700 mb-3">
+            边权重是图论问题的核心。用 <code>nx.draw_networkx_edge_labels</code> 显示权重；
+            用不同颜色/线宽高亮最短路径、MST 或 TSP 回路，能让学生一眼看到“模型选中了什么”。
+          </p>
+          <div class="p-3 bg-green-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-green-900 mb-2">课堂提示</div>
+            路径高亮的本质是“把解映射回图结构”。无论是 Dijkstra、MST 还是 TSP，
+            最后都可以抽象为“一组被选中边的集合”。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import networkx as nx
+import matplotlib.pyplot as plt
+
+G = nx.Graph()
+G.add_weighted_edges_from([
+    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
+    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
+    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
+])
+
+start, end = 'A', 'F'
+path = nx.shortest_path(G, start, end, weight='weight')
+path_edges = list(zip(path, path[1:]))
+
+pos = nx.spring_layout(G, seed=42)
+plt.figure(figsize=(8, 5))
+
+# 所有节点和边（灰色背景）
+nx.draw_networkx_nodes(G, pos, node_color='lightgray', node_size=1200)
+nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1.5)
+nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
+edge_labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+# 高亮最短路径
+nx.draw_networkx_nodes(G, pos, nodelist=path, node_color='lightgreen', node_size=1500)
+nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='green', width=3)
+
+plt.title(f'Shortest Path {start} → {end}: {" → ".join(path)}')
+plt.axis('off')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+
+      <h3 class="text-xl font-bold text-slate-900 mb-4">3. GIS：真实坐标与点到点距离</h3>
+      <p class="text-slate-700 mb-4">
+        当节点是真实城市、仓库或传感器时，lat/lon 坐标就是节点的“属性”，而地球表面的距离（大圆距离）就是边权。
+        下面用交互式地图展示任意三个城市的位置，并自动计算两两之间的 Haversine 距离。
+      </p>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <div class="p-4 bg-slate-100 rounded-lg">
+            <div class="font-semibold text-slate-900 mb-3">选择三个城市（或手动输入坐标）</div>
+            <div id="city-selectors" class="space-y-3">
+              <!-- JS will populate selectors -->
+            </div>
+            <button id="update-map-btn" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">更新地图</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border">
+              <thead class="bg-slate-100">
+                <tr><th class="px-3 py-2 border">城市</th><th class="px-3 py-2 border">纬度</th><th class="px-3 py-2 border">经度</th></tr>
+              </thead>
+              <tbody id="coord-table" class="text-slate-700"></tbody>
+            </table>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border">
+              <thead class="bg-slate-100">
+                <tr><th class="px-3 py-2 border">距离 (km)</th><th class="px-3 py-2 border" id="dist-header-1">城市 1</th><th class="px-3 py-2 border" id="dist-header-2">城市 2</th><th class="px-3 py-2 border" id="dist-header-3">城市 3</th></tr>
+              </thead>
+              <tbody id="dist-table" class="text-slate-700"></tbody>
+            </table>
+          </div>
+
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-amber-900 mb-2">Haversine 公式</div>
+            <p class="math text-center my-1">d = 2R · arcsin(√(sin²(Δφ/2) + cos φ₁ cos φ₂ sin²(Δλ/2)))</p>
+            <p>R ≈ 6371 km。该距离是地球表面的最短大圆距离，适合作为跨区域物流、航线等问题的边权。</p>
+          </div>
+        </div>
+
+        <div>
+          <div id="city-map" class="w-full h-[500px] rounded-lg border border-slate-300"></div>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-emerald-50 rounded-lg text-sm text-slate-700">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考</div>
+        可视化方法的选择取决于“想让学生看到什么”：
+        抽象拓扑关系用 networkx 布局；带权优化结果用边标签 + 路径高亮；
+        真实地理网络用 GIS + Haversine 距离。
+        建议把这三种方法作为图论教学的“可视化工具箱”，在不同模块中反复调用。
+      </div>
+    </section>
+
+    <hr class="my-10 border-slate-300">
     <div class="text-center mb-8">
       <h2 class="text-3xl font-bold text-slate-900">案例研究：商场火灾</h2>
       <p class="text-slate-600 mt-2">从空间网络抽象到烟雾扩散模拟，再到干预与疏散决策</p>
@@ -1085,6 +1251,139 @@ num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
         setTimeout(() => btn.innerText = old, 1500);
       });
     }
+
+    // ==================== GIS Three-City Map ====================
+    const CITIES = {
+      beijing: { name: '北京 Beijing', lat: 39.9042, lon: 116.4074 },
+      shanghai: { name: '上海 Shanghai', lat: 31.2304, lon: 121.4737 },
+      guangzhou: { name: '广州 Guangzhou', lat: 23.1291, lon: 113.2644 },
+      tokyo: { name: '东京 Tokyo', lat: 35.6762, lon: 139.6503 },
+      newyork: { name: '纽约 New York', lat: 40.7128, lon: -74.0060 },
+      london: { name: '伦敦 London', lat: 51.5074, lon: -0.1278 },
+      paris: { name: '巴黎 Paris', lat: 48.8566, lon: 2.3522 },
+      sydney: { name: '悉尼 Sydney', lat: -33.8688, lon: 151.2093 },
+      moscow: { name: '莫斯科 Moscow', lat: 55.7558, lon: 37.6173 },
+      cairo: { name: '开罗 Cairo', lat: 30.0444, lon: 31.2357 },
+      rio: { name: '里约热内卢 Rio', lat: -22.9068, lon: -43.1729 },
+      capetown: { name: '开普敦 Cape Town', lat: -33.9249, lon: 18.4241 },
+      mumbai: { name: '孟买 Mumbai', lat: 19.0760, lon: 72.8777 },
+      singapore: { name: '新加坡 Singapore', lat: 1.3521, lon: 103.8198 },
+      losangeles: { name: '洛杉矶 Los Angeles', lat: 34.0522, lon: -118.2437 }
+    };
+
+    const DEFAULT_KEYS = ['beijing', 'newyork', 'london'];
+
+    let map, markersLayer, lineLayer;
+
+    function toRad(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function buildSelectors() {
+      const container = document.getElementById('city-selectors');
+      container.innerHTML = '';
+      DEFAULT_KEYS.forEach((key, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.innerHTML = `
+          <label class="text-sm font-semibold w-16">城市 ${idx + 1}</label>
+          <select id="city-sel-${idx}" class="city-sel flex-1 border rounded px-2 py-1 text-sm" data-idx="${idx}">
+            ${Object.entries(CITIES).map(([k, c]) => `<option value="${k}" ${k === key ? 'selected' : ''}>${c.name}</option>`).join('')}
+          </select>
+          <input id="lat-${idx}" type="number" step="0.0001" class="w-24 border rounded px-2 py-1 text-sm" placeholder="纬度" value="${CITIES[key].lat}">
+          <input id="lon-${idx}" type="number" step="0.0001" class="w-24 border rounded px-2 py-1 text-sm" placeholder="经度" value="${CITIES[key].lon}">
+        `;
+        container.appendChild(row);
+      });
+
+      document.querySelectorAll('.city-sel').forEach(sel => {
+        sel.addEventListener('change', () => {
+          const idx = sel.dataset.idx;
+          const city = CITIES[sel.value];
+          document.getElementById(`lat-${idx}`).value = city.lat;
+          document.getElementById(`lon-${idx}`).value = city.lon;
+          updateMap();
+        });
+      });
+
+      [0, 1, 2].forEach(idx => {
+        document.getElementById(`lat-${idx}`).addEventListener('input', updateMap);
+        document.getElementById(`lon-${idx}`).addEventListener('input', updateMap);
+      });
+    }
+
+    function getPoints() {
+      return [0, 1, 2].map(idx => ({
+        lat: parseFloat(document.getElementById(`lat-${idx}`).value) || 0,
+        lon: parseFloat(document.getElementById(`lon-${idx}`).value) || 0,
+        name: document.querySelector(`#city-sel-${idx} option:checked`).text
+      }));
+    }
+
+    function updateMap() {
+      const points = getPoints();
+
+      // Clear previous layers
+      if (markersLayer) map.removeLayer(markersLayer);
+      if (lineLayer) map.removeLayer(lineLayer);
+
+      markersLayer = L.layerGroup().addTo(map);
+      const latlngs = points.map(p => [p.lat, p.lon]);
+
+      points.forEach((p, idx) => {
+        const marker = L.marker([p.lat, p.lon])
+          .bindPopup(`<strong>城市 ${idx + 1}</strong><br>${p.name}<br>Lat: ${p.lat.toFixed(4)}<br>Lon: ${p.lon.toFixed(4)}`);
+        markersLayer.addLayer(marker);
+      });
+
+      lineLayer = L.polyline(latlngs, { color: '#2563eb', weight: 2.5, dashArray: '6, 6', opacity: 0.8 }).addTo(map);
+      map.fitBounds(lineLayer.getBounds().pad(0.15));
+
+      updateTables(points);
+    }
+
+    function updateTables(points) {
+      const coordBody = document.getElementById('coord-table');
+      coordBody.innerHTML = points.map((p, idx) =>
+        `<tr><td class="px-3 py-2 border">${p.name}</td><td class="px-3 py-2 border">${p.lat.toFixed(4)}</td><td class="px-3 py-2 border">${p.lon.toFixed(4)}</td></tr>`
+      ).join('');
+
+      points.forEach((p, idx) => {
+        document.getElementById(`dist-header-${idx + 1}`).textContent = p.name.split(' ')[0];
+      });
+
+      const distBody = document.getElementById('dist-table');
+      distBody.innerHTML = points.map((p, i) => {
+        const cells = points.map((q, j) => {
+          if (i === j) return '<td class="px-3 py-2 border bg-slate-50">—</td>';
+          const d = haversine(p.lat, p.lon, q.lat, q.lon);
+          return `<td class="px-3 py-2 border">${d.toFixed(1)}</td>`;
+        }).join('');
+        return `<tr><td class="px-3 py-2 border font-semibold">${p.name.split(' ')[0]}</td>${cells}</tr>`;
+      }).join('');
+    }
+
+    function initCityMap() {
+      map = L.map('city-map').setView([35, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+      }).addTo(map);
+      buildSelectors();
+      updateMap();
+      document.getElementById('update-map-btn').addEventListener('click', updateMap);
+    }
+
+    document.addEventListener('DOMContentLoaded', initCityMap);
   </script>
 </body>
 </html>
