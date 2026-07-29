@@ -26,7 +26,7 @@
   <div class="max-w-7xl mx-auto px-4 py-8">
     <header class="mb-10 text-center">
       <h1 class="text-4xl font-bold text-slate-900 mb-3">飓风救援优化建模</h1>
-      <p class="text-lg text-slate-600">课堂流程：情境导入 → 三要素 → 第一次完整模型 → 修复无解 → 六层透镜压力测试 → 资源分层 → 延伸扩展</p>
+      <p class="text-lg text-slate-600">课堂流程：情境导入 → 三要素 → 第一次完整模型 → 修复无解 → 六层透镜压力测试 → 资源分层 → 延伸扩展 → 三难度完整模型</p>
       <p class="text-sm text-slate-500 mt-2">每节左侧 = 思维框架与方程，右侧 = Python Demo；黄色区块 = 课堂引导提问，绿色区块 = 教师参考</p>
     </header>
 
@@ -40,6 +40,7 @@
         <a href="#m3" class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 hover:opacity-80">5. 资源金字塔</a>
         <a href="#m5-ext1" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:opacity-80">6. 多模式运输</a>
         <a href="#m5-ext2" class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 hover:opacity-80">7. 指数衰减</a>
+        <a href="#m8" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:opacity-80">8. 三难度完整模型</a>
         <a href="#memo" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:opacity-80">备课备忘</a>
       
       </div>
@@ -808,6 +809,360 @@ print(f"\nHourly total shipment: {hourly.round(2)}")
       <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
         <h3 class="font-bold text-emerald-900 mb-2">教师参考：原文解决方法</h3>
         <p class="text-sm text-slate-700">本延伸的解决方法是“<strong>指数衰减时间价值</strong>”：把第 t 小时送达物资的价值写成 V<sub>0</sub>·e<sup>-λt</sup>，目标函数改为最大化总价值 − 总成本（等价于最小化 总成本 − 总价值）。由于目标含 e<sup>-λt</sup>，模型变为非线性，可用 scipy.optimize.minimize (SLSQP) 解连续变量版本；若保留整数变量则需 MINLP 求解器。为避免所有物资挤在第 0 小时，必须加入每小时运力上限约束。教师可让学生分别比较 λ = 0.05、0.15、0.5 时的平均送达时间。</p>
+      </div>
+    </section>
+
+
+    <!-- Module 8: Three difficulty-tiered complete models -->
+    <section id="m8" class="module-card example bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">8. 三个难度梯度的完整模型：从“能跑”到“像真”</h2>
+      <div class="prose prose-slate mb-6">
+        <p class="text-slate-700 mb-4">
+          为了让学生清楚看到“加一层现实复杂度，模型会长成什么样”，下面给出三个完整可运行的版本。
+          每个版本都独立成块，教师可以根据课堂时间和学生水平任选其一作为课堂终点，
+          也可以让学生先从 L1 开始，逐步挑战 L2、L3。
+        </p>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+            <div class="font-bold text-green-900 mb-2">L1 初阶：静态线性分配</div>
+            <p class="text-slate-700">只做一次性运输决策，需求必须 100% 满足，不考虑 shortage、租机、时间。</p>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+            <div class="font-bold text-amber-900 mb-2">L2 中阶：松弛 + 整数租机</div>
+            <p class="text-slate-700">允许短缺（slack），可租用额外直升机，加入公平性约束，仍是单周期模型。</p>
+          </div>
+          <div class="p-4 bg-rose-50 rounded-lg border-l-4 border-rose-500">
+            <div class="font-bold text-rose-900 mb-2">L3 高阶：时间 + 多模式 + 指数价值</div>
+            <p class="text-slate-700">引入 12 小时时间轴，区分卡车与直升机，用指数衰减刻画“越早越值钱”。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level 1 -->
+      <div class="mb-10">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">L1 初阶模型：静态线性分配（LP）</h3>
+        <div class="grid lg:grid-cols-2 gap-8">
+          <div class="prose prose-slate text-sm">
+            <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-indigo-900 mb-2">设计思路</div>
+              <p>把问题简化成“从仓库到城镇的最小成本运输”。不考虑时间、不考虑租机、不允许缺货。适合第一次接触优化的学生：变量只有 x[w][h]，目标函数和约束都是线性的。</p>
+            </div>
+            <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-indigo-900 mb-2">目标方程</div>
+              <p class="math text-center my-1">min Σ<sub>w,h</sub> c<sub>wh</sub> · x<sub>wh</sub></p>
+              <p class="mt-1">最小化总运输成本。</p>
+            </div>
+            <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-indigo-900 mb-2">约束考量</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>库存约束：</strong>每个仓库运出总量 ≤ 库存。</li>
+                <li><strong>需求约束：</strong>每个城镇收到总量 = 需求量（硬约束，不允许短缺）。</li>
+                <li><strong>非负约束：</strong>运量不能为负。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import pulp
+
+WAREHOUSES = ['W1', 'W2', 'W3']
+TOWNS = ['A', 'B', 'C']
+
+# 数据：库存、需求、单位运输成本
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+demand = {'A': 10, 'B': 12, 'C': 8}
+cost = {
+    'W1': {'A': 3, 'B': 5, 'C': 7},
+    'W2': {'A': 6, 'B': 2, 'C': 4},
+    'W3': {'A': 8, 'B': 4, 'C': 3},
+}
+
+prob = pulp.LpProblem('Rescue_Level1', pulp.LpMinimize)
+
+# x[w][h]: 从仓库 w 运往城镇 h 的吨数（连续非负）
+x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
+
+# 目标函数：最小化总运输成本
+prob += pulp.lpSum(cost[w][h] * x[w][h]
+                   for w in WAREHOUSES for h in TOWNS)
+
+# 约束 1：每个仓库运出量不超过库存
+for w in WAREHOUSES:
+    prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w], f'inventory_{w}'
+
+# 约束 2：每个城镇必须恰好满足需求（无短缺）
+for h in TOWNS:
+    prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) == demand[h], f'demand_{h}'
+
+prob.solve(pulp.PULP_CBC_CMD(msg=0))
+
+print('Status:', pulp.LpStatus[prob.status])
+print('Total cost:', pulp.value(prob.objective))
+for w in WAREHOUSES:
+    for h in TOWNS:
+        val = pulp.value(x[w][h])
+        if val > 0.001:
+            print(f'{w} -> {h}: {val:.2f} tons')
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level 2 -->
+      <div class="mb-10">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">L2 中阶模型：松弛变量 + 整数租机（MILP）</h3>
+        <div class="grid lg:grid-cols-2 gap-8">
+          <div class="prose prose-slate text-sm">
+            <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-amber-900 mb-2">设计思路</div>
+              <p>在 L1 基础上承认现实：总运力可能不够，需求可能无法 100% 满足。引入短缺变量 shortage[h] 作为“松动的口子”，并允许以整数数量租用额外直升机。目标函数把短缺和租机都变成“钱”，让模型自己权衡。</p>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-amber-900 mb-2">目标方程</div>
+              <p class="math text-center my-1">min Σ c<sub>wh</sub>x<sub>wh</sub> + R·rental + P·Σ shortage<sub>h</sub></p>
+              <p class="mt-1">运输成本 + 租机成本 + 缺货惩罚。P 越大，模型越不愿意短缺。</p>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-amber-900 mb-2">约束考量</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>库存约束：</strong>同 L1。</li>
+                <li><strong>需求约束变软：</strong>delivered<sub>h</sub> + shortage<sub>h</sub> = demand<sub>h</sub>。</li>
+                <li><strong>运力约束：</strong>总运量 ≤ (自有直升机 + 租机) × 单架载重。</li>
+                <li><strong>公平性约束：</strong>每个城镇至少获得 50% 需求，避免模型放弃小城。</li>
+                <li><strong>整数约束：</strong>rental 为整数。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import pulp
+
+WAREHOUSES = ['W1', 'W2', 'W3']
+TOWNS = ['A', 'B', 'C']
+
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+demand = {'A': 10, 'B': 12, 'C': 8}
+cost = {
+    'W1': {'A': 3, 'B': 5, 'C': 7},
+    'W2': {'A': 6, 'B': 2, 'C': 4},
+    'W3': {'A': 8, 'B': 4, 'C': 3},
+}
+
+OWN_HELI = 4
+HELI_LOAD = 2
+RENTAL_COST = 50      # 每架租机总成本
+SHORTAGE_PENALTY = 100  # 每吨缺货惩罚
+
+prob = pulp.LpProblem('Rescue_Level2', pulp.LpMinimize)
+
+# x[w][h]: 运量；shortage[h]: 城镇 h 的缺货量；rental: 租机数量（整数）
+x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
+shortage = pulp.LpVariable.dicts('shortage', TOWNS, lowBound=0)
+rental = pulp.LpVariable('rental', lowBound=0, cat='Integer')
+
+# 目标函数：运输成本 + 租机成本 + 缺货惩罚
+prob += (
+    pulp.lpSum(cost[w][h] * x[w][h] for w in WAREHOUSES for h in TOWNS)
+    + RENTAL_COST * rental
+    + SHORTAGE_PENALTY * pulp.lpSum(shortage[h] for h in TOWNS)
+)
+
+# 约束 1：库存上限
+for w in WAREHOUSES:
+    prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w]
+
+# 约束 2：需求 = 送达 + 短缺
+for h in TOWNS:
+    prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) + shortage[h] == demand[h]
+
+# 约束 3：总运量受限于（自有 + 租用）直升机运力
+total_capacity = (OWN_HELI + rental) * HELI_LOAD
+prob += pulp.lpSum(x[w][h] for w in WAREHOUSES for h in TOWNS) <= total_capacity
+
+# 约束 4：公平性——每个城镇至少获得 50% 需求
+for h in TOWNS:
+    prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) >= 0.5 * demand[h]
+
+prob.solve(pulp.PULP_CBC_CMD(msg=0))
+
+print('Status:', pulp.LpStatus[prob.status])
+print('Total cost:', pulp.value(prob.objective))
+print('Rental helicopters:', pulp.value(rental))
+for h in TOWNS:
+    delivered = pulp.value(pulp.lpSum(x[w][h] for w in WAREHOUSES))
+    print(f'Town {h}: delivered {delivered:.2f}, shortage {pulp.value(shortage[h]):.2f}')
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level 3 -->
+      <div class="mb-10">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">L3 高阶模型：时间轴 + 多模式 + 指数价值（NLP）</h3>
+        <div class="grid lg:grid-cols-2 gap-8">
+          <div class="prose prose-slate text-sm">
+            <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-rose-900 mb-2">设计思路</div>
+              <p>灾后救援的物资价值随时间衰减：第 1 小时送到的水和第 10 小时送到的水价值不同。同时道路可能受损，卡车便宜但到不了某些城镇，直升机贵但全覆盖。L3 把这两个现实因素同时纳入：12 小时时间轴、两种运输方式、指数衰减价值函数。</p>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-rose-900 mb-2">目标方程</div>
+              <p class="math text-center my-1">min Σ c<sub>w,h,m</sub>·x<sub>w,t,h,m</sub> − V<sub>0</sub>·Σ x<sub>w,t,h,m</sub>·e<sup>−λt</sup></p>
+              <p class="mt-1">最小化“成本 − 时间折现价值”。λ 越大，模型越倾向于早送达。</p>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+              <div class="font-semibold text-rose-900 mb-2">约束考量</div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>库存约束：</strong>每个仓库在所有时间、所有方式运出总量 ≤ 库存。</li>
+                <li><strong>需求约束：</strong>每个城镇累计收到量 = 需求量。</li>
+                <li><strong>每小时运力约束：</strong>卡车和直升机各有独立的每小时运力上限。</li>
+                <li><strong>可达性约束：</strong>卡车无法到达的线路用极大成本 999 模拟。</li>
+                <li><strong>公平性约束：</strong>每个城镇至少获得 50% 需求。</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg text-sm text-rose-700">
+              <strong>注意：</strong>由于目标函数含 e<sup>−λt</sup>，模型变为非线性。这里用 scipy.optimize.minimize (trust-constr) 解连续变量版本；若要求整数运量，需要 MINLP 求解器如 Couenne、Bonmin 或 Pyomo + Baron。
+            </div>
+          </div>
+          <div class="relative">
+            <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+            <pre><code class="language-python">import warnings
+warnings.filterwarnings('ignore', message='delta_grad == 0.0')
+import numpy as np
+from scipy.optimize import minimize
+
+WAREHOUSES = ['W1', 'W2', 'W3']
+TOWNS = ['A', 'B', 'C']
+HOURS = list(range(12))
+
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+demand = {'A': 10, 'B': 12, 'C': 8}
+
+# 卡车便宜但部分城镇无法到达（用 999 表示不可达）
+TRUCK_COST = {
+    'W1': {'A': 1, 'B': 2, 'C': 999},
+    'W2': {'A': 2, 'B': 1, 'C': 3},
+    'W3': {'A': 999, 'B': 2, 'C': 1},
+}
+# 直升机贵但全覆盖
+HELI_COST = {
+    'W1': {'A': 3, 'B': 5, 'C': 7},
+    'W2': {'A': 6, 'B': 2, 'C': 4},
+    'W3': {'A': 8, 'B': 4, 'C': 3},
+}
+
+TRUCK_CAP = 5          # 每小时卡车总运力（吨）
+HELI_CAP = 8           # 每小时直升机总运力（吨） = 4 架 × 2 吨
+VALUE_PER_TON = 50     # 第 0 小时送达每吨的价值
+LAMBDA = 0.15          # 价值衰减率
+
+def idx(w, t, h, mode):
+    """mode: 0 = truck, 1 = helicopter"""
+    return ((WAREHOUSES.index(w) * len(HOURS) + t) * len(TOWNS) + TOWNS.index(h)) * 2 + mode
+
+n_vars = len(WAREHOUSES) * len(HOURS) * len(TOWNS) * 2
+
+def objective(x):
+    transport = sum(
+        (TRUCK_COST[w][h] if m == 0 else HELI_COST[w][h]) * x[idx(w, t, h, m)]
+        for w in WAREHOUSES for t in HOURS for h in TOWNS for m in [0, 1]
+    )
+    value = sum(
+        x[idx(w, t, h, m)] * VALUE_PER_TON * np.exp(-LAMBDA * t)
+        for w in WAREHOUSES for t in HOURS for h in TOWNS for m in [0, 1]
+    )
+    return transport - value
+
+bounds = [(0, None) for _ in range(n_vars)]
+constraints = []
+
+# 约束 1：每个仓库库存上限
+for w in WAREHOUSES:
+    constraints.append({
+        'type': 'ineq',
+        'fun': lambda x, w=w: inventory[w] - sum(
+            x[idx(w, t, h, m)] for t in HOURS for h in TOWNS for m in [0, 1]
+        )
+    })
+
+# 约束 2：每个城镇累计需求被满足
+for h in TOWNS:
+    constraints.append({
+        'type': 'eq',
+        'fun': lambda x, h=h: sum(
+            x[idx(w, t, h, m)] for w in WAREHOUSES for t in HOURS for m in [0, 1]
+        ) - demand[h]
+    })
+
+# 约束 3：每小时卡车运力上限
+for t in HOURS:
+    constraints.append({
+        'type': 'ineq',
+        'fun': lambda x, t=t: TRUCK_CAP - sum(
+            x[idx(w, t, h, 0)] for w in WAREHOUSES for h in TOWNS
+        )
+    })
+
+# 约束 4：每小时直升机运力上限
+for t in HOURS:
+    constraints.append({
+        'type': 'ineq',
+        'fun': lambda x, t=t: HELI_CAP - sum(
+            x[idx(w, t, h, 1)] for w in WAREHOUSES for h in TOWNS
+        )
+    })
+
+# 约束 5：公平性——每个城镇至少 50% 需求
+for h in TOWNS:
+    constraints.append({
+        'type': 'ineq',
+        'fun': lambda x, h=h: sum(
+            x[idx(w, t, h, m)] for w in WAREHOUSES for t in HOURS for m in [0, 1]
+        ) - 0.5 * demand[h]
+    })
+
+x0 = np.zeros(n_vars)
+res = minimize(objective, x0, method='trust-constr', bounds=bounds, constraints=constraints,
+               options={'maxiter': 1000})
+
+print('Success:', res.success)
+print('Objective (cost - value):', f'${res.fun:.2f}')
+X = res.x.reshape(len(WAREHOUSES), len(HOURS), len(TOWNS), 2)
+for h in TOWNS:
+    delivered = X[:, :, TOWNS.index(h), :].sum()
+    print(f'Town {h}: delivered {delivered:.2f} / {demand[h]}')
+print('\nHourly truck shipment:', X[:, :, :, 0].sum(axis=(0, 2)).round(2))
+print('Hourly heli shipment:', X[:, :, :, 1].sum(axis=(0, 2)).round(2))
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>从 L1 到 L2，再到 L3，每一次“升级”到底多了什么现实因素？</p>
+        <div class="text-sm text-slate-700 space-y-1 mb-4">
+          <p><strong>回答 A（L1 → L2）：</strong>从“理想世界”进入“资源不够的真实世界”：允许短缺、可以租机、加入公平性。</p>
+          <p><strong>回答 B（L2 → L3）：</strong>从“单周期快照”进入“动态时间轴”：考虑何时送达、区分运输方式、用指数函数刻画时间价值。</p>
+          <p><strong>回答 C：</strong>每一次升级都不是凭空加复杂度，而是为了回答一个更真实的决策问题。</p>
+        </div>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果让你继续升级到 L4，你会加什么？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>加入随机性，比如需求、道路可达性、天气都是随机的，用随机规划或鲁棒优化。</p>
+          <p><strong>回答 B：</strong>加入多目标优化：同时最小化成本、最大化公平性、最小化最大延误，画 Pareto 前沿。</p>
+          <p><strong>回答 C：</strong>把问题变成多阶段决策：每隔几小时根据最新灾情信息重新优化（滚动时域）。</p>
+          <p><strong>回答 D：</strong>引入真实 GIS 路网，用 Dijkstra / Floyd 计算每个仓库到城镇的最短通行时间。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">
+          这三个版本既可以作为“课堂分层作业”（不同学生做不同级别），也可以作为“同一节课的递进演示”。
+          建议教师在黑板上画出一张“模型升级路线图”：L1 解决“能不能送”，L2 解决“送不够怎么办”，L3 解决“什么时候送、用什么送”。
+          每个版本都保留了独立可运行的完整代码，学生可以直接复制到 Jupyter/Colab 中实验。
+        </p>
       </div>
     </section>
 
