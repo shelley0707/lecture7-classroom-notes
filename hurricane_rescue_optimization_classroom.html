@@ -41,6 +41,7 @@
         <a href="#m5-ext1" class="px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:opacity-80">6. 多模式运输</a>
         <a href="#m5-ext2" class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 hover:opacity-80">7. 指数衰减</a>
         <a href="#m8" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 hover:opacity-80">8. 三难度完整模型</a>
+        <a href="#m9" class="px-3 py-1 rounded-full bg-pink-100 text-pink-700 hover:opacity-80">9. 情境/敏感分析</a>
         <a href="#memo" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:opacity-80">备课备忘</a>
       
       </div>
@@ -1019,6 +1020,352 @@ print('Hourly heli shipment:', X[:, :, :, 1].sum(axis=(0, 2)).round(2))
           这三个版本既可以作为“课堂分层作业”（不同学生做不同级别），也可以作为“同一节课的递进演示”。
           建议教师在黑板上画出一张“模型升级路线图”：L1 解决“能不能送”，L2 解决“送不够怎么办”，L3 解决“什么时候送、用什么送”。
           每个版本都保留了独立可运行的完整代码，学生可以直接复制到 Jupyter/Colab 中实验。
+        </p>
+      </div>
+    </section>
+
+
+    <!-- Module 9: Scenario & Sensitivity Analysis -->
+    <section id="m9" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">9. 情境分析与敏感性分析：模型不是单点答案</h2>
+      <div class="prose prose-slate mb-6">
+        <p class="text-slate-700 mb-4">
+          课堂上的模型通常只跑一组“基线数据”，但真实决策必须在不确定中做。
+          <strong>情境分析（Scenario Analysis）</strong>回答的是：“如果现实结构变了，方案还成立吗？”
+          <strong>敏感性分析（Sensitivity Analysis）</strong>回答的是：“如果某个参数估计偏了，结果会怎么偏？”
+          二者合起来，才能判断一个方案是不是“鲁棒”的。
+        </p>
+        <div class="grid md:grid-cols-2 gap-4 text-sm mb-6">
+          <div class="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+            <div class="font-bold text-indigo-900 mb-2">情境分析 = 改变结构</div>
+            <p class="text-slate-700">仓库被冲毁、需求翻倍、直升机故障、道路全断……这些都是“输入结构”的变化，不是单纯改数字。</p>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+            <div class="font-bold text-amber-900 mb-2">敏感性分析 = 改变参数</div>
+            <p class="text-slate-700">缺货惩罚 P、公平比例、衰减率 λ、运力上限……这些都是“参数”的变化，看最优解如何漂移。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <div class="p-3 bg-indigo-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-indigo-900 mb-2">常用情境设计</div>
+            <table class="w-full text-left">
+              <thead><tr><th>情境</th><th>结构变化</th><th>观察重点</th></tr></thead>
+              <tbody>
+                <tr><td>基线</td><td>使用原始数据</td><td>成本、租机数、缺货量</td></tr>
+                <tr><td>W3 被毁</td><td>inventory['W3'] = 0</td><td>哪些城镇被迫短缺？租金涨多少？</td></tr>
+                <tr><td>B 镇需求翻倍</td><td>demand['B'] = 24</td><td>公平性约束是否 still 可行？是否必须多租直升机？</td></tr>
+                <tr><td>直升机故障</td><td>OWN_HELI 从 4 降为 3</td><td>短缺是否从 B 镇转移到 A、C？</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-slate-700"><strong>课堂用法：</strong>让学生先预测“哪个情境会让总成本飙升”，再运行代码验证。预测与结果的差距，往往是建模直觉最好的训练。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+
+# ==================== L2 情境分析 ====================
+def solve_l2(inventory, demand, own_heli):
+    """给定库存、需求、自有直升机数，返回（总成本，租机数，总缺货量）。"""
+    WAREHOUSES = list(inventory.keys())
+    TOWNS = list(demand.keys())
+    cost = {
+        'W1': {'A': 3, 'B': 5, 'C': 7},
+        'W2': {'A': 6, 'B': 2, 'C': 4},
+        'W3': {'A': 8, 'B': 4, 'C': 3},
+    }
+    HELI_LOAD = 2
+    RENTAL_COST = 50
+    SHORTAGE_PENALTY = 100
+
+    prob = pulp.LpProblem('Rescue_L2_Scenario', pulp.LpMinimize)
+    x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
+    shortage = pulp.LpVariable.dicts('shortage', TOWNS, lowBound=0)
+    rental = pulp.LpVariable('rental', lowBound=0, cat='Integer')
+
+    prob += (
+        pulp.lpSum(cost[w][h] * x[w][h] for w in WAREHOUSES for h in TOWNS)
+        + RENTAL_COST * rental
+        + SHORTAGE_PENALTY * pulp.lpSum(shortage[h] for h in TOWNS)
+    )
+
+    for w in WAREHOUSES:
+        prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w]
+
+    for h in TOWNS:
+        prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) + shortage[h] == demand[h]
+        prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) >= 0.5 * demand[h]
+
+    prob += pulp.lpSum(x[w][h] for w in WAREHOUSES for h in TOWNS) <= (own_heli + rental) * HELI_LOAD
+
+    prob.solve(pulp.PULP_CBC_CMD(msg=0))
+
+    status = pulp.LpStatus[prob.status]
+    if status != 'Optimal':
+        return status, None, None, None
+
+    total_shortage = sum(pulp.value(shortage[h]) for h in TOWNS)
+    return status, pulp.value(prob.objective), pulp.value(rental), total_shortage
+
+
+base_inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+base_demand = {'A': 10, 'B': 12, 'C': 8}
+scenarios = [
+    ('基线', base_inventory, base_demand, 4),
+    ('W3 被毁', {'W1': 12, 'W2': 15, 'W3': 0}, base_demand, 4),
+    ('B 需求翻倍', base_inventory, {'A': 10, 'B': 24, 'C': 8}, 4),
+    ('直升机故障', base_inventory, base_demand, 3),
+]
+
+print(f'{"情境":<12} {"状态":<10} {"总成本":>8} {"租机":>6} {"总缺货":>8}')
+for name, inv, dem, heli in scenarios:
+    status, cost, rental, sh = solve_l2(inv, dem, heli)
+    cost_str = f'{cost:.1f}' if cost is not None else 'N/A'
+    rental_str = f'{int(rental)}' if rental is not None else 'N/A'
+    sh_str = f'{sh:.1f}' if sh is not None else 'N/A'
+    print(f'{name:<12} {status:<10} {cost_str:>8} {rental_str:>6} {sh_str:>8}')
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-amber-900 mb-2">常用敏感性参数</div>
+            <table class="w-full text-left">
+              <thead><tr><th>参数</th><th>含义</th><th>预期效果</th></tr></thead>
+              <tbody>
+                <tr><td>SHORTAGE_PENALTY P</td><td>每吨缺货的惩罚成本</td><td>P 越大，模型越愿意租机，缺货越少</td></tr>
+                <tr><td>公平比例 α</td><td>每个城镇至少满足 α·demand</td><td>α 越高，总成本越高，可能不可行</td></tr>
+                <tr><td>LAMBDA λ</td><td>时间价值衰减速率</td><td>λ 越大，物资越早送达</td></tr>
+                <tr><td>HELI_CAP</td><td>每小时直升机运力上限</td><td>上限越低，越依赖卡车或越早时段</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-slate-700"><strong>课堂用法：</strong>把这些参数改成“滑动条”，让学生观察“临界值”在哪里。例如公平比例从 0.5 提到 0.9 时，模型可能突然从“可解”变成“不可解”，这个临界值就是现实约束的硬性边界。</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import pulp
+
+# ==================== L2 敏感性分析 ====================
+def l2_param_sweep(penalty=None, fair_ratio=None):
+    """只改一个参数，其它保持默认。"""
+    inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+    demand = {'A': 10, 'B': 12, 'C': 8}
+    WAREHOUSES = list(inventory.keys())
+    TOWNS = list(demand.keys())
+    cost = {
+        'W1': {'A': 3, 'B': 5, 'C': 7},
+        'W2': {'A': 6, 'B': 2, 'C': 4},
+        'W3': {'A': 8, 'B': 4, 'C': 3},
+    }
+    OWN_HELI, HELI_LOAD = 4, 2
+    RENTAL_COST = 50
+    P = penalty if penalty is not None else 100
+    alpha = fair_ratio if fair_ratio is not None else 0.5
+
+    prob = pulp.LpProblem('L2_Sweep', pulp.LpMinimize)
+    x = pulp.LpVariable.dicts('x', (WAREHOUSES, TOWNS), lowBound=0)
+    shortage = pulp.LpVariable.dicts('shortage', TOWNS, lowBound=0)
+    rental = pulp.LpVariable('rental', lowBound=0, cat='Integer')
+
+    prob += (
+        pulp.lpSum(cost[w][h] * x[w][h] for w in WAREHOUSES for h in TOWNS)
+        + RENTAL_COST * rental
+        + P * pulp.lpSum(shortage[h] for h in TOWNS)
+    )
+
+    for w in WAREHOUSES:
+        prob += pulp.lpSum(x[w][h] for h in TOWNS) <= inventory[w]
+    for h in TOWNS:
+        prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) + shortage[h] == demand[h]
+        prob += pulp.lpSum(x[w][h] for w in WAREHOUSES) >= alpha * demand[h]
+    prob += pulp.lpSum(x[w][h] for w in WAREHOUSES for h in TOWNS) <= (OWN_HELI + rental) * HELI_LOAD
+
+    prob.solve(pulp.PULP_CBC_CMD(msg=0))
+    status = pulp.LpStatus[prob.status]
+    if status != 'Optimal':
+        return status, None, None, None
+    return status, pulp.value(prob.objective), pulp.value(rental), sum(pulp.value(shortage[h]) for h in TOWNS)
+
+
+print('=== 缺货惩罚 P 的敏感性 ===')
+print(f'{"P":>8} {"状态":<10} {"总成本":>8} {"租机":>6} {"缺货":>8}')
+for p in [10, 50, 100, 500, 2000]:
+    status, cost, rental, sh = l2_param_sweep(penalty=p)
+    cost_str = f'{cost:.1f}' if cost is not None else 'N/A'
+    rental_str = f'{int(rental)}' if rental is not None else 'N/A'
+    sh_str = f'{sh:.1f}' if sh is not None else 'N/A'
+    print(f'{p:>8} {status:<10} {cost_str:>8} {rental_str:>6} {sh_str:>8}')
+
+print('\n=== 公平比例 α 的敏感性 ===')
+print(f'{"alpha":>6} {"状态":<10} {"总成本":>8} {"租机":>6} {"缺货":>8}')
+for alpha in [0.3, 0.5, 0.7, 0.9]:
+    status, cost, rental, sh = l2_param_sweep(fair_ratio=alpha)
+    cost_str = f'{cost:.1f}' if cost is not None else 'N/A'
+    rental_str = f'{int(rental)}' if rental is not None else 'N/A'
+    sh_str = f'{sh:.1f}' if sh is not None else 'N/A'
+    print(f'{alpha:>6.1f} {status:<10} {cost_str:>8} {rental_str:>6} {sh_str:>8}')
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="prose prose-slate text-sm">
+          <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700 mb-4">
+            <div class="font-semibold text-rose-900 mb-2">L3 的 λ 敏感性</div>
+            <p>在 L3 中，λ 控制“早送”有多重要。λ = 0 时模型只在乎成本；λ 很大时，模型会尽可能把物资压到前几个小时，即使直升机更贵。</p>
+            <p class="mt-2"><strong>观察指标：</strong>平均送达小时、卡车/直升机总运量、目标函数值。</p>
+          </div>
+          <p class="text-sm text-slate-700"><strong>启发问题：</strong>如果 λ 很大，为什么解反而可能总成本更高？这对应现实中的什么取舍？</p>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+from scipy.optimize import linprog
+
+# ==================== L3：λ 敏感性分析 ====================
+# L3 的目标函数其实是线性的：e^{-λt} 对给定 λ 是常数系数。
+# 因此可以用 scipy.linprog (HiGHS) 快速求解，而不用非线性迭代。
+WAREHOUSES = ['W1', 'W2', 'W3']
+TOWNS = ['A', 'B', 'C']
+HOURS = list(range(12))
+
+inventory = {'W1': 12, 'W2': 15, 'W3': 10}
+demand = {'A': 10, 'B': 12, 'C': 8}
+
+TRUCK_COST = {
+    'W1': {'A': 1, 'B': 2, 'C': 999},
+    'W2': {'A': 2, 'B': 1, 'C': 3},
+    'W3': {'A': 999, 'B': 2, 'C': 1},
+}
+HELI_COST = {
+    'W1': {'A': 3, 'B': 5, 'C': 7},
+    'W2': {'A': 6, 'B': 2, 'C': 4},
+    'W3': {'A': 8, 'B': 4, 'C': 3},
+}
+
+TRUCK_CAP = 5
+HELI_CAP = 8
+VALUE_PER_TON = 50
+
+
+def idx(w, t, h, mode):
+    """把 (仓库, 小时, 城镇, 方式) 映射到一维变量下标。"""
+    return ((WAREHOUSES.index(w) * len(HOURS) + t) * len(TOWNS) + TOWNS.index(h)) * 2 + mode
+
+
+n_vars = len(WAREHOUSES) * len(HOURS) * len(TOWNS) * 2
+
+
+def solve_l3(lam):
+    # 目标函数系数：运输成本 - 时间折现价值
+    c = np.zeros(n_vars)
+    for w in WAREHOUSES:
+        for t in HOURS:
+            for h in TOWNS:
+                for m in [0, 1]:
+                    i = idx(w, t, h, m)
+                    c[i] = (TRUCK_COST[w][h] if m == 0 else HELI_COST[w][h]) - VALUE_PER_TON * np.exp(-lam * t)
+
+    A_ub, b_ub = [], []
+    # 库存约束：每个仓库运出总量 <= 库存
+    for w in WAREHOUSES:
+        row = np.zeros(n_vars)
+        for t in HOURS:
+            for h in TOWNS:
+                for m in [0, 1]:
+                    row[idx(w, t, h, m)] = 1
+        A_ub.append(row)
+        b_ub.append(inventory[w])
+
+    # 每小时运力约束
+    for t in HOURS:
+        row_truck = np.zeros(n_vars)
+        row_heli = np.zeros(n_vars)
+        for w in WAREHOUSES:
+            for h in TOWNS:
+                row_truck[idx(w, t, h, 0)] = 1
+                row_heli[idx(w, t, h, 1)] = 1
+        A_ub.append(row_truck); b_ub.append(TRUCK_CAP)
+        A_ub.append(row_heli);  b_ub.append(HELI_CAP)
+
+    # 公平性约束：每个城镇获得量 >= 0.5 * 需求，写成 -sum <= -0.5*demand
+    for h in TOWNS:
+        row = np.zeros(n_vars)
+        for w in WAREHOUSES:
+            for t in HOURS:
+                for m in [0, 1]:
+                    row[idx(w, t, h, m)] = -1
+        A_ub.append(row)
+        b_ub.append(-0.5 * demand[h])
+
+    # 需求约束：每个城镇累计收到量 == 需求量
+    A_eq, b_eq = [], []
+    for h in TOWNS:
+        row = np.zeros(n_vars)
+        for w in WAREHOUSES:
+            for t in HOURS:
+                for m in [0, 1]:
+                    row[idx(w, t, h, m)] = 1
+        A_eq.append(row)
+        b_eq.append(demand[h])
+
+    res = linprog(c, A_ub=np.array(A_ub), b_ub=np.array(b_ub),
+                  A_eq=np.array(A_eq), b_eq=np.array(b_eq),
+                  bounds=[(0, None)] * n_vars, method='highs')
+    return res
+
+
+print(f'{"lambda":>7} {"成功":>6} {"平均小时":>10} {"卡车总量":>10} {"直升机总量":>12} {"目标值":>10}')
+for lam in [0.0, 0.05, 0.15, 0.5]:
+    res = solve_l3(lam)
+    if res.success:
+        X = res.x.reshape(len(WAREHOUSES), len(HOURS), len(TOWNS), 2)
+        total = X.sum()
+        avg_hour = sum(t * X[:, t, :, :].sum() for t in HOURS) / total
+        truck_total = X[:, :, :, 0].sum()
+        heli_total = X[:, :, :, 1].sum()
+        print(f'{lam:>7.2f} {"Yes":>6} {avg_hour:>10.2f} {truck_total:>10.2f} {heli_total:>12.2f} {res.fun:>10.2f}')
+    else:
+        print(f'{lam:>7.2f} {"No":>6} {"-":>10} {"-":>10} {"-":>12} {"-":>10}')
+</code></pre>
+        </div>
+      </div>
+
+      <div class="qa-block bg-amber-50 rounded-lg p-5 mt-6">
+        <h3 class="font-bold text-amber-900 mb-3">核心引导提问</h3>
+        <p class="text-slate-800 mb-2"><strong>Q1：</strong>情境分析和敏感性分析有什么不同？为什么两者都要做？</p>
+        <div class="text-sm text-slate-700 space-y-1 mb-4">
+          <p><strong>回答 A：</strong>情境分析改变的是“故事结构”，比如仓库被毁；敏感性分析改变的是“数字大小”，比如惩罚系数。前者看方案是否还成立，后者看最优解往哪边偏。</p>
+          <p><strong>回答 B：</strong>只做敏感性分析，可能漏掉黑天鹅事件；只做情境分析，可能不知道参数估计误差的影响。两者互补。</p>
+        </div>
+
+        <p class="text-slate-800 mb-2"><strong>Q2（开放）：</strong>如果 P 从 100 提到 10000，租机数一定会增加吗？有没有可能不变？</p>
+        <div class="text-sm text-slate-700 space-y-1 mb-4">
+          <p><strong>回答 A：</strong>不一定。如果现有运力已经足以满足所有需求，再提高 P 也不会多租直升机。</p>
+          <p><strong>回答 B：</strong>这说明“提高惩罚”只有在存在短缺空间时才有效果。模型中的政策干预必须落在真正的瓶颈上。</p>
+        </div>
+
+        <p class="text-slate-800 mb-2"><strong>Q3：</strong>在 L3 中，λ 越大平均送达时间越小，但成本可能越高。这个 trade-off 怎么向决策者解释？</p>
+        <div class="text-sm text-slate-700 space-y-1">
+          <p><strong>回答 A：</strong>可以画一张“平均送达时间 vs 总成本”的 Pareto 曲线，让决策者选择自己能接受的点。</p>
+          <p><strong>回答 B：</strong>λ 本质上是在问：“你愿意多花多少钱，把物资早送一小时？”这个数字应该由领域专家或决策者给出，而不是建模者拍脑袋。</p>
+        </div>
+      </div>
+
+      <div class="teacher-block bg-emerald-50 rounded-lg p-5 mt-4">
+        <h3 class="font-bold text-emerald-900 mb-2">教师参考</h3>
+        <p class="text-sm text-slate-700">
+          本模块的解决方法是“<strong>情境分析 + 敏感性分析</strong>”。
+          情境分析让学生看到：模型在不同“现实剧情”下是否还能给出合理方案；
+          敏感性分析让学生看到：参数的小幅变化会不会导致结论大幅反转。
+          教师可以让学生先口头预测，再运行代码，利用“预测—验证”落差强化建模直觉。
+          关键结论：一个好的优化方案不是“某组数字下的最优”，而是“在合理扰动范围内仍然可接受”。
         </p>
       </div>
     </section>
