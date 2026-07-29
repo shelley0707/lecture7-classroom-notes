@@ -48,7 +48,7 @@
         <a href="#m8" class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 hover:bg-teal-200">8. Factory Cost</a>
         <a href="#m9" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">9. Practice</a>
         <a href="#m10" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">10. Summary</a>
-        <a href="#m-plot" class="px-3 py-1 rounded-full bg-lime-100 text-lime-700 hover:bg-lime-200">附录：可视化</a>
+        <a href="#m-plot" class="px-3 py-1 rounded-full bg-lime-100 text-lime-700 hover:bg-lime-200">附录：坐标系</a>
         <a href="#m11" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">Case: 商场火灾</a>
         <a href="#m12" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">Case: 抽象成图</a>
         <a href="#m13" class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-700 hover:bg-cyan-200">Case: SIR 烟扩散</a>
@@ -1070,116 +1070,261 @@ num_blocks = max(nx.coloring.greedy_color(G).values()) + 1</code></pre>
 
     <hr class="my-10 border-slate-300">
 
-    <!-- Appendix: Visualization Methods -->
+    <!-- Appendix: Coordinate Systems -->
     <section id="m-plot" class="module-card method bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">附录：图论建模常用可视化方法</h2>
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">附录：节点位置与坐标系</h2>
       <p class="text-slate-700 mb-6">
-        图论建模不只是“算出来”，更要“画出来”。不同的可视化方法服务于不同的教学目的：
-        抽象网络看结构，加权图看代价，路径高亮看方案，GIS 看真实地理关系。
-        下面给出课堂中最常用的几类绘图方法，所有代码都可以直接复制运行。
+        图论只关心“谁和谁相连”，但节点在现实中的<strong>位置</strong>可以用任何坐标系描述。
+        位置信息通常作为节点属性存储，不参与图的连通性，却决定边权、距离和可视化方式。
+        下面介绍四种最常用的位置表示方法：二维直角坐标、地理坐标投影、三维空间坐标，以及从 OpenStreetMap 获取的真实街道网络坐标。
       </p>
 
       <div class="grid lg:grid-cols-2 gap-8 mb-8">
         <div class="prose prose-slate text-sm">
-          <h3 class="text-lg font-bold text-slate-900 mb-3">1. 坐标布局：把图“摆”得可读</h3>
+          <h3 class="text-lg font-bold text-slate-900 mb-3">1. 二维直角坐标：最直接的位置定义</h3>
           <p class="text-slate-700 mb-3">
-            <code>networkx</code> 提供多种布局算法。spring 布局适合一般网络；circular 适合强调环状结构；
-            kamada-kawai 适合带权距离图；也可以手动传入 <code>pos</code> 字典来自定义坐标。
+            在 <code>networkx</code> 中，节点位置通常用一个字典 <code>pos = {node: (x, y)}</code> 表示。
+            这里的 x、y 可以是教室座位坐标、像素坐标、地图投影坐标，甚至是任意自定义的“特征空间”坐标。
           </p>
           <div class="p-3 bg-blue-50 rounded-lg text-sm text-slate-700">
-            <div class="font-semibold text-blue-900 mb-2">课堂提示</div>
-            让学生比较同一图的不同布局：为什么 TSP 常用 circular？为什么 Dijkstra 常用 spring？
-            布局本身不会改答案，但会改变学生对“远近”“聚类”的直觉。
+            <div class="font-semibold text-blue-900 mb-2">关键概念</div>
+            边权可以从坐标计算出来。例如两点之间的欧氏距离：
+            <p class="math text-center my-1">d = √((x₂−x₁)² + (y₂−y₁)²)</p>
+            这样“位置”和“权重”就有了明确的数学关系。
           </div>
         </div>
         <div class="relative">
           <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
           <pre><code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
+import math
+
+# 用字典直接定义每个节点的二维直角坐标 (x, y)
+pos = {
+    'A': (0, 0),
+    'B': (3, 0),
+    'C': (3, 4),
+    'D': (6, 4),
+    'E': (6, 0)
+}
 
 G = nx.Graph()
-G.add_weighted_edges_from([
-    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
-    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
-    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
-])
+G.add_nodes_from(pos.keys())
 
-fig, axes = plt.subplots(2, 2, figsize=(10, 10))
-layouts = [
-    ('spring', nx.spring_layout(G, seed=42)),
-    ('circular', nx.circular_layout(G)),
-    ('kamada_kawai', nx.kamada_kawai_layout(G)),
-    ('custom', {'A': (0, 1), 'B': (1, 1), 'C': (0, 0), 'D': (1, 0), 'E': (2, 0), 'F': (2, 1)})
-]
+# 计算任意两点之间的欧氏距离，作为边权
+for u in pos:
+    for v in pos:
+        if u &lt; v:
+            x1, y1 = pos[u]
+            x2, y2 = pos[v]
+            d = math.hypot(x2 - x1, y2 - y1)
+            G.add_edge(u, v, weight=round(d, 2))
 
-for ax, (name, pos) in zip(axes.flat, layouts):
-    nx.draw(G, pos, ax=ax, with_labels=True, node_color='lightblue',
-            node_size=1200, font_size=10, font_weight='bold',
-            edge_color='gray', width=1.5)
-    ax.set_title(f'{name} layout')
-    ax.axis('off')
+# 把坐标存为节点属性，便于后续读取
+nx.set_node_attributes(G, pos, 'pos')
 
-plt.suptitle('Common Layouts for Graph Visualization', fontsize=14)
-plt.tight_layout()
-plt.show()
-</code></pre>
-        </div>
-      </div>
+print('节点位置属性：', dict(G.nodes(data='pos')))
+print('边权重：', dict(nx.get_edge_attributes(G, 'weight')))
 
-      <div class="grid lg:grid-cols-2 gap-8 mb-8">
-        <div class="prose prose-slate text-sm">
-          <h3 class="text-lg font-bold text-slate-900 mb-3">2. 加权边、标签与高亮路径</h3>
-          <p class="text-slate-700 mb-3">
-            边权重是图论问题的核心。用 <code>nx.draw_networkx_edge_labels</code> 显示权重；
-            用不同颜色/线宽高亮最短路径、MST 或 TSP 回路，能让学生一眼看到“模型选中了什么”。
-          </p>
-          <div class="p-3 bg-green-50 rounded-lg text-sm text-slate-700">
-            <div class="font-semibold text-green-900 mb-2">课堂提示</div>
-            路径高亮的本质是“把解映射回图结构”。无论是 Dijkstra、MST 还是 TSP，
-            最后都可以抽象为“一组被选中边的集合”。
-          </div>
-        </div>
-        <div class="relative">
-          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
-          <pre><code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-
-G = nx.Graph()
-G.add_weighted_edges_from([
-    ('A', 'B', 4), ('A', 'C', 2), ('B', 'C', 1),
-    ('B', 'D', 5), ('C', 'D', 8), ('C', 'E', 10),
-    ('D', 'E', 2), ('D', 'F', 6), ('E', 'F', 3)
-])
-
-start, end = 'A', 'F'
-path = nx.shortest_path(G, start, end, weight='weight')
-path_edges = list(zip(path, path[1:]))
-
-pos = nx.spring_layout(G, seed=42)
-plt.figure(figsize=(8, 5))
-
-# 所有节点和边（灰色背景）
-nx.draw_networkx_nodes(G, pos, node_color='lightgray', node_size=1200)
-nx.draw_networkx_edges(G, pos, edge_color='lightgray', width=1.5)
-nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
-edge_labels = nx.get_edge_attributes(G, 'weight')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
-# 高亮最短路径
-nx.draw_networkx_nodes(G, pos, nodelist=path, node_color='lightgreen', node_size=1500)
-nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='green', width=3)
-
-plt.title(f'Shortest Path {start} → {end}: {" → ".join(path)}')
+nx.draw(G, pos, with_labels=True, node_color='lightblue',
+        node_size=1200, font_size=11, font_weight='bold')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'weight'))
+plt.title('2D Cartesian Node Positions')
 plt.axis('off')
 plt.show()
 </code></pre>
         </div>
       </div>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-4">3. GIS：真实坐标与点到点距离</h3>
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">2. 地理坐标 → 平面直角坐标：投影</h3>
+          <p class="text-slate-700 mb-3">
+            真实地球上的点用 <strong>纬度 φ、经度 λ</strong> 表示。若要在二维平面上计算距离，需要先做一次投影。
+            最简单的近似是 <strong>equirectangular 投影</strong>：
+          </p>
+          <div class="p-3 bg-green-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-green-900 mb-2">公式</div>
+            <p class="math text-center my-1">x = R · λ · cos φ₀</p>
+            <p class="math text-center my-1">y = R · φ</p>
+            <p>其中 R ≈ 6371 km，φ₀ 取所有点的平均纬度。适合小范围（如一个城市），大范围建议用 pyproj。</p>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import math
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def to_rad(deg):
+    return deg * math.pi / 180
+
+def equirectangular(lat, lon, ref_lat):
+    """把 lat/lon (度) 转成以 km 为单位的局部平面坐标。"""
+    R = 6371.0
+    x = R * to_rad(lon) * math.cos(to_rad(ref_lat))
+    y = R * to_rad(lat)
+    return x, y
+
+cities = {
+    '北京': (39.9042, 116.4074),
+    '上海': (31.2304, 121.4737),
+    '东京': (35.6762, 139.6503)
+}
+
+ref_lat = sum(c[0] for c in cities.values()) / len(cities)
+
+G = nx.Graph()
+for name, (lat, lon) in cities.items():
+    x, y = equirectangular(lat, lon, ref_lat)
+    G.add_node(name, lat=lat, lon=lon, x=x, y=y)
+
+pos = {n: (G.nodes[n]['x'], G.nodes[n]['y']) for n in G.nodes}
+
+# 加上边并计算投影后的平面距离
+for u in G.nodes:
+    for v in G.nodes:
+        if u &lt; v:
+            xu, yu = pos[u]
+            xv, yv = pos[v]
+            G.add_edge(u, v, planar=math.hypot(xv - xu, yv - yu))
+
+nx.draw(G, pos, with_labels=True, node_color='lightgreen', node_size=1500,
+        font_size=10, font_weight='bold')
+edge_labels = nx.get_edge_attributes(G, 'planar')
+nx.draw_networkx_edge_labels(G, pos, edge_labels={e: f'{v:.0f} km' for e, v in edge_labels.items()})
+plt.title('Lat/Lon → Local Cartesian Projection')
+plt.axis('off')
+plt.show()
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">3. 三维直角坐标：ECEF 与空间直线距离</h3>
+          <p class="text-slate-700 mb-3">
+            如果需要考虑海拔，或者想计算“穿过地球”的直线距离，可以把 lat/lon/alt 转成
+            <strong>地心地固坐标 ECEF (Earth-Centered Earth-Fixed)</strong>：
+          </p>
+          <div class="p-3 bg-amber-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-amber-900 mb-2">公式</div>
+            <p class="math text-center my-1">x = (R + h) cos φ cos λ</p>
+            <p class="math text-center my-1">y = (R + h) cos φ sin λ</p>
+            <p class="math text-center my-1">z = (R + h) sin φ</p>
+            <p>这里的 R 是地球半径，h 是海拔。三维坐标下两点距离就是普通欧氏距离。</p>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import math
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+def to_ecef(lat, lon, alt=0):
+    """简化的球体 ECEF 转换（lat/lon 为度，alt 为 km）。"""
+    R = 6371.0
+    lat_r = math.radians(lat)
+    lon_r = math.radians(lon)
+    r = R + alt
+    x = r * math.cos(lat_r) * math.cos(lon_r)
+    y = r * math.cos(lat_r) * math.sin(lon_r)
+    z = r * math.sin(lat_r)
+    return np.array([x, y, z])
+
+cities = {
+    '北京': (39.9042, 116.4074, 0),
+    '伦敦': (51.5074, -0.1278, 0),
+    '纽约': (40.7128, -74.0060, 0)
+}
+
+coords = {name: to_ecef(lat, lon, alt) for name, (lat, lon, alt) in cities.items()}
+
+print('ECEF 坐标 (km):')
+for name, c in coords.items():
+    print(f'{name}: ({c[0]:.1f}, {c[1]:.1f}, {c[2]:.1f})')
+
+# 三维直线距离（弦长）
+def chord_distance(c1, c2):
+    return np.linalg.norm(c1 - c2)
+
+names = list(coords.keys())
+for i in range(len(names)):
+    for j in range(i + 1, len(names)):
+        d = chord_distance(coords[names[i]], coords[names[j]])
+        print(f'{names[i]} — {names[j]} 三维弦长: {d:.1f} km')
+
+# 简单 3D 可视化
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(111, projection='3d')
+for name, c in coords.items():
+    ax.scatter(*c, s=100, label=name)
+    ax.text(c[0], c[1], c[2], name)
+ax.set_xlabel('X (km)'); ax.set_ylabel('Y (km)'); ax.set_zlabel('Z (km)')
+ax.set_title('ECEF 3D Coordinates')
+ax.legend()
+plt.show()
+</code></pre>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <div class="prose prose-slate text-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-3">4. 真实街道网络：用 osmnx 获取节点坐标</h3>
+          <p class="text-slate-700 mb-3">
+            在真实 GIS 数据中，节点就是街道交叉口，边就是路段。
+            <code>osmnx</code> 可以直接从 OpenStreetMap 下载某个城市的街道网络，
+            每个节点自带 <code>y</code>（纬度）和 <code>x</code>（经度）属性。
+          </p>
+          <div class="p-3 bg-rose-50 rounded-lg text-sm text-slate-700">
+            <div class="font-semibold text-rose-900 mb-2">注意</div>
+            运行本段需要安装 <code>osmnx</code> 并保持网络连接。它示范了如何把“真实地图”转化为可计算的图：
+            给定两个经纬度点，找到最近的网络节点，再用 Dijkstra 求最短路径。
+          </div>
+        </div>
+        <div class="relative">
+          <button class="copy-btn px-3 py-1 text-xs bg-slate-700 text-white rounded hover:bg-slate-600" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python"># @skip-test 本段需要 osmnx 与网络连接
+import osmnx as ox
+import networkx as nx
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.show = lambda: None
+
+# 1. 下载城市街道网络（drive = 可车行道路）
+place_name = "Cambridge, UK"
+G = ox.graph_from_place(place_name, network_type="drive")
+
+# 2. 给定起点和终点的经纬度
+origin_point = (52.2053, 0.1192)        # 近 King's College
+destination_point = (52.2150, 0.1380)   # 近 Cambridge North Station
+
+# 3. 找到最近的道路网络节点
+orig_node = ox.distance.nearest_nodes(G, origin_point[1], origin_point[0])
+dest_node = ox.distance.nearest_nodes(G, destination_point[1], destination_point[0])
+print(f"Origin node: {orig_node}")
+print(f"Destination node: {dest_node}")
+
+# 4. 用 Dijkstra 求最短路径（按道路长度 weight='length'）
+shortest_path = nx.shortest_path(G, orig_node, dest_node, weight='length')
+print(f"Shortest path has {len(shortest_path)} nodes.")
+
+# 5. 在地图上画出路径
+fig, ax = ox.plot_graph(G, show=False, close=False, bgcolor='k',
+                        node_size=10, edge_color='w', edge_linewidth=0.5,
+                        figsize=(10, 10))
+ox.plot_graph_route(G, shortest_path, node_size=0, route_color='r',
+                    route_linewidth=4, ax=ax, show=True, close=True)
+</code></pre>
+        </div>
+      </div>
+
+      <h3 class="text-xl font-bold text-slate-900 mb-4">5. GIS 交互地图：三城位置与距离</h3>
       <p class="text-slate-700 mb-4">
-        当节点是真实城市、仓库或传感器时，lat/lon 坐标就是节点的“属性”，而地球表面的距离（大圆距离）就是边权。
-        下面用交互式地图展示任意三个城市的位置，并自动计算两两之间的 Haversine 距离。
+        下面这张地图把“经纬度即节点坐标”直观化：选择任意三个城市，标记点会显示 lat/lon，
+        并自动用 Haversine 公式计算两两之间的大圆距离。
       </p>
 
       <div class="grid lg:grid-cols-2 gap-8">
@@ -1224,10 +1369,12 @@ plt.show()
 
       <div class="mt-6 p-4 bg-emerald-50 rounded-lg text-sm text-slate-700">
         <div class="font-semibold text-emerald-900 mb-2">教师参考</div>
-        可视化方法的选择取决于“想让学生看到什么”：
-        抽象拓扑关系用 networkx 布局；带权优化结果用边标签 + 路径高亮；
-        真实地理网络用 GIS + Haversine 距离。
-        建议把这三种方法作为图论教学的“可视化工具箱”，在不同模块中反复调用。
+        坐标系的选择取决于问题尺度：
+        教室内座位、机器人网格用二维直角坐标；
+        城市内道路用投影后的平面坐标；
+        洲际航线用经纬度 + Haversine；
+        需要考虑海拔或卫星轨道时用三维 ECEF。
+        关键是让学生理解：<strong>节点的“位置”只是一种属性，图的拓扑结构才是另一回事</strong>。
       </div>
     </section>
 
