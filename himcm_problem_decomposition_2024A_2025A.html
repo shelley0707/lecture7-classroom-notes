@@ -37,6 +37,7 @@
         <a href="#p1-brain" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 脑暴</a>
         <a href="#p1-vars" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 变量方法</a>
         <a href="#p1-framework" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 框架</a>
+        <a href="#p1-deep-models" class="px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200">2025A 深度模型</a>
         <a href="#p2-review" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 重点</a>
         <a href="#p2-goals" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 目标</a>
         <a href="#p2-decompose" class="px-3 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200">2024A 拆解</a>
@@ -414,6 +415,235 @@ sol = odeint(smoke, y0, t, args=(beta, gamma, adj))
       </div>
     </section>
 
+
+    <section id="p1-deep-models" class="module-card graph bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">
+        <span class="problem-badge bg-red-600 text-white px-2 py-1 rounded mr-2">2025A</span>深度拆解：开放问题与三阶递进模型结构
+      </h2>
+      <p class="text-sm text-slate-700 mb-4">
+        下面的内容基于对 2025A 题面（Emergency Evacuation Sweeps）的逐句细读，目的是帮助学生从“看热闹”进入“看门道”——先通过开放问题把真实约束想清楚，再给出三档由浅入深的模型结构，供不同能力的小组选择或递进使用。
+      </p>
+
+      <!-- Open Questions -->
+      <div class="mb-8">
+        <h3 class="text-lg font-bold text-red-800 mb-3">一、引导学生深入理解问题的开放问题与参考答案</h3>
+        <div class="space-y-3">
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q1：题面里的 “sweep” 最终要完成什么？是“检查完所有房间”还是“保证所有人都撤离”？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>两者都涉及，但层次不同。最低层次是空间覆盖：每个房间至少被视觉检查并标记；中间层次是人员状态确认：房间里无人滞留或人员已在撤离途中；最高层次是安全确认：房间本身不再对人员构成威胁（温度、烟雾、结构）。建议定义状态向量 <span class="math">(checked_i, cleared_i, evacuated_i)</span>，避免把三者混为一谈。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q2：什么算一个房间的 “all-clear”？视觉确认足够吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>取决于紧急类型。火灾场景：温度低于阈值、烟雾浓度可接受、无滞留人员；毒气泄漏：空气清新或佩戴防护、无暴露人员；active threat：无威胁人员、人员已疏散至安全集合点。可以引入置信度 <span class="math">p_i ∈ [0,1]</span> 或要求关键房间由 ≥2 名 responder 二次确认。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q3：建筑布局为什么会影响 sweep 时间？在图论中如何体现？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>布局决定路径长度、瓶颈和分区可能性。抽象为图时，房间/走廊/楼梯/出口是节点，门和通道是边，边权可以是距离、通行时间、宽度（容量）或综合风险。走廊交汇点与楼梯口往往是关键瓶颈。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q4：两名消防员从相对的两个入口进入，有什么好处和代价？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>好处：天然分区并行，makespan 可显著下降；互为备份，提高冗余。代价：需要沟通协调，若沟通失败可能重复检查或留下真空区域；两人可能同时竞争同一走廊。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q5：速度、彻底性、安全性三者如何取舍？能用单一目标函数吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>三者天然冲突。单一目标往往会牺牲其他两者，例如只最小化 makespan 可能让 responder 冒险穿越浓烟。更合理的做法是多目标：min makespan、min 风险暴露、max 高优先级房间早被清理；用加权求和或 Pareto 前沿展示不同策略。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q6：如果火势蔓延，静态最短路径还有效吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>无效。火灾/烟雾会使边权动态变化，甚至关闭某些边。需要引入时间依赖图 <span class="math">G(t)</span>，或采用滚动时域（receding horizon）策略：每隔几分钟根据当前灾害状态重新规划路径。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q7：电梯在模型中应该怎么处理？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>火灾场景通常禁用电梯，可设电梯边权为 ∞ 或直接从图中移除；active threat 等非火灾场景可权衡使用，但需加入容量和等待时间约束。模型应允许“电梯可用性”随紧急类型变化。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q8：人员移动会怎样影响 responder 的路径？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>撤离人员可能堵塞走廊、逆向流动或与 responder 争抢楼梯。模型中可把人员视为移动障碍，降低通道有效容量；或用 Agent-Based Modeling 同时模拟 responder 与 evacuee 的移动。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q9：为什么需要冗余检查？过度冗余的代价是什么？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>冗余降低遗漏风险，尤其在高风险区域（托儿所、实验室）。代价是时间、协调成本和人力资源。可用概率模型权衡：让关键房间被 ≥2 名 responder 检查，普通房间检查一次。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q10：responder 数量越多越好吗？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>不是。超过一定数量后，协调成本和走廊容量瓶颈会抵消并行收益；此外，更多 responder 暴露在危险中。模型应能回答“最优数量”或给出不同数量下的 makespan 曲线。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q11：如何验证模型没有漏掉某个房间？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>在优化模型中加入全覆盖约束 <span class="math">Σ_r x_{r,i} ≥ 1</span>；在仿真中记录每个房间的进入时间戳；对关键区域设置冗余约束 <span class="math">Σ_r x_{r,i} ≥ 2</span>；最后输出“未覆盖房间列表”作为验证指标。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q12：传感器和楼宇自动化会如何改变模型？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>传感器提供实时状态（烟雾、温度、人员位置），使动态重规划更可靠；热成像/摄像头可缩短房间清理时间；室内定位可减少重复检查。但引入成本、误报风险和隐私问题。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q13：不同紧急类型（火灾/毒气/威胁）如何改变优化目标？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>火灾：速度 + 避免高温浓烟路径；毒气：避免扩散、优先隔离和通风；active threat：快速清空 + 区域封锁 + 保护弱势群体。目标函数中的风险项和房间优先级权重应随紧急类型变化。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q14：非标准布局（圆形剧场、地下停车场）会带来什么建模挑战？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>节点和边不再规则；可能出现开放空间、多层环形结构或视线遮挡。需要自定义图结构，甚至使用三维图、分层图或 Voronoi 分区。</p>
+          </div>
+
+          <div class="qa-block bg-amber-50 p-4 rounded-lg">
+            <div class="font-semibold text-amber-900 mb-2">Q15：最终给 LEPC 的信应该包含哪些可操作建议？</div>
+            <p class="text-sm text-slate-700"><strong>参考答案：</strong>应给出：不同建筑规模下的推荐 responder 数量、入口与分区方案、房间检查顺序、预计完成时间、关键瓶颈通道、极端场景备用方案、以及建议投入的技术（如热成像、室内定位）。</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Three Models -->
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-red-800 mb-3">二、三阶递进模型结构（从静态优化到随机自适应）</h3>
+        <p class="text-sm text-slate-700 mb-4">
+          三档模型的核心思想是：<strong>先能算、再能权衡、最后能应对不确定性。</strong>第一档把问题看清楚；第二档把动态风险和优先级加进去；第三档把人员移动、传感器、通信失效等真实因素纳入，形成可用于决策支持的完整框架。
+        </p>
+
+        <!-- Model 1 -->
+        <div class="border rounded-lg p-4 mb-4 bg-slate-50">
+          <h4 class="font-bold text-slate-900 mb-2">Model 1：静态确定性路径优化（基础版）</h4>
+          <p class="text-sm text-slate-600 mb-3">适用：题中给出的 basic scenario——单层办公楼、2 名消防员、固定清理时间、无动态危险。</p>
+          <div class="grid lg:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">决策变量</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">x_{r,i} ∈ {0,1}</span>：responder r 是否负责房间 i</li>
+                <li><span class="math">y_{r,ij} ∈ {0,1}</span>：responder r 是否经过边 (i,j)</li>
+                <li><span class="math">T ≥ 0</span>：makespan（最后完成时间）</li>
+              </ul>
+              <p class="font-semibold text-slate-800 mt-3">参数</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">R</span>：responder 集合；<span class="math">V_R</span>：房间节点集合</li>
+                <li><span class="math">c_i</span>：清理房间 i 所需时间</li>
+                <li><span class="math">t_{ij}</span>：边 (i,j) 的通行时间</li>
+                <li><span class="math">s_r</span>：responder r 的起始节点（入口/出口）</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">目标函数</p>
+              <p class="math text-center my-2">min T</p>
+              <p class="font-semibold text-slate-800 mt-3">核心约束</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li>全覆盖：对每个房间 i，<span class="math">Σ_r x_{r,i} ≥ 1</span></li>
+                <li>流守恒：responder 离开某节点的次数等于进入次数</li>
+                <li>工作量上界：<span class="math">T ≥ Σ_i c_i x_{r,i} + travel_r</span></li>
+                <li>起始约束：每条路径从 <span class="math">s_r</span> 出发</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-3 p-3 bg-white rounded border-l-4 border-red-400 text-sm">
+            <p class="font-semibold text-slate-800">现实简化与局限</p>
+            <p class="text-slate-700">假设清理时间固定、无危险蔓延、responder 不会互相阻挡、通道容量无限。优势是模型简单，可用 MILP 求得最优；局限是离真实应急场景较远。</p>
+          </div>
+        </div>
+
+        <!-- Model 2 -->
+        <div class="border rounded-lg p-4 mb-4 bg-slate-50">
+          <h4 class="font-bold text-slate-900 mb-2">Model 2：多目标风险感知动态 sweep（进阶版）</h4>
+          <p class="text-sm text-slate-600 mb-3">适用：火灾/毒气等多楼层、动态危险场景，需要优先处理高风险房间，并保证 responder 安全。</p>
+          <div class="grid lg:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">新增参数</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">w_i</span>：房间 i 优先级权重（occupancy、vulnerability）</li>
+                <li><span class="math">h_{ij}(t)</span>：边 (i,j) 在 t 时刻的风险或通行时间</li>
+                <li><span class="math">S_i(t)</span>：节点 i 在 t 时刻的烟雾浓度/温度</li>
+                <li><span class="math">θ</span>：安全阈值；<span class="math">red_i</span>：房间 i 要求的冗余检查次数</li>
+              </ul>
+              <p class="font-semibold text-slate-800 mt-3">决策变量</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">x_{r,i,t} ∈ {0,1}</span>：responder r 在 t 时刻是否位于节点 i</li>
+                <li><span class="math">z_{r,ij,t} ∈ {0,1}</span>：responder r 在 t 时刻是否从 i 移动到 j</li>
+                <li><span class="math">y_i ≥ 0</span>：房间 i 被确认 clear 的时间</li>
+                <li><span class="math">T_max</span>：makespan</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">目标函数（多目标加权）</p>
+              <p class="math text-center my-2">min α·T_max + β·Σ_{r,t} risk(r,t) − γ·Σ_i w_i / y_i</p>
+              <p class="text-xs text-slate-600">最后一项鼓励高优先级房间越早被清理，得分越高。</p>
+              <p class="font-semibold text-slate-800 mt-3">核心约束</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li>全覆盖与冗余：<span class="math">Σ_r Σ_t x_{r,i,t} ≥ red_i</span></li>
+                <li>动态边可用性：若 <span class="math">S_i(t) &gt; θ</span>，则 <span class="math">z_{r,ij,t} = 0</span></li>
+                <li>时间维度流守恒</li>
+                <li>容量约束：同一走廊/楼梯同时通过的 responder 数受限</li>
+                <li>安全约束：responder 不得在高风险节点停留</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-3 p-3 bg-white rounded border-l-4 border-red-400 text-sm">
+            <p class="font-semibold text-slate-800">现实考量</p>
+            <p class="text-slate-700">引入烟雾/火势扩散、高优先级房间先处理、走廊容量和 responder 安全。求解规模随时间步长大增，可用启发式或滚动时域求解。</p>
+          </div>
+        </div>
+
+        <!-- Model 3 -->
+        <div class="border rounded-lg p-4 mb-4 bg-slate-50">
+          <h4 class="font-bold text-slate-900 mb-2">Model 3：随机鲁棒自适应 sweep（高阶版）</h4>
+          <p class="text-sm text-slate-600 mb-3">适用：真实应急决策支持，考虑不确定性、人员移动、传感器信息、通信失效和非标准布局。</p>
+          <div class="grid lg:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-800">不确定性来源</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">ξ ∈ Ω</span>：灾害情景（火源位置、蔓延速度、初始 occupancy）</li>
+                <li>人员移动：evacuee 可能堵塞通道或逆向流动</li>
+                <li>通信延迟/失效：部分 responder 可能失去联系</li>
+                <li>传感器误报/漏报</li>
+              </ul>
+              <p class="font-semibold text-slate-800 mt-3">决策变量</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li><span class="math">x_{r,i,t}^ξ</span>：情景 ξ 下 responder r 在 t 时刻的位置</li>
+                <li><span class="math">u_s ∈ {0,1}</span>：是否在位置 s 安装传感器/摄像头</li>
+                <li><span class="math">p_i</span>：使用技术辅助后房间 i 的检测概率</li>
+                <li><span class="math">n_r</span>：启用的 responder 数量</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800">目标函数（期望 + 鲁棒）</p>
+              <p class="math text-center my-2">min E_ξ[T_max(ξ)] + λ·E_ξ[total_risk(ξ)] + μ·Σ_s cost_s·u_s</p>
+              <p class="text-xs text-slate-600">也可改为最大化期望加权生存人数：<span class="math">max E_ξ[Σ_i w_i·survival_i(ξ)] − ...</span></p>
+              <p class="font-semibold text-slate-800 mt-3">核心约束</p>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                <li>所有情景下全覆盖（鲁棒约束）</li>
+                <li>动态灾害：S_i(t;ξ) 满足火灾/烟雾传播模型</li>
+                <li>人员移动与 responder 交互（Agent-Based）</li>
+                <li>通信失效冗余：即使个别 responder 失联，其负责区域仍被覆盖</li>
+                <li>传感器预算：<span class="math">Σ_s cost_s·u_s ≤ budget</span></li>
+                <li>技术效果：传感器降低清理时间或提高检测概率</li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-3 p-3 bg-white rounded border-l-4 border-red-400 text-sm">
+            <p class="font-semibold text-slate-800">现实考量</p>
+            <p class="text-slate-700">涵盖人员恐慌、不服从指示、非标准布局、地下空间、少于最优 responder、数据隐私与成本。推荐技术：热成像摄像头、烟雾探测器、室内定位、无人机。该模型通常用仿真 + 鲁棒优化结合求解。</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="teacher-block bg-emerald-50 p-4 rounded-lg text-sm mt-4">
+        <div class="font-semibold text-emerald-900 mb-2">教师参考：如何使用这三阶模型</div>
+        <p class="text-slate-700">
+          建议让基础较弱的小组从 Model 1 入手，先把建筑抽象成图、把路径优化做出来；中等水平小组进入 Model 2，加入烟雾扩散和房间优先级；高水平小组或决赛冲刺组挑战 Model 3，用 Agent-Based 仿真验证并对不同情景做灵敏度分析。三档模型不是互斥的，论文中可以写“我们以 Model 2 为核心，并用 Model 3 的仿真框架进行验证”。
+        </p>
+      </div>
+    </section>
     <!-- 2024A Problem -->
     <section id="p2-review" class="module-card mcda bg-white rounded-xl shadow-sm p-6 mb-8">
       <h2 class="text-2xl font-bold text-slate-900 mb-4">
